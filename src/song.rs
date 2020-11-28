@@ -3,14 +3,17 @@ use dasp::{
     Sample, Signal,
 };
 
-pub trait Song {
-    fn play(&self) -> Audio;
-
+pub trait HasSampleRate {
     /// Sets sample rate for the Song
     fn set_sample_rate(&mut self, sample_rate: f64);
     /// Should only be called after setting sample_rate
     fn get_sample_rate(&self) -> f64;
+}
 
+pub trait Song: HasSampleRate {
+    fn play(&self) -> Audio;
+
+    /// Returns a ConstHz with this song's sample rate
     fn hz(&self, freq: f64) -> ConstHz {
         signal::rate(self.get_sample_rate()).const_hz(freq)
     }
@@ -27,14 +30,16 @@ pub struct Test {
     sample_rate: Option<f64>,
 }
 
-impl Song for Test {
+impl HasSampleRate for Test {
     fn set_sample_rate(&mut self, sample_rate: f64) {
         self.sample_rate = Some(sample_rate);
     }
     fn get_sample_rate(&self) -> f64 {
         self.sample_rate.unwrap()
     }
+}
 
+impl Song for Test {
     fn play(&self) -> Audio {
         if self.sample_rate.is_none() {
             panic!("Should set sample rate first");
