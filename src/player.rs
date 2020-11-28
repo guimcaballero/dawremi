@@ -26,13 +26,14 @@ where
 fn run<T, S>(
     device: &cpal::Device,
     config: &cpal::StreamConfig,
-    song: S,
+    mut song: S,
 ) -> Result<(), anyhow::Error>
 where
     T: cpal::Sample,
     S: Song,
 {
-    let mut synth = song.play(config.sample_rate.0 as f64);
+    song.set_sample_rate(config.sample_rate.0 as f64);
+    let mut synth = song.play();
 
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = mpsc::sync_channel(1);
