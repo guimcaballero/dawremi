@@ -1,7 +1,9 @@
 use cpal;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use dasp::{signal, Sample, Signal};
 use std::sync::mpsc;
+
+mod song;
+use song::{Audio, Song, Test};
 
 fn main() -> Result<(), anyhow::Error> {
     let host = cpal::default_host();
@@ -19,33 +21,11 @@ fn main() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-type Audio = Box<dyn Iterator<Item = f32> + Send>;
-
-fn saw(sample_rate: f64, one_sec: usize) -> Vec<f64> {
-    let hz = signal::rate(sample_rate).const_hz(440.0);
-    hz.clone().saw().take(one_sec).collect()
-}
-
-fn synth(sample_rate: f64, one_sec: usize) -> Audio {
-    // Create a signal chain to play back 1 second of each oscillator at A4.
-    let hz = signal::rate(sample_rate).const_hz(440.0);
-    let synth = hz
-        .clone()
-        .sine()
-        .take(one_sec)
-        .chain(saw(sample_rate, one_sec))
-        .chain(hz.clone().square().take(one_sec))
-        .chain(hz.clone().noise_simplex().take(one_sec))
-        .chain(signal::noise(0).take(one_sec))
-        .map(|s| s.to_sample::<f32>() * 0.2);
-    Box::new(synth)
-}
-
 fn run<T>(device: &cpal::Device, config: &cpal::StreamConfig) -> Result<(), anyhow::Error>
 where
     T: cpal::Sample,
 {
-    let mut synth = synth(config.sample_rate.0 as f64, config.sample_rate.0 as usize);
+    let mut synth = (Test).play(config.sample_rate.0 as f64, config.sample_rate.0 as usize);
 
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = mpsc::sync_channel(1);
