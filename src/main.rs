@@ -1,5 +1,5 @@
 mod song;
-use song::Test;
+use song::test::Test;
 mod player;
 use player::start;
 
