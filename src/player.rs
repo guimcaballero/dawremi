@@ -32,7 +32,7 @@ where
     T: cpal::Sample,
     S: Song,
 {
-    let mut synth = song.play(config.sample_rate.0 as f64, config.sample_rate.0 as usize);
+    let mut synth = song.play(config.sample_rate.0 as f64);
 
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = mpsc::sync_channel(1);

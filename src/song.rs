@@ -1,14 +1,16 @@
 use dasp::{signal, Sample, Signal};
 
 pub trait Song {
-    fn play(&self, sample_rate: f64, one_sec: usize) -> Audio;
+    fn play(&self, sample_rate: f64) -> Audio;
 }
 
 pub type Audio = Box<dyn Iterator<Item = f32> + Send>;
 
 pub struct Test;
 impl Song for Test {
-    fn play(&self, sample_rate: f64, one_sec: usize) -> Audio {
+    fn play(&self, sample_rate: f64) -> Audio {
+        let one_sec = sample_rate as usize;
+
         // Create a signal chain to play back 1 second of each oscillator at A4.
         let hz = signal::rate(sample_rate).const_hz(440.0);
         let synth = hz
@@ -24,7 +26,7 @@ impl Song for Test {
     }
 }
 
-fn saw(sample_rate: f64, one_sec: usize) -> Vec<f64> {
+fn saw(sample_rate: f64, duration: usize) -> Vec<f64> {
     let hz = signal::rate(sample_rate).const_hz(440.0);
-    hz.clone().saw().take(one_sec).collect()
+    hz.clone().saw().take(duration).collect()
 }
