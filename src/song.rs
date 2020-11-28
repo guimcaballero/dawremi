@@ -25,19 +25,26 @@ pub trait Song: HasSampleRate {
 
 pub type Audio = Box<dyn Iterator<Item = f32> + Send>;
 
-#[derive(Default)]
-pub struct Test {
-    sample_rate: Option<f64>,
+macro_rules! song {
+    ($name:ident, $( $id:ident : $type:ty ),*) => {
+        #[derive(Default)]
+        pub struct $name {
+            sample_rate: Option<f64>,
+            $( $id: $type )*
+        }
+
+        impl HasSampleRate for $name {
+            fn set_sample_rate(&mut self, sample_rate: f64) {
+                self.sample_rate = Some(sample_rate);
+            }
+            fn get_sample_rate(&self) -> f64 {
+                self.sample_rate.unwrap()
+            }
+        }
+    };
 }
 
-impl HasSampleRate for Test {
-    fn set_sample_rate(&mut self, sample_rate: f64) {
-        self.sample_rate = Some(sample_rate);
-    }
-    fn get_sample_rate(&self) -> f64 {
-        self.sample_rate.unwrap()
-    }
-}
+song!(Test,);
 
 impl Song for Test {
     fn play(&self) -> Audio {
