@@ -1,0 +1,13 @@
+[package]
+name = "odible"
+version = "0.1.0"
+authors = ["guimcaballero <guim.caballero@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.34"
+cpal = "0.13.1"
+dasp = { version = "0.11.0", features = ["all"] }
+hound = "3.4.0"
