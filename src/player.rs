@@ -71,7 +71,7 @@ fn write_data<T>(
                 complete_tx.try_send(()).ok();
                 0.0
             }
-            Some(sample) => sample,
+            Some(sample) => sample as f32,
         };
         let value: T = cpal::Sample::from::<f32>(&sample);
         for sample in frame.iter_mut() {
