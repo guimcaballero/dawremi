@@ -1,3 +1,4 @@
+mod helpers;
 mod song;
 use song::test::Test;
 mod player;

@@ -1,28 +1,8 @@
+use crate::helpers::*;
 use dasp::{
     signal::{self, ConstHz},
     Sample, Signal,
 };
-
-/// Adds the expressions to a vector if they're not None
-macro_rules! some_vec {
-    ($($x:expr),* $(,)?) => (
-        {
-            let mut temp = Vec::new();
-            $(
-                if let Some(val) = $x {
-                    temp.push(val);
-                }
-            )*
-            temp
-        }
-    );
-}
-
-macro_rules! silence {
-    () => {
-        signal::equilibrium()
-    };
-}
 
 pub trait Song: HasSampleRate {
     fn play(&self) -> Audio {
@@ -46,27 +26,27 @@ pub trait Song: HasSampleRate {
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take(self.duration()).collect()),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take(self.duration()).collect()),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take(self.duration()).collect()),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take(self.duration()).collect()),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take(self.duration()).collect()),
         ));
 
         let synth = track
@@ -84,12 +64,12 @@ pub trait Song: HasSampleRate {
             // TODO Change sound
             signal::noise(420)
                 .take(self.beats(0.2))
-                .chain(silence!().take(self.beats(0.8)))
+                .chain(silence().take(self.beats(0.8)))
                 .cycle()
                 .take(self.duration())
                 .collect()
         } else {
-            silence!().take(self.duration()).collect()
+            silence().take(self.duration()).collect()
         }
     }
 
@@ -160,8 +140,6 @@ pub trait HasSampleRate {
     fn get_sample_rate(&self) -> f64;
 }
 
-pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
-
 macro_rules! song {
     ($name:ident, $( $id:ident : $type:ty ),*) => {
         #[derive(Default)]
@@ -181,17 +159,8 @@ macro_rules! song {
     };
 }
 
-trait RepeatExtension {
-    fn repeat(self, times: usize) -> Vec<f64>;
-}
-impl RepeatExtension for Vec<f64> {
-    fn repeat(self, times: usize) -> Vec<f64> {
-        self.iter()
-            .cloned()
-            .cycle()
-            .take(self.len() * times)
-            .collect()
-    }
-}
+pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
+
+// Songs
 
 pub mod test;

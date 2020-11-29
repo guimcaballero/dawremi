@@ -19,7 +19,7 @@ impl Song for Test {
             self.hz(440.)
                 .sine()
                 .take(self.beats(1.))
-                .chain(silence!().take(self.beats(3.)))
+                .chain(silence().take(self.beats(3.)))
                 .collect::<Vec<f64>>()
                 .repeat(4),
         )
@@ -27,12 +27,12 @@ impl Song for Test {
 
     fn track2(&self) -> Option<Vec<f64>> {
         Some(
-            signal::equilibrium()
+            silence()
                 .take(self.beats(2.))
                 .chain(
                     self.sound_signal("assets/beep.wav")
                         .take(self.beats(1.))
-                        .chain(silence!().take(self.beats(3.)))
+                        .chain(silence().take(self.beats(3.)))
                         .collect::<Vec<f64>>()
                         .repeat(4),
                 )
