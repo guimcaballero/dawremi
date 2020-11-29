@@ -11,21 +11,28 @@ impl Song for Test {
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
-        let smth: Vec<f64> = self
-            .hz(440.)
-            .sine()
-            .take(self.beats(1.))
-            .chain(silence!().take(self.beats(3.)))
-            .collect();
-        Some(smth.repeat(4))
+        Some(
+            self.hz(440.)
+                .sine()
+                .take(self.beats(1.))
+                .chain(silence!().take(self.beats(3.)))
+                .collect::<Vec<f64>>()
+                .repeat(4),
+        )
     }
 
-    // fn track2(&self) -> Option<Vec<f64>> {
-    //     Some(
-    //         signal::equilibrium()
-    //             .take(self.seconds(1.))
-    //             .chain(self.hz(220.).sine().take(self.seconds(2.)))
-    //             .collect(),
-    //     )
-    // }
+    fn track2(&self) -> Option<Vec<f64>> {
+        Some(
+            signal::equilibrium()
+                .take(self.beats(2.))
+                .chain(
+                    self.sound_signal("assets/beep.wav")
+                        .take(self.beats(1.))
+                        .chain(silence!().take(self.beats(3.)))
+                        .collect::<Vec<f64>>()
+                        .repeat(4),
+                )
+                .collect(),
+        )
+    }
 }

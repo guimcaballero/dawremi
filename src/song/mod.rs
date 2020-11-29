@@ -1,6 +1,6 @@
 use dasp::{
     signal::{self, ConstHz},
-    Sample, Signal,
+    Signal,
 };
 
 /// Adds the expressions to a vector if they're not None
@@ -117,6 +117,19 @@ pub trait Song: HasSampleRate {
     fn hz(&self, freq: f64) -> ConstHz {
         signal::rate(self.get_sample_rate()).const_hz(freq)
     }
+
+    fn sound(&self, path: &str) -> Vec<f64> {
+        let reader = hound::WavReader::open(path).unwrap();
+        reader
+            .into_samples::<i16>()
+            .filter_map(Result::ok)
+            .map(|x| x as f64)
+            .collect()
+    }
+    fn sound_signal(&self, path: &str) -> signal::FromIterator<std::vec::IntoIter<f64>> {
+        signal::from_iter(self.sound(path))
+    }
+
     /// Returns the number of samples that should be taken to pass x seconds
     fn seconds(&self, x: f64) -> usize {
         (self.get_sample_rate() * x) as usize
