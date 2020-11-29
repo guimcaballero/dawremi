@@ -1,4 +1,3 @@
-use cpal;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use hound::WavWriter;
 use std::fs::File;
