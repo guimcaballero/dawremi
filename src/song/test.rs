@@ -3,6 +3,10 @@ use super::*;
 song!(Test,);
 
 impl Song for Test {
+    fn name(&self) -> &'static str {
+        "test"
+    }
+
     fn bpm(&self) -> usize {
         120
     }

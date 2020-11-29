@@ -47,7 +47,7 @@ where
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };
-    let mut writer = WavWriter::create("output/output.wav", spec).unwrap();
+    let mut writer = WavWriter::create(&format!("output/{}.wav", song.name()), spec).unwrap();
 
     // Create and run the stream.
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);

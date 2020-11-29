@@ -79,6 +79,22 @@ pub trait Song: HasSampleRate {
         Box::new(synth)
     }
 
+    fn metronome(&self) -> Vec<f64> {
+        if cfg!(feature = "metronome") {
+            // TODO Change sound
+            signal::noise(420)
+                .take(self.beats(0.2))
+                .chain(silence!().take(self.beats(0.8)))
+                .cycle()
+                .take(self.duration())
+                .collect()
+        } else {
+            silence!().take(self.duration()).collect()
+        }
+    }
+
+    // Tracks
+
     fn track1(&self) -> Option<Vec<f64>> {
         None
     }
@@ -98,34 +114,12 @@ pub trait Song: HasSampleRate {
         None
     }
 
-    fn metronome(&self) -> Vec<f64> {
-        if cfg!(feature = "metronome") {
-            // TODO Change sound
-            signal::noise(420)
-                .take(self.beats(0.2))
-                .chain(silence!().take(self.beats(0.8)))
-                .cycle()
-                .take(self.duration())
-                .collect()
-        } else {
-            silence!().take(self.duration()).collect()
-        }
-    }
-
-    fn volume(&self) -> Vec<f64> {
-        signal::gen(|| 0.5).take(self.duration()).collect()
-    }
-
-    fn duration(&self) -> usize;
-    fn bpm(&self) -> usize {
-        120
-    }
+    // Helper methods to use on tracks
 
     /// Returns a ConstHz with this song's sample rate
     fn hz(&self, freq: f64) -> ConstHz {
         signal::rate(self.get_sample_rate()).const_hz(freq)
     }
-
     fn sound(&self, path: &str) -> Vec<f64> {
         let reader = hound::WavReader::open(path).unwrap();
 
@@ -138,7 +132,6 @@ pub trait Song: HasSampleRate {
     fn sound_signal(&self, path: &str) -> signal::FromIterator<std::vec::IntoIter<f64>> {
         signal::from_iter(self.sound(path))
     }
-
     /// Returns the number of samples that should be taken to pass x seconds
     fn seconds(&self, x: f64) -> usize {
         (self.get_sample_rate() * x) as usize
@@ -148,6 +141,16 @@ pub trait Song: HasSampleRate {
         let bps = self.bpm() as f64 / 60.;
         self.seconds(x / bps)
     }
+
+    // Methods to overload for song customization
+
+    /// General volume for all tracks
+    fn volume(&self) -> Vec<f64> {
+        signal::gen(|| 0.5).take(self.duration()).collect()
+    }
+    fn name(&self) -> &'static str;
+    fn duration(&self) -> usize;
+    fn bpm(&self) -> usize;
 }
 
 pub trait HasSampleRate {
