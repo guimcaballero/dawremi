@@ -35,6 +35,8 @@ where
     song.set_sample_rate(config.sample_rate.0 as f64);
     let mut synth = song.play();
 
+    // TODO Save this to a wav file using hound. There's an example that does this
+
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = mpsc::sync_channel(1);
 
