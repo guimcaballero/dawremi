@@ -43,22 +43,30 @@ pub trait Song: HasSampleRate {
                 .expect("There should be at least one working Track"),
         )
         // Add the track or an empty Signal
-        .add_amp(signal::from_iter(tracks.pop().unwrap_or_else(|| {
-            signal::equilibrium().take(self.duration()).collect()
-        })))
-        .add_amp(signal::from_iter(tracks.pop().unwrap_or_else(|| {
-            signal::equilibrium().take(self.duration()).collect()
-        })))
-        .add_amp(signal::from_iter(tracks.pop().unwrap_or_else(|| {
-            signal::equilibrium().take(self.duration()).collect()
-        })))
-        .add_amp(signal::from_iter(tracks.pop().unwrap_or_else(|| {
-            signal::equilibrium().take(self.duration()).collect()
-        })))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| signal::equilibrium().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+        ))
+        .add_amp(signal::from_iter(
+            tracks
+                .pop()
+                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+        ))
+        .add_amp(signal::from_iter(
+            tracks
+                .pop()
+                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+        ))
+        .add_amp(signal::from_iter(
+            tracks
+                .pop()
+                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
+        ))
+        .add_amp(signal::from_iter(
+            tracks
+                .pop()
+                .unwrap_or_else(|| silence!().take(self.duration()).collect()),
         ));
 
         let synth = track
@@ -119,7 +127,6 @@ pub trait Song: HasSampleRate {
     }
 
     fn sound(&self, path: &str) -> Vec<f64> {
-        // TODO Fix, this makes the audio sound bad
         let reader = hound::WavReader::open(path).unwrap();
 
         reader
