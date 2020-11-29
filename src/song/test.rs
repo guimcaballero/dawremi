@@ -7,7 +7,7 @@ impl Song for Test {
         120
     }
     fn duration(&self) -> usize {
-        self.seconds(8.)
+        self.beats(16.)
     }
 
     fn track1(&self) -> Option<Vec<f64>> {

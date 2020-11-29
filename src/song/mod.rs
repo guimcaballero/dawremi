@@ -91,13 +91,17 @@ pub trait Song: HasSampleRate {
     }
 
     fn metronome(&self) -> Vec<f64> {
-        self.hz(440.)
-            .sine()
-            .take(self.beats(0.2))
-            .chain(silence!().take(self.beats(0.8)))
-            .cycle()
-            .take(self.duration())
-            .collect()
+        if cfg!(feature = "metronome") {
+            // TODO Change sound
+            signal::noise(420)
+                .take(self.beats(0.2))
+                .chain(silence!().take(self.beats(0.8)))
+                .cycle()
+                .take(self.duration())
+                .collect()
+        } else {
+            silence!().take(self.duration()).collect()
+        }
     }
 
     fn volume(&self) -> Vec<f64> {

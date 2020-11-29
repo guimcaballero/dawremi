@@ -11,3 +11,6 @@ anyhow = "1.0.34"
 cpal = "0.13.1"
 dasp = { version = "0.11.0", features = ["all"] }
 hound = "3.4.0"
+
+[features]
+metronome = []
