@@ -18,6 +18,12 @@ macro_rules! some_vec {
     );
 }
 
+macro_rules! silence {
+    () => {
+        signal::equilibrium()
+    };
+}
+
 pub trait Song: HasSampleRate {
     fn play(&self) -> Audio {
         let mut tracks = some_vec![
@@ -58,6 +64,8 @@ pub trait Song: HasSampleRate {
         let synth = track
             .map(move |s| s / (number_of_tracks as f64))
             .mul_amp(signal::from_iter(self.volume()))
+            // We add the metronome after the volume
+            .add_amp(signal::from_iter(self.metronome()))
             .take(self.duration());
 
         Box::new(synth)
@@ -82,11 +90,24 @@ pub trait Song: HasSampleRate {
         None
     }
 
+    fn metronome(&self) -> Vec<f64> {
+        self.hz(440.)
+            .sine()
+            .take(self.beats(0.2))
+            .chain(silence!().take(self.beats(0.8)))
+            .cycle()
+            .take(self.duration())
+            .collect()
+    }
+
     fn volume(&self) -> Vec<f64> {
         signal::gen(|| 0.5).take(self.duration()).collect()
     }
 
     fn duration(&self) -> usize;
+    fn bpm(&self) -> usize {
+        120
+    }
 
     /// Returns a ConstHz with this song's sample rate
     fn hz(&self, freq: f64) -> ConstHz {
@@ -95,6 +116,11 @@ pub trait Song: HasSampleRate {
     /// Returns the number of samples that should be taken to pass x seconds
     fn seconds(&self, x: f64) -> usize {
         (self.get_sample_rate() * x) as usize
+    }
+    /// Returns the number of samples that should be taken to pass x beats
+    fn beats(&self, x: f64) -> usize {
+        let bps = self.bpm() as f64 / 60.;
+        self.seconds(x / bps)
     }
 }
 
@@ -124,6 +150,19 @@ macro_rules! song {
             }
         }
     };
+}
+
+trait RepeatExtension {
+    fn repeat(self, times: usize) -> Vec<f64>;
+}
+impl RepeatExtension for Vec<f64> {
+    fn repeat(self, times: usize) -> Vec<f64> {
+        self.iter()
+            .cloned()
+            .cycle()
+            .take(self.len() * times)
+            .collect()
+    }
 }
 
 pub mod test;
