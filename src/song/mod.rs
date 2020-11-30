@@ -96,8 +96,9 @@ pub trait Song: HasSampleRate {
     // Helper methods to use on tracks
 
     /// Returns a ConstHz with this song's sample rate
-    fn hz(&self, freq: f64) -> ConstHz {
-        signal::rate(self.get_sample_rate()).const_hz(freq)
+    fn hz(&self, freq: impl Into<Frequency>) -> ConstHz {
+        let freq = freq.into();
+        signal::rate(self.get_sample_rate()).const_hz(freq.0)
     }
     fn sound(&self, path: &str) -> Vec<f64> {
         let reader = hound::WavReader::open(path).unwrap();
