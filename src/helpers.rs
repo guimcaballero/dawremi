@@ -62,3 +62,14 @@ impl From<f64> for Frequency {
         Self(freq)
     }
 }
+
+macro_rules! sequence {
+    ($self:ident, $len:expr, $($x:tt)*) => {
+        silence().take($self.beats(0.))
+            $(
+                .chain(sequence!(@map $self $x).take($self.beats($len)))
+            )*
+    };
+    (@map $self:ident _) => { silence() };
+    (@map $self:ident $x:tt) => { $self.hz(Note::$x).sine() };
+}
