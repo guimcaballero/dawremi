@@ -61,8 +61,7 @@ pub trait Song: HasSampleRate {
 
     fn metronome(&self) -> Vec<f64> {
         if cfg!(feature = "metronome") {
-            // TODO Change sound
-            signal::noise(420)
+            self.sound_signal("assets/metronome.wav")
                 .take(self.beats(0.2))
                 .chain(silence().take(self.beats(0.8)))
                 .cycle()
