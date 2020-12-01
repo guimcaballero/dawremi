@@ -35,7 +35,7 @@ impl RepeatExtension for Vec<f64> {
 
 #[allow(dead_code)]
 pub enum Note {
-    A = 1,
+    A = 0,
     As,
     B,
     C,

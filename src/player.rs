@@ -67,6 +67,7 @@ where
         },
         err_fn,
     )?;
+    println!("Playing song");
     stream.play()?;
 
     // Wait for playback to complete.
