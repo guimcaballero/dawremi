@@ -64,15 +64,15 @@ impl From<f64> for Frequency {
 }
 
 macro_rules! sequence {
-    ($self:ident, len: $len:expr, fun: $fun:ident, $($x:tt)*) => {
+    ($self:ident, len: $len:expr, fun: $fun:expr, $($x:tt)*) => {
         silence().take($self.beats(0.))
             $(
-                .chain(sequence!(@map $self $fun $x).take($self.beats($len)))
+                .chain(sequence!(@map $self $fun, $x).take($self.beats($len)))
             )*
     };
     ($self:ident, $($x:tt)*) => {
-        sequence!($self, len: 1., fun: sine, $( $x )*)
+        sequence!($self, len: 1., fun: |note| self.hz(note).square(), $( $x )*)
     };
-    (@map $self:ident $fun:ident _) => { silence() };
-    (@map $self:ident $fun:ident $x:tt) => { $self.hz(Note::$x).$fun() };
+    (@map $self:ident $fun:expr, _) => { silence() };
+    (@map $self:ident $fun:expr, $x:tt) => { $fun(Note::$x) };
 }

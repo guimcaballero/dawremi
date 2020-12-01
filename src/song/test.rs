@@ -18,7 +18,7 @@ impl Song for Test {
         Some(
             sequence!(
                 self,
-                len: 1., fun: square,
+                len: 1., fun: |note| self.hz(note).square(),
                 A B _ B
             )
             .collect::<Vec<f64>>()
