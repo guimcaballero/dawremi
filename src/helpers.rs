@@ -64,15 +64,40 @@ impl From<f64> for Frequency {
 }
 
 macro_rules! sequence {
-    ($self:ident, len: $len:expr, fun: $fun:expr, $($x:tt)*) => {
-        silence().take($self.beats(0.))
+    // With a signal
+    ($self:ident, len: $len:expr, signal: $sign:expr, $($x:tt)*) => {
+        {
+            let mut vec = Vec::new();
             $(
-                .chain(sequence!(@map $self $fun, $x).take($self.beats($len)))
+                vec.append(
+                    &mut sequence!(@map $self sign: $sign, $x)
+                        .take($self.beats($len))
+                        .collect::<Vec<f64>>()
+                );
             )*
+                vec
+        }
     };
+    // With a function that takes a note
+    ($self:ident, len: $len:expr, fun: $fun:expr, enum: $enum:ident, $($x:tt)*) => {
+        {
+            let mut vec = Vec::new();
+                $(
+                    vec.append(
+                        &mut sequence!(@map $self fun: $fun, enum: $enum, $x)
+                            .take($self.beats($len))
+                            .collect::<Vec<f64>>()
+                    );
+                )*
+            vec
+        }
+    };
+    // With default params
     ($self:ident, $($x:tt)*) => {
-        sequence!($self, len: 1., fun: |note| self.hz(note).square(), $( $x )*)
+        sequence!($self, len: 1., fun: |note| $self.hz(note).square(), enum: Note, $( $x )*)
     };
-    (@map $self:ident $fun:expr, _) => { silence() };
-    (@map $self:ident $fun:expr, $x:tt) => { $fun(Note::$x) };
+    (@map $self:ident fun: $fun:expr,enum: $enum:ident, _) => { silence() };
+    (@map $self:ident fun: $fun:expr,enum: $enum:ident, $x:tt) => { $fun($enum::$x) };
+    (@map $self:ident sign: $sign:expr, _) => { silence() };
+    (@map $self:ident sign: $sign:expr, $x:tt) => { $sign };
 }
