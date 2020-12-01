@@ -52,6 +52,12 @@ pub trait Song: HasSampleRate {
         let synth = track
             .map(move |s| s / (number_of_tracks as f64))
             .mul_amp(signal::from_iter(self.volume()))
+            // Add some delay in the front if we enable metronome
+            .delay(if cfg!(feature = "metronome") {
+                self.beats(3.)
+            } else {
+                0
+            })
             // We add the metronome after the volume
             .add_amp(signal::from_iter(self.metronome()))
             .take(self.duration());
