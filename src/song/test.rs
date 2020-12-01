@@ -17,7 +17,8 @@ impl Song for Test {
     fn track1(&self) -> Option<Vec<f64>> {
         Some(
             sequence!(
-                self, len: 1., fun: square,
+                self,
+                len: 1., fun: square,
                 A B _ B
             )
             .collect::<Vec<f64>>()

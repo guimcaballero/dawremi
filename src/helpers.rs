@@ -36,17 +36,17 @@ impl RepeatExtension for Vec<f64> {
 #[allow(dead_code)]
 pub enum Note {
     A = 1,
-    As = 2,
-    B = 3,
-    C = 4,
-    Cs = 5,
-    D = 6,
-    Ds = 7,
-    E = 8,
-    F = 9,
-    Fs = 10,
-    G = 11,
-    Gs = 12,
+    As,
+    B,
+    C,
+    Cs,
+    D,
+    Ds,
+    E,
+    F,
+    Fs,
+    G,
+    Gs,
 }
 
 pub struct Frequency(pub f64);
@@ -69,6 +69,9 @@ macro_rules! sequence {
             $(
                 .chain(sequence!(@map $self $fun $x).take($self.beats($len)))
             )*
+    };
+    ($self:ident, $($x:tt)*) => {
+        sequence!($self, len: 1., fun: sine, $( $x )*)
     };
     (@map $self:ident $fun:ident _) => { silence() };
     (@map $self:ident $fun:ident $x:tt) => { $self.hz(Note::$x).$fun() };
