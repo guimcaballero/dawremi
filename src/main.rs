@@ -1,6 +1,6 @@
 mod helpers;
 mod song;
-use song::test::Test;
+use song::test_song::Test;
 mod player;
 use player::start;
 

@@ -169,4 +169,4 @@ pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
 
 // Songs
 
-pub mod test;
+pub mod test_song;
