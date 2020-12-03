@@ -1,4 +1,5 @@
 use super::*;
+use crate::synth::*;
 
 song!(Test,);
 
@@ -15,9 +16,12 @@ impl Song for Test {
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
+        let params = SynthParams::default();
         Some(sequence!(@lyrics
             self,
-            len: 0.5, fun: |note| self.hz(note).sine(), enum: Note,
+            len: 0.5,
+            fun: |note| Synth::new(params, note, self.get_sample_rate()),
+            enum: Note,
 
             [twin-kle  twin-kle  lit-tle star],
             (G _ G _ D _ D _ E _ E _ D D _ _),
@@ -33,6 +37,8 @@ impl Song for Test {
     }
 
     fn track2(&self) -> Option<Vec<f64>> {
+        return None;
+
         let sign = CustomSignal {
             sample: 0,
             sample_rate: self.get_sample_rate(),

@@ -22,8 +22,14 @@ pub fn silence() -> signal::Equilibrium<f64> {
 
 pub trait RepeatExtension {
     fn repeat(self, times: usize) -> Vec<f64>;
+    fn collect(self) -> Self;
 }
+
 impl RepeatExtension for Vec<f64> {
+    fn collect(self) -> Self {
+        self
+    }
+
     fn repeat(self, times: usize) -> Vec<f64> {
         self.iter()
             .cloned()
@@ -34,6 +40,7 @@ impl RepeatExtension for Vec<f64> {
 }
 
 #[allow(dead_code)]
+#[derive(Clone, Copy)]
 pub enum Note {
     A = 0,
     As,
@@ -75,12 +82,12 @@ macro_rules! sequence {
     // With a signal
     ($self:ident, len: $len:expr, signal: $sign:expr, $($x:tt)*) => {
         {
-            let mut vec = Vec::new();
+            let mut vec: Vec<f64> = Vec::new();
             $(
                 vec.append(
                     &mut sequence!(@map $self sign: $sign, $x)
                         .take($self.beats($len))
-                        .collect::<Vec<f64>>()
+                        .collect()
                 );
             )*
                 vec
@@ -89,12 +96,12 @@ macro_rules! sequence {
     // With a function that takes a note
     ($self:ident, len: $len:expr, fun: $fun:expr, enum: $enum:ident, $($x:tt)*) => {
         {
-            let mut vec = Vec::new();
+            let mut vec: Vec<f64> = Vec::new();
                 $(
                     vec.append(
                         &mut sequence!(@map $self fun: $fun, enum: $enum, $x)
                             .take($self.beats($len))
-                            .collect::<Vec<f64>>()
+                            .collect()
                     );
                 )*
             vec
