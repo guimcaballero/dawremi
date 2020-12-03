@@ -193,3 +193,97 @@ pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
 // Songs
 
 pub mod test_song;
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    song!(EmptySong,);
+    impl Song for EmptySong {
+        fn name(&self) -> &'static str {
+            "test"
+        }
+
+        fn bpm(&self) -> usize {
+            120
+        }
+        fn duration(&self) -> usize {
+            self.beats(12.)
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    /// Songs should have at least one working track to work
+    fn cant_play_empty_song() {
+        let mut song = EmptySong::default();
+        let _ = song.play();
+    }
+
+    #[test]
+    /// When loading a sound, it should get added to the hashmap so we don't load it twice
+    fn sounds_get_added_to_hashmap() {
+        let mut song = EmptySong::default();
+
+        let path = "assets/beep.wav";
+        let _ = song.sound(path);
+
+        assert!(song.sound_hashmap.contains_key(path));
+    }
+
+    #[test]
+    #[should_panic]
+    fn opening_nonexistant_sound_panics() {
+        let mut song = EmptySong::default();
+
+        let path = "assets/filethatdoesntexist.aaaaaaaaaaaaaa";
+        let _ = song.sound(path);
+    }
+
+    song!(SongWithTrack,);
+    impl Song for SongWithTrack {
+        fn name(&self) -> &'static str {
+            "test"
+        }
+
+        fn bpm(&self) -> usize {
+            120
+        }
+        fn duration(&self) -> usize {
+            self.beats(12.)
+        }
+
+        fn track1(&self) -> Option<Vec<f64>> {
+            // We have twinkle twinkle with lyrics to ensure that the lyrics macro works when changing things
+            Some(sequence!(@lyrics
+                self,
+                len: 0.5, fun: |note| self.hz(note).sine(), enum: Note,
+
+                [twin-kle  twin-kle  lit-tle star],
+                (G _ G _ D _ D _ E _ E _ D D _ _),
+
+                [how  I    won-der  how  you  are],
+                (C _ C _ B _ B _ A _ A _ G G _ _),
+
+                (D _ D _ C _ C _ B _ B _ A A _ _),
+                (D _ D _ C _ C _ B _ B _ A A _ _),
+                (G _ G _ D _ D _ E _ E _ D D _ _),
+                (C _ C _ B _ B _ A _ A _ G G _ _),
+            ))
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn playing_song_before_setting_sample_rate_panics() {
+        let mut song = SongWithTrack::default();
+        let _ = song.play();
+    }
+
+    #[test]
+    fn can_play_song() {
+        let mut song = SongWithTrack::default();
+        song.set_sample_rate(44_000.0);
+        let _ = song.play();
+    }
+}
