@@ -15,15 +15,20 @@ impl Song for Test {
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
-        Some(sequence!(
+        Some(sequence!(@lyrics
             self,
             len: 0.5, fun: |note| self.hz(note).sine(), enum: Note,
-            G _ G _ D _ D _ E _ E _ D D _ _
-            C _ C _ B _ B _ A _ A _ G G _ _
-            D _ D _ C _ C _ B _ B _ A A _ _
-            D _ D _ C _ C _ B _ B _ A A _ _
-            G _ G _ D _ D _ E _ E _ D D _ _
-            C _ C _ B _ B _ A _ A _ G G _ _
+
+            [twin-kle  twin-kle  lit-tle star],
+            (G _ G _ D _ D _ E _ E _ D D _ _),
+
+            [how  I    won-der  how  you  are],
+            (C _ C _ B _ B _ A _ A _ G G _ _),
+
+            (D _ D _ C _ C _ B _ B _ A A _ _),
+            (D _ D _ C _ C _ B _ B _ A A _ _),
+            (G _ G _ D _ D _ E _ E _ D D _ _),
+            (C _ C _ B _ B _ A _ A _ G G _ _),
         ))
     }
 
@@ -32,15 +37,20 @@ impl Song for Test {
             sample: 0,
             sample_rate: self.get_sample_rate(),
         };
-        Some(sequence!(
+        Some(sequence!(@lyrics
             self,
             len: 0.5, signal: sign,
-            x _ x _ x _ x _ x _ x _ x x _ _
-            x _ x _ x _ x _ x _ x _ x x _ _
-            x _ x _ x _ x _ x _ x _ x x _ _
-            x _ x _ x _ x _ x _ x _ x x _ _
-            x _ x _ x _ x _ x _ x _ x x _ _
-            x _ x _ x _ x _ x _ x _ x x _ _
+
+            [twin-kle  twin-kle  lit-tle star],
+            (x _  x _  x _  x _  x _ x _ x x _ _),
+
+            [how  I    won-der  how  you  are],
+            (x _  x _  x _ x _  x _  x _  x x _ _),
+
+            (x _ x _ x _ x _ x _ x _ x x _ _),
+            (x _ x _ x _ x _ x _ x _ x x _ _),
+            (x _ x _ x _ x _ x _ x _ x x _ _),
+            (x _ x _ x _ x _ x _ x _ x x _ _),
         ))
     }
 }

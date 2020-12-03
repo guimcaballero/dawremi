@@ -64,6 +64,14 @@ impl From<f64> for Frequency {
 }
 
 macro_rules! sequence {
+    // This a test to be able to do something with vocaloids down the line
+    (@lyrics $self:ident, $len_id:ident : $len:expr, $sign_id:ident : $sign:expr, $(enum: $enum:ident,)? $( $([ $($lyrics:tt)* ],)? ( $($x:tt)* ),)*) => {
+        sequence!($self,
+                  $len_id: $len, $sign_id: $sign, $(enum: $enum,)?
+                  $($($x)*)*
+        )
+    };
+
     // With a signal
     ($self:ident, len: $len:expr, signal: $sign:expr, $($x:tt)*) => {
         {
@@ -99,5 +107,5 @@ macro_rules! sequence {
     (@map $self:ident fun: $fun:expr,enum: $enum:ident, _) => { silence() };
     (@map $self:ident fun: $fun:expr,enum: $enum:ident, $x:tt) => { $fun($enum::$x) };
     (@map $self:ident sign: $sign:expr, _) => { silence() };
-    (@map $self:ident sign: $sign:expr, $x:tt) => { $sign };
+    (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
