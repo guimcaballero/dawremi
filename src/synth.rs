@@ -55,13 +55,12 @@ impl Synth {
         self.seconds(self.params.release)
     }
 
-    pub fn take(&self, samples: usize) -> Vec<f64> {
+    pub fn take_samples(&self, samples: usize) -> Vec<f64> {
         let freq: Frequency = self.note.into();
         let vec: Vec<f64> = signal::rate(self.sample_rate)
             .const_hz(freq.0)
             .sine()
-            .take(samples)
-            .collect();
+            .take_samples(samples);
 
         // Make a vec with the volumes and multiply them
         let attack = self.attack();

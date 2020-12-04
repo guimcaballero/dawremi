@@ -1,5 +1,5 @@
 #![macro_use]
-use dasp::signal;
+use dasp::signal::{self, Signal};
 
 /// Adds the expressions to a vector if they're not None
 macro_rules! some_vec {
@@ -20,14 +20,28 @@ pub fn silence() -> signal::Equilibrium<f64> {
     signal::equilibrium()
 }
 
+pub trait TakeSamplesExtension {
+    fn take_samples(self, samples: usize) -> Vec<f64>;
+}
+impl<T: Signal<Frame = f64>> TakeSamplesExtension for T {
+    fn take_samples(self, samples: usize) -> Vec<f64> {
+        self.take(samples).collect()
+    }
+}
+
 pub trait RepeatExtension {
     fn repeat(self, times: usize) -> Vec<f64>;
     fn collect(self) -> Self;
+    fn take_samples(self, samples: usize) -> Vec<f64>;
 }
 
 impl RepeatExtension for Vec<f64> {
     fn collect(self) -> Self {
         self
+    }
+
+    fn take_samples(self, samples: usize) -> Vec<f64> {
+        self.iter().cloned().take(samples).collect()
     }
 
     fn repeat(self, times: usize) -> Vec<f64> {
@@ -86,8 +100,7 @@ macro_rules! sequence {
             $(
                 vec.append(
                     &mut sequence!(@map $self sign: $sign, $x)
-                        .take($self.beats($len))
-                        .collect()
+                        .take_samples($self.beats($len))
                 );
             )*
                 vec
@@ -100,8 +113,7 @@ macro_rules! sequence {
                 $(
                     vec.append(
                         &mut sequence!(@map $self fun: $fun, enum: $enum, $x)
-                            .take($self.beats($len))
-                            .collect()
+                            .take_samples($self.beats($len))
                     );
                 )*
             vec

@@ -27,27 +27,27 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take_samples(self.duration())),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take_samples(self.duration())),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take_samples(self.duration())),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take_samples(self.duration())),
         ))
         .add_amp(signal::from_iter(
             tracks
                 .pop()
-                .unwrap_or_else(|| silence().take(self.duration()).collect()),
+                .unwrap_or_else(|| silence().take_samples(self.duration())),
         ));
 
         let synth = track
@@ -75,7 +75,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
                 .take(self.duration())
                 .collect()
         } else {
-            silence().take(self.duration()).collect()
+            silence().take_samples(self.duration())
         }
     }
 
@@ -143,7 +143,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
 
     /// General volume for all tracks
     fn volume(&self) -> Vec<f64> {
-        signal::gen(|| 0.5).take(self.duration()).collect()
+        signal::gen(|| 0.5).take_samples(self.duration())
     }
     fn name(&self) -> &'static str;
     fn duration(&self) -> usize;
