@@ -1,5 +1,6 @@
 use crate::helpers::*;
-use dasp::signal::{self, Signal};
+use dasp::Signal;
+use rand::prelude::*;
 
 #[derive(Clone, Copy)]
 pub struct SynthParams {
@@ -14,11 +15,11 @@ pub struct SynthParams {
 impl Default for SynthParams {
     fn default() -> Self {
         Self {
-            attack: 0.01,
-            decay: 0.01,
-            release: 0.02,
+            attack: 0.1,
+            decay: 0.1,
+            release: 0.2,
 
-            attack_amplitude: 1.,
+            attack_amplitude: 1.0,
             sustain_amplitude: 0.8,
         }
     }
@@ -37,9 +38,7 @@ impl Synth {
             sample_rate,
         }
     }
-}
 
-impl Synth {
     /// Returns the number of samples that should be taken to pass x seconds
     fn seconds(&self, x: f64) -> usize {
         (self.sample_rate * x) as usize
@@ -56,11 +55,7 @@ impl Synth {
     }
 
     pub fn take_samples(&self, samples: usize) -> Vec<f64> {
-        let freq: Frequency = self.note.into();
-        let vec: Vec<f64> = signal::rate(self.sample_rate)
-            .const_hz(freq.0)
-            .sine()
-            .take_samples(samples);
+        let vec: Vec<f64> = SynthSignal::new(self.note, self.sample_rate).take_samples(samples);
 
         // Make a vec with the volumes and multiply them
         let attack = self.attack();
@@ -70,10 +65,10 @@ impl Synth {
         let volume_without_release: Vec<f64> = (0..samples)
             .map(|i| {
                 let volume = if i < attack {
-                    ((attack - i) as f64 / attack as f64) * self.params.attack_amplitude
+                    (i as f64 / attack as f64) * self.params.attack_amplitude
                 } else if i < attack + decay {
                     self.params.attack_amplitude
-                        - ((decay - (i - attack)) as f64 / decay as f64) * attack_sustain_diff
+                        - ((i - attack) as f64 / decay as f64) * attack_sustain_diff
                 } else {
                     self.params.sustain_amplitude
                 };
@@ -94,5 +89,65 @@ impl Synth {
             .zip(volume_without_release)
             .map(|(val, vol)| val * vol)
             .collect()
+    }
+}
+
+// TODO Change this to be a trait or an enum so we can make different instruments
+
+#[derive(Copy, Clone)]
+/// Iterator for the synth
+struct SynthSignal {
+    note: Note,
+    sample_rate: f64,
+    sample: usize,
+}
+impl SynthSignal {
+    fn new(note: Note, sample_rate: f64) -> Self {
+        Self {
+            note,
+            sample_rate,
+            sample: 0,
+        }
+    }
+}
+
+const PI_4: f64 = core::f64::consts::PI * 2.0;
+impl Signal for SynthSignal {
+    type Frame = f64;
+
+    #[inline]
+    fn next(&mut self) -> Self::Frame {
+        self.sample += 1;
+
+        let freq: Frequency = self.note.into();
+        let a_lfo = 0.01;
+        let f_lfo = 7.0;
+
+        let time = PI_4 * self.sample as f64 / self.sample_rate;
+
+        // Start
+
+        // This is kind of a harmonica
+
+        let square_1 = if (freq.0 * time + a_lfo * freq.0 * (f_lfo * time).sin()).sin() > 0. {
+            1.
+        } else {
+            -1.
+        };
+        let square_2 = if (freq.0 * 1.5 * time).sin() > 0. {
+            1.
+        } else {
+            -1.
+        };
+        let square_3 = if (freq.0 * 2.0 * time).sin() > 0. {
+            1.
+        } else {
+            -1.
+        };
+
+        0.2 * square_1
+            + 0.5 * square_2
+            + 0.25 * square_3
+            + 0.01 * rand::thread_rng().gen_range(-1., 1.)
     }
 }

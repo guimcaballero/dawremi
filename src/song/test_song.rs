@@ -12,11 +12,16 @@ impl Song for Test {
         120
     }
     fn duration(&self) -> usize {
+        // self.seconds(3.)
         self.beats(8. * 6.)
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
         let params = SynthParams::default();
+
+        // let synth = Synth::new(params, Note::C, self.get_sample_rate());
+        // return Some(synth.take_samples(self.seconds(3.)));
+
         Some(sequence!(@lyrics
             self,
             len: 0.5,

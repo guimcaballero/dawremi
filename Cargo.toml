@@ -11,6 +11,7 @@ anyhow = "1.0.34"
 cpal = "0.13.1"
 dasp = { git = "https://github.com/RustAudio/dasp/", branch = "master", features = ["all"] }
 hound = "3.4.0"
+rand = "0.7.3"
 
 [features]
 metronome = []
