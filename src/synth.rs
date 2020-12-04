@@ -120,7 +120,7 @@ impl Signal for SynthSignal {
         self.sample += 1;
 
         let freq: Frequency = self.note.into();
-        let a_lfo = 0.01;
+        let a_lfo = 0.005;
         let f_lfo = 7.0;
 
         let time = PI_4 * self.sample as f64 / self.sample_rate;
@@ -145,7 +145,7 @@ impl Signal for SynthSignal {
             -1.
         };
 
-        0.2 * square_1
+        0.02 * square_1
             + 0.5 * square_2
             + 0.25 * square_3
             + 0.01 * rand::thread_rng().gen_range(-1., 1.)

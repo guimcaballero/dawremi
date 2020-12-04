@@ -18,7 +18,6 @@ impl Song for Test {
 
     fn track1(&self) -> Option<Vec<f64>> {
         let params = SynthParams::default();
-
         // let synth = Synth::new(params, Note::C, self.get_sample_rate());
         // return Some(synth.take_samples(self.seconds(3.)));
 
@@ -26,18 +25,17 @@ impl Song for Test {
             self,
             len: 0.5,
             fun: |note| Synth::new(params, note, self.get_sample_rate()),
-            enum: Note,
 
             [twin-kle  twin-kle  lit-tle star],
-            (G _ G _ D _ D _ E _ E _ D D _ _),
+            (G _ G _ D _ D _ E _ E _ (D * 2.) _ _),
 
             [how  I    won-der  how  you  are],
-            (C _ C _ B _ B _ A _ A _ G G _ _),
+            (C _ C _ B _ B _ A _ A _ (G * 2.) _ _),
 
-            (D _ D _ C _ C _ B _ B _ A A _ _),
-            (D _ D _ C _ C _ B _ B _ A A _ _),
-            (G _ G _ D _ D _ E _ E _ D D _ _),
-            (C _ C _ B _ B _ A _ A _ G G _ _),
+            (D _ D _ C _ C _ B _ B _ (A * 2.) _ _),
+            (D _ D _ C _ C _ B _ B _ (A * 2.) _ _),
+            (G _ G _ D _ D _ E _ E _ (D * 2.) _ _),
+            (C _ C _ B _ B _ A _ A _ (G * 2.) _ _),
         ))
     }
 

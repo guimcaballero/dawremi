@@ -86,9 +86,9 @@ impl From<f64> for Frequency {
 
 macro_rules! sequence {
     // This a test to be able to do something with vocaloids down the line
-    (@lyrics $self:ident, $len_id:ident : $len:expr, $sign_id:ident : $sign:expr, $(enum: $enum:ident,)? $( $([ $($lyrics:tt)* ],)? ( $($x:tt)* ),)*) => {
+    (@lyrics $self:ident, $len_id:ident : $len:expr, $sign_id:ident : $sign:expr, $( $([ $($lyrics:tt)* ],)? ( $($x:tt)* ),)*) => {
         sequence!($self,
-                  $len_id: $len, $sign_id: $sign, $(enum: $enum,)?
+                  $len_id: $len, $sign_id: $sign,
                   $($($x)*)*
         )
     };
@@ -107,13 +107,15 @@ macro_rules! sequence {
         }
     };
     // With a function that takes a note
-    ($self:ident, len: $len:expr, fun: $fun:expr, enum: $enum:ident, $($x:tt)*) => {
+    ($self:ident, len: $len:expr, fun: $fun:expr, $($x:tt)*) => {
         {
+            // TODO We might want to use a different set of notes
+            use crate::helpers::Note::*;
             let mut vec: Vec<f64> = Vec::new();
                 $(
                     vec.append(
-                        &mut sequence!(@map $self fun: $fun, enum: $enum, $x)
-                            .take_samples($self.beats($len))
+                        &mut sequence!(@map $self fun: $fun, $x)
+                            .take_samples($self.beats($len * sequence!(@unwrap_len $x)))
                     );
                 )*
             vec
@@ -121,10 +123,18 @@ macro_rules! sequence {
     };
     // With default params
     ($self:ident, $($x:tt)*) => {
-        sequence!($self, len: 1., fun: |note| $self.hz(note).square(), enum: Note, $( $x )*)
+        sequence!($self, len: 1., fun: |note| $self.hz(note).square(), $( $x * 1. )*)
     };
-    (@map $self:ident fun: $fun:expr,enum: $enum:ident, _) => { silence() };
-    (@map $self:ident fun: $fun:expr,enum: $enum:ident, $x:tt) => { $fun($enum::$x) };
+
+    // Helpers
+
+    (@unwrap_note, ($x:tt * $len:expr)) => { $x };
+    (@unwrap_note, $x:tt) => { $x };
+    (@unwrap_len ($x:tt * $len:expr)) => { $len };
+    (@unwrap_len $x:tt) => { 1. };
+
+    (@map $self:ident fun: $fun:expr, _) => { silence() };
+    (@map $self:ident fun: $fun:expr, $x:tt) => { $fun(sequence!(@unwrap_note, $x)) };
     (@map $self:ident sign: $sign:expr, _) => { silence() };
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }

@@ -257,7 +257,7 @@ mod test {
             // We have twinkle twinkle with lyrics to ensure that the lyrics macro works when changing things
             Some(sequence!(@lyrics
                 self,
-                len: 0.5, fun: |note| self.hz(note).sine(), enum: Note,
+                len: 0.5, fun: |note| self.hz(note).sine(),
 
                 [twin-kle  twin-kle  lit-tle star],
                 (G _ G _ D _ D _ E _ E _ D D _ _),
