@@ -1,3 +1,5 @@
+#![feature(box_syntax)]
+
 mod helpers;
 mod song;
 use song::test_song::Test;
