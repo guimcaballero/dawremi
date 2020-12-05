@@ -10,6 +10,8 @@ pub struct SynthParams {
 
     pub attack_amplitude: f64,
     pub sustain_amplitude: f64,
+
+    pub instrument: Instrument,
 }
 
 impl Default for SynthParams {
@@ -21,6 +23,8 @@ impl Default for SynthParams {
 
             attack_amplitude: 1.0,
             sustain_amplitude: 0.8,
+
+            instrument: Instrument::Harmonica,
         }
     }
 }
@@ -55,7 +59,8 @@ impl Synth {
     }
 
     pub fn take_samples(&self, samples: usize) -> Vec<f64> {
-        let vec: Vec<f64> = SynthSignal::new(self.note, self.sample_rate).take_samples(samples);
+        let vec: Vec<f64> = SynthSignal::new(self.params.instrument, self.note, self.sample_rate)
+            .take_samples(samples);
 
         // Make a vec with the volumes and multiply them
         let attack = self.attack();
@@ -92,7 +97,10 @@ impl Synth {
     }
 }
 
-// TODO Change this to be a trait or an enum so we can make different instruments
+#[derive(Copy, Clone)]
+pub enum Instrument {
+    Harmonica,
+}
 
 #[derive(Copy, Clone)]
 /// Iterator for the synth
@@ -100,13 +108,53 @@ struct SynthSignal {
     note: Note,
     sample_rate: f64,
     sample: usize,
+    instrument: Instrument,
 }
 impl SynthSignal {
-    fn new(note: Note, sample_rate: f64) -> Self {
+    fn new(instrument: Instrument, note: Note, sample_rate: f64) -> Self {
         Self {
+            instrument,
             note,
             sample_rate,
             sample: 0,
+        }
+    }
+
+    fn time(&self) -> f64 {
+        PI_4 * self.sample as f64 / self.sample_rate
+    }
+
+    fn note(&self) -> f64 {
+        let freq: Frequency = self.note.into();
+        match self.instrument {
+            Instrument::Harmonica => {
+                let a_lfo = 0.005;
+                let f_lfo = 7.0;
+
+                let square_1 =
+                    if (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin()
+                        > 0.
+                    {
+                        1.
+                    } else {
+                        -1.
+                    };
+                let square_2 = if (freq.0 * 1.5 * self.time()).sin() > 0. {
+                    1.
+                } else {
+                    -1.
+                };
+                let square_3 = if (freq.0 * 2.0 * self.time()).sin() > 0. {
+                    1.
+                } else {
+                    -1.
+                };
+
+                0.02 * square_1
+                    + 0.5 * square_2
+                    + 0.25 * square_3
+                    + 0.01 * rand::thread_rng().gen_range(-1., 1.)
+            }
         }
     }
 }
@@ -119,35 +167,6 @@ impl Signal for SynthSignal {
     fn next(&mut self) -> Self::Frame {
         self.sample += 1;
 
-        let freq: Frequency = self.note.into();
-        let a_lfo = 0.005;
-        let f_lfo = 7.0;
-
-        let time = PI_4 * self.sample as f64 / self.sample_rate;
-
-        // Start
-
-        // This is kind of a harmonica
-
-        let square_1 = if (freq.0 * time + a_lfo * freq.0 * (f_lfo * time).sin()).sin() > 0. {
-            1.
-        } else {
-            -1.
-        };
-        let square_2 = if (freq.0 * 1.5 * time).sin() > 0. {
-            1.
-        } else {
-            -1.
-        };
-        let square_3 = if (freq.0 * 2.0 * time).sin() > 0. {
-            1.
-        } else {
-            -1.
-        };
-
-        0.02 * square_1
-            + 0.5 * square_2
-            + 0.25 * square_3
-            + 0.01 * rand::thread_rng().gen_range(-1., 1.)
+        self.note()
     }
 }

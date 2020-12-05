@@ -12,15 +12,11 @@ impl Song for Test {
         120
     }
     fn duration(&self) -> usize {
-        // self.seconds(3.)
         self.beats(8. * 6.)
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
         let params = SynthParams::default();
-        // let synth = Synth::new(params, Note::C, self.get_sample_rate());
-        // return Some(synth.take_samples(self.seconds(3.)));
-
         Some(sequence!(@lyrics
             self,
             len: 0.5,
@@ -39,29 +35,27 @@ impl Song for Test {
         ))
     }
 
-    fn track2(&self) -> Option<Vec<f64>> {
-        return None;
+    // fn track2(&self) -> Option<Vec<f64>> {
+    //     let sign = CustomSignal {
+    //         sample: 0,
+    //         sample_rate: self.get_sample_rate(),
+    //     };
+    //     Some(sequence!(@lyrics
+    //         self,
+    //         len: 0.5, signal: sign,
 
-        let sign = CustomSignal {
-            sample: 0,
-            sample_rate: self.get_sample_rate(),
-        };
-        Some(sequence!(@lyrics
-            self,
-            len: 0.5, signal: sign,
+    //         [twin-kle  twin-kle  lit-tle star],
+    //         (x _  x _  x _  x _  x _ x _ x x _ _),
 
-            [twin-kle  twin-kle  lit-tle star],
-            (x _  x _  x _  x _  x _ x _ x x _ _),
+    //         [how  I    won-der  how  you  are],
+    //         (x _  x _  x _ x _  x _  x _  x x _ _),
 
-            [how  I    won-der  how  you  are],
-            (x _  x _  x _ x _  x _  x _  x x _ _),
-
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-        ))
-    }
+    //         (x _ x _ x _ x _ x _ x _ x x _ _),
+    //         (x _ x _ x _ x _ x _ x _ x x _ _),
+    //         (x _ x _ x _ x _ x _ x _ x x _ _),
+    //         (x _ x _ x _ x _ x _ x _ x x _ _),
+    //     ))
+    // }
 }
 
 #[derive(Default, Copy, Clone)]

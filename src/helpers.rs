@@ -109,8 +109,10 @@ macro_rules! sequence {
     // With a function that takes a note
     ($self:ident, len: $len:expr, fun: $fun:expr, $($x:tt)*) => {
         {
-            // TODO We might want to use a different set of notes
+            // TODO We might want to use a different set of notes somewhere else.
+            // Make something to abstract this or smth
             use crate::helpers::Note::*;
+
             let mut vec: Vec<f64> = Vec::new();
                 $(
                     vec.append(
