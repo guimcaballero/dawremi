@@ -159,7 +159,12 @@ pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
 
 // Songs
 
-pub mod test_song;
+mod test_song;
+pub use test_song::Test;
+mod twinkle_twinkle;
+pub use twinkle_twinkle::TwinkleTwinkle;
+
+// Tests
 
 #[cfg(test)]
 mod test {

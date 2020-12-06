@@ -2,12 +2,12 @@
 
 mod helpers;
 mod song;
-use song::test_song::Test;
+use song::*;
 mod player;
 use player::start;
 mod synth;
 
 fn main() -> Result<(), anyhow::Error> {
-    let song = Test::default();
+    let song = TwinkleTwinkle::default();
     start(song)
 }
