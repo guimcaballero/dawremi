@@ -17,7 +17,7 @@ impl SynthInstrument for Harmonica {
     fn note(&mut self) -> f64 {
         let freq: Frequency = self.note.into();
         self.sample += 1;
-        let a_lfo = 0.005;
+        let a_lfo = 0.001;
         let f_lfo = 7.0;
 
         let square_1 =

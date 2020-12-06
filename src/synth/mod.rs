@@ -30,6 +30,8 @@ impl Synth {
         let release = self.seconds(params.release);
 
         let attack_sustain_diff = params.attack_amplitude - params.sustain_amplitude;
+        let samples_release_diff = samples.checked_sub(release).unwrap_or_default();
+
         let volume_without_release: Vec<f64> = (0..samples)
             .map(|i| {
                 let volume = if i < attack {
@@ -41,7 +43,7 @@ impl Synth {
                     params.sustain_amplitude
                 };
 
-                let release_multiplier = if i > samples - release {
+                let release_multiplier = if i > samples_release_diff {
                     (samples - i) as f64 / release as f64
                 } else {
                     1.
@@ -97,11 +99,13 @@ macro_rules! instrument {
         }
 
         impl $name {
-            pub fn new(note: Note, sample_rate: f64) -> Self {
+            #[allow(dead_code)]
+            pub fn new(note: Note, sample_rate: f64, $( $id: $type, )*) -> Self {
                 Self {
                     note,
                     sample_rate,
                     sample: 0,
+                    $($id,)*
                 }
             }
         }
@@ -119,3 +123,5 @@ macro_rules! instrument {
 
 mod harmonica;
 pub use harmonica::Harmonica;
+mod bell;
+pub use bell::Bell;

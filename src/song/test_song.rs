@@ -19,7 +19,7 @@ impl Song for Test {
         Some(sequence!(@lyrics
             self,
             len: 0.5,
-                       fun: |note| Synth::new(box Harmonica::new(note, self.get_sample_rate()), note, self.get_sample_rate()),
+                       fun: |note| Synth::new(box Bell::new(note, self.get_sample_rate()), note, self.get_sample_rate()),
 
             [twin-kle  twin-kle  lit-tle star],
             (G _ G _ D _ D _ E _ E _ (D * 2.) _ _),
