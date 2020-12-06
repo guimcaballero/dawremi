@@ -86,6 +86,10 @@ pub trait SynthInstrument: HasSample {
 pub trait HasSample {
     fn sample(&self) -> f64;
     fn sample_rate(&self) -> f64;
+
+    fn seconds(&self, x: f64) -> usize {
+        (self.sample_rate() * x) as usize
+    }
 }
 
 macro_rules! instrument {

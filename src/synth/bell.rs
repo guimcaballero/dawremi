@@ -5,7 +5,7 @@ impl SynthInstrument for Bell {
     fn get_params(&self) -> SynthParams {
         SynthParams {
             attack: 0.01,
-            decay: 0.3,
+            decay: 0.5,
             release: 0.,
 
             attack_amplitude: 1.,
@@ -14,16 +14,44 @@ impl SynthInstrument for Bell {
     }
 
     fn note(&mut self) -> f64 {
-        let freq: Frequency = self.note.into();
         self.sample += 1;
         let a_lfo = 0.001;
         let f_lfo = 5.0;
 
-        let square_1 =
-            (freq.0 * 2. * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
-        let square_2 = (freq.0 * 3. * self.time()).sin();
-        let square_3 = (freq.0 * 4. * self.time()).sin();
+        let base_note = self
+            .note
+            .up_an_octave()
+            .expect("Note passed to Bell should be able to be increased by and octave");
 
-        1. * square_1 + 0.5 * square_2 + 0.25 * square_3
+        // Make the base note disappear faster than the rest
+        let attack = self.seconds(self.get_params().attack);
+        let base_note_vol_multiplier = if self.sample > attack {
+            attack as f64 / self.sample as f64
+        } else {
+            1.
+        };
+
+        let freq: Frequency = base_note.into();
+        let mut result = base_note_vol_multiplier
+            * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+
+        if let Some(note) = base_note.up_an_octave() {
+            let freq: Frequency = note.into();
+            result += 0.5 * (freq.0 * self.time()).sin();
+
+            if let Some(note) = note.up_an_octave() {
+                let freq: Frequency = note.into();
+                result += 0.125 * (freq.0 * self.time()).sin();
+
+                if let Some(note) = note.up_an_octave() {
+                    let freq: Frequency = note.into();
+                    if self.sample > attack {
+                        result += 0.0125 * (freq.0 * self.time()).sin();
+                    }
+                }
+            }
+        }
+
+        result
     }
 }

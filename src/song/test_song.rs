@@ -12,16 +12,16 @@ impl Song for Test {
         120
     }
     fn duration(&self) -> usize {
-        self.beats(4.)
+        self.beats(10.)
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
         Some(sequence!(@lyrics
-                       self,
-                       len: 0.5,
-                       fun: |note| self.synth(note),
+                self,
+                len: 1.,
+                fun: |note| self.synth(note),
 
-            (C4 _ C4 _ (C4 * 2.) _ _),
+                (G4 G4 D4 D4 E4 E4 (D4 * 2.)),
         ))
     }
 }
