@@ -1,4 +1,5 @@
 use crate::helpers::*;
+use crate::notes::*;
 use dasp::{
     signal::{self, ConstHz},
     Sample, Signal,
@@ -257,18 +258,18 @@ mod test {
             // We have twinkle twinkle with lyrics to ensure that the lyrics macro works when changing things
             Some(sequence!(@lyrics
                 self,
-                len: 0.5, fun: |note| self.hz(note).sine(),
+                len: 0.5, fun: |note: Note| self.hz(note.into()).sine(),
 
                 [twin-kle  twin-kle  lit-tle star],
-                (G _ G _ D _ D _ E _ E _ D D _ _),
+                (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
 
                 [how  I    won-der  how  you  are],
-                (C _ C _ B _ B _ A _ A _ G G _ _),
+                (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
 
-                (D _ D _ C _ C _ B _ B _ A A _ _),
-                (D _ D _ C _ C _ B _ B _ A A _ _),
-                (G _ G _ D _ D _ E _ E _ D D _ _),
-                (C _ C _ B _ B _ A _ A _ G G _ _),
+                (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
+                (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
+                (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
+                (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
             ))
         }
     }

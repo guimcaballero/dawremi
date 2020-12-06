@@ -1,4 +1,4 @@
-use crate::helpers::*;
+use crate::notes::*;
 use core::f64::consts::TAU;
 
 pub struct Synth {

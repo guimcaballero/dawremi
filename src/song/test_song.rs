@@ -1,4 +1,5 @@
 use super::*;
+use crate::synth::*;
 
 song!(Test,);
 
@@ -11,49 +12,26 @@ impl Song for Test {
         120
     }
     fn duration(&self) -> usize {
-        self.beats(8. * 6.)
+        self.beats(4.)
     }
 
     fn track1(&self) -> Option<Vec<f64>> {
-        let sign = CustomSignal {
-            sample: 0,
-            sample_rate: self.get_sample_rate(),
-        };
         Some(sequence!(@lyrics
-            self,
-            len: 0.5, signal: sign,
+                       self,
+                       len: 0.5,
+                       fun: |note| self.synth(note),
 
-            [twin-kle  twin-kle  lit-tle star],
-            (x _  x _  x _  x _  x _ x _ x x _ _),
-
-            [how  I    won-der  how  you  are],
-            (x _  x _  x _ x _  x _  x _  x x _ _),
-
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-            (x _ x _ x _ x _ x _ x _ x x _ _),
-            (x _ x _ x _ x _ x _ x _ x x _ _),
+            (C4 _ C4 _ (C4 * 2.) _ _),
         ))
     }
 }
 
-#[derive(Default, Copy, Clone)]
-struct CustomSignal {
-    pub sample_rate: f64,
-    pub sample: usize,
-}
-
-const PI_4: f64 = core::f64::consts::PI * 2.0;
-impl Signal for CustomSignal {
-    type Frame = f64;
-
-    #[inline]
-    fn next(&mut self) -> Self::Frame {
-        let freq = 220.;
-
-        let phase = self.sample as f64 * (freq / self.sample_rate);
-
-        self.sample += 1;
-        (PI_4 * phase).sin()
+impl Test {
+    fn synth(&self, note: Note) -> Synth {
+        Synth::new(
+            box Bell::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
     }
 }

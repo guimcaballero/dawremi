@@ -53,37 +53,6 @@ impl RepeatExtension for Vec<f64> {
     }
 }
 
-#[allow(dead_code)]
-#[derive(Clone, Copy)]
-pub enum Note {
-    A = 0,
-    As,
-    B,
-    C,
-    Cs,
-    D,
-    Ds,
-    E,
-    F,
-    Fs,
-    G,
-    Gs,
-}
-
-pub struct Frequency(pub f64);
-impl From<Note> for Frequency {
-    fn from(note: Note) -> Self {
-        let n = note as u8;
-        let a: f64 = 2.0_f64.powf(n as f64 / 12.);
-        Self(440.0 * a)
-    }
-}
-impl From<f64> for Frequency {
-    fn from(freq: f64) -> Self {
-        Self(freq)
-    }
-}
-
 macro_rules! sequence {
     // This a test to be able to do something with vocaloids down the line
     (@lyrics $self:ident, $len_id:ident : $len:expr, $sign_id:ident : $sign:expr, $( $([ $($lyrics:tt)* ],)? ( $($x:tt)* ),)*) => {
@@ -111,7 +80,7 @@ macro_rules! sequence {
         {
             // TODO We might want to use a different set of notes somewhere else.
             // Make something to abstract this or smth
-            use crate::helpers::Note::*;
+            use crate::notes::Note::*;
 
             let mut vec: Vec<f64> = Vec::new();
                 $(
