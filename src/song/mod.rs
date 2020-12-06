@@ -70,8 +70,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     // Helper methods to use on tracks
 
     /// Returns a ConstHz with this song's sample rate
-    fn hz(&self, freq: impl Into<Frequency>) -> ConstHz {
-        let freq = freq.into();
+    fn hz(&self, freq: Frequency) -> ConstHz {
         signal::rate(self.get_sample_rate()).const_hz(freq.0)
     }
 
