@@ -8,6 +8,6 @@ use player::start;
 mod synth;
 
 fn main() -> Result<(), anyhow::Error> {
-    let song = TwinkleTwinkle::default();
+    let song = select_song();
     start(song)
 }

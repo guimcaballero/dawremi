@@ -4,10 +4,7 @@ use std::sync::mpsc;
 
 use crate::song::{Audio, Song};
 
-pub fn start<S>(song: S) -> Result<(), anyhow::Error>
-where
-    S: Song,
-{
+pub fn start(song: Box<dyn Song>) -> Result<(), anyhow::Error> {
     let host = cpal::default_host();
     let device = host
         .default_output_device()
@@ -15,22 +12,21 @@ where
     let config = device.default_output_config()?;
 
     match config.sample_format() {
-        cpal::SampleFormat::F32 => run::<f32, S>(&device, &config.into(), song)?,
-        cpal::SampleFormat::I16 => run::<i16, S>(&device, &config.into(), song)?,
-        cpal::SampleFormat::U16 => run::<u16, S>(&device, &config.into(), song)?,
+        cpal::SampleFormat::F32 => run::<f32>(&device, &config.into(), song)?,
+        cpal::SampleFormat::I16 => run::<i16>(&device, &config.into(), song)?,
+        cpal::SampleFormat::U16 => run::<u16>(&device, &config.into(), song)?,
     }
 
     Ok(())
 }
 
-fn run<T, S>(
+fn run<T>(
     device: &cpal::Device,
     config: &cpal::StreamConfig,
-    mut song: S,
+    mut song: Box<dyn Song>,
 ) -> Result<(), anyhow::Error>
 where
     T: cpal::Sample,
-    S: Song,
 {
     song.set_sample_rate(config.sample_rate.0 as f64);
 
@@ -67,7 +63,7 @@ where
         },
         err_fn,
     )?;
-    println!("Playing song");
+    println!("Playing song: {}", song.name());
     stream.play()?;
 
     // Wait for playback to complete.

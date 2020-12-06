@@ -4,6 +4,7 @@ use dasp::{
     Sample, Signal,
 };
 use std::collections::HashMap;
+use std::io::stdin;
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
     fn play(&mut self) -> Audio {
@@ -158,10 +159,38 @@ pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
 
 // Songs
 
-mod test_song;
-pub use test_song::Test;
-mod twinkle_twinkle;
-pub use twinkle_twinkle::TwinkleTwinkle;
+macro_rules! songs {
+    ( $($num:pat =>  $mod:ident => $struct:ident,)* ) => {
+        $(
+            mod $mod;
+            pub use $mod::$struct;
+        )*
+
+        pub fn select_song() -> Box<dyn Song> {
+            println!("Select a song:");
+
+            $(
+                println!("[{}]: {}", stringify!($num), $struct::default().name());
+            )*
+
+            let mut s = String::new();
+            stdin()
+                .read_line(&mut s)
+                .expect("Did not enter a correct string");
+
+            match s.trim().parse().unwrap_or(u32::MAX) {
+                $(
+                    $num => box $struct::default(),
+                )*
+            }
+        }
+    };
+}
+
+songs!(
+    1 => twinkle_twinkle => TwinkleTwinkle,
+    _ => test_song => Test,
+);
 
 // Tests
 
