@@ -140,3 +140,36 @@ macro_rules! sequence {
     (@map $self:ident sign: $sign:expr, _) => { silence() };
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
+
+/// Joins multiple functions that return Option<Vec<f64>> into a single averaged signal
+macro_rules! join_tracks {
+    (duration: $duration:expr, $($x:expr),* $(,)?) => {
+        {
+            let duration = $duration;
+            let mut tracks = some_vec![
+                $( $x, )*
+            ];
+            let number_of_tracks = tracks.len();
+
+            // Join all of the tracks into one
+            let track = silence()
+            // Add the track or an empty Signal
+            $(
+                .add_amp(signal::from_iter(
+                    // To loop we need to use $x, so we do this `if true` thing
+                    if true {
+                        tracks
+                            .pop()
+                            .unwrap_or_else(|| silence().take_samples(duration))
+                    } else {
+                        $x.unwrap()
+                    }
+                ))
+            )*
+            ;
+
+             track
+                .map(move |s| s / (number_of_tracks as f64))
+        }
+    };
+}

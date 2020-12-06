@@ -7,7 +7,9 @@ use std::collections::HashMap;
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
     fn play(&mut self) -> Audio {
-        let mut tracks = some_vec![
+        let synth = join_tracks![
+            duration: self.duration(),
+
             self.track1(),
             self.track2(),
             self.track3(),
@@ -15,43 +17,8 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             self.track5(),
             self.track6(),
         ];
-        let number_of_tracks = tracks.len();
 
-        // Join all of the tracks into one
-        let track = signal::from_iter(
-            tracks
-                .pop()
-                .expect("There should be at least one working Track"),
-        )
-        // Add the track or an empty Signal
-        .add_amp(signal::from_iter(
-            tracks
-                .pop()
-                .unwrap_or_else(|| silence().take_samples(self.duration())),
-        ))
-        .add_amp(signal::from_iter(
-            tracks
-                .pop()
-                .unwrap_or_else(|| silence().take_samples(self.duration())),
-        ))
-        .add_amp(signal::from_iter(
-            tracks
-                .pop()
-                .unwrap_or_else(|| silence().take_samples(self.duration())),
-        ))
-        .add_amp(signal::from_iter(
-            tracks
-                .pop()
-                .unwrap_or_else(|| silence().take_samples(self.duration())),
-        ))
-        .add_amp(signal::from_iter(
-            tracks
-                .pop()
-                .unwrap_or_else(|| silence().take_samples(self.duration())),
-        ));
-
-        let synth = track
-            .map(move |s| s / (number_of_tracks as f64))
+        let synth = synth
             .mul_amp(signal::from_iter(self.volume()))
             // Add some delay in the front if we enable metronome
             .delay(if cfg!(feature = "metronome") {
