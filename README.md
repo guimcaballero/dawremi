@@ -1,6 +1,6 @@
 # Dawremi
 
-This is a toy code-based Digital Audio Workstation.
+Dawremi (pronounced do-re-mi) is a toy code-based Digital Audio Workstation.
 
 It's in a very early stage and documentation is basically non-existant.
 
