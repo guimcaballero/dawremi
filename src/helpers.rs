@@ -142,3 +142,30 @@ macro_rules! join_tracks {
         }
     };
 }
+
+macro_rules! pattern {
+    // With a function that takes a note
+    ($self:ident, repetitions: $rep:expr, $( len: $len:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
+        join_tracks![
+            duration: $self.duration(),
+            $(
+                {
+                    // TODO We might want to use a different set of notes somewhere else.
+                    // Make something to abstract this or smth
+                    use crate::notes::Note::*;
+
+                    let mut vec: Vec<f64> = Vec::new();
+                    $(
+                        vec.append(
+                            &mut sequence!(@map $self fun: $fun, $x)
+                                .take_samples($self.beats($len * sequence!(@unwrap_len $x)))
+                        );
+                    )*
+                    Some(vec)
+                },
+            )*
+        ]
+            .take_samples($self.duration())
+            .repeat($rep);
+    };
+}

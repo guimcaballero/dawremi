@@ -19,15 +19,38 @@ impl Song for Test {
         Some(sequence!(@lyrics
                 self,
                 len: 1.,
-                fun: |note| self.synth(note),
+                fun: |note| self.bell(note),
 
                 (G4 G4 D4 D4 E4 E4 (D4 * 2.)),
         ))
     }
+
+    fn track2(&self) -> Option<Vec<f64>> {
+        let tracks = pattern!(
+            self,
+            repetitions: 4,
+
+            len: 1.,
+            fun: |note| self.harmonica(note),
+            pat: (C4 _  _  _),
+
+            len: 1.,
+            fun: |note| self.bell(note),
+            pat: (C4 _  C4 _),
+        );
+        Some(tracks)
+    }
 }
 
 impl Test {
-    fn synth(&self, note: Note) -> Synth {
+    fn harmonica(&self, note: Note) -> Synth {
+        Synth::new(
+            box Harmonica::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn bell(&self, note: Note) -> Synth {
         Synth::new(
             box Bell::new(note, self.get_sample_rate()),
             note,
