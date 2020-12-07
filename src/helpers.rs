@@ -145,7 +145,7 @@ macro_rules! join_tracks {
 
 macro_rules! pattern {
     // With a function that takes a note
-    ($self:ident, repetitions: $rep:expr, $( len: $len:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
+    ($self:ident, length: $length:expr, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
         join_tracks![
             duration: $self.duration(),
             $(
@@ -158,14 +158,14 @@ macro_rules! pattern {
                     $(
                         vec.append(
                             &mut sequence!(@map $self fun: $fun, $x)
-                                .take_samples($self.beats($len * sequence!(@unwrap_len $x)))
+                                .take_samples($self.beats($beat * sequence!(@unwrap_len $x)))
                         );
                     )*
                     Some(vec)
                 },
             )*
         ]
-            .take_samples($self.duration())
+            .take_samples($self.beats($length))
             .repeat($rep);
     };
 }

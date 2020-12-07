@@ -41,7 +41,9 @@ impl Song for TwinkleTwinkle {
         ))
     }
 
+    #[allow(unreachable_code)]
     fn track2(&self) -> Option<Vec<f64>> {
+        return None;
         let sign = CustomSignal {
             sample: 0,
             sample_rate: self.get_sample_rate(),
