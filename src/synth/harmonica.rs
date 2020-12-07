@@ -1,5 +1,4 @@
 use super::*;
-use rand::prelude::*;
 
 instrument!(Harmonica,);
 impl SynthInstrument for Harmonica {

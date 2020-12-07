@@ -1,5 +1,6 @@
 use crate::notes::*;
 use core::f64::consts::TAU;
+use rand::prelude::*;
 
 pub struct Synth {
     pub instrument: Box<dyn SynthInstrument>,
@@ -129,3 +130,9 @@ mod harmonica;
 pub use harmonica::Harmonica;
 mod bell;
 pub use bell::Bell;
+mod drum_kick;
+pub use drum_kick::DrumKick;
+mod drum_snare;
+pub use drum_snare::DrumSnare;
+mod drum_hihat;
+pub use drum_hihat::DrumHiHat;

@@ -21,7 +21,7 @@ impl SynthInstrument for Bell {
         let base_note = self
             .note
             .up_an_octave()
-            .expect("Note passed to Bell should be able to be increased by and octave");
+            .expect("Note passed to Bell should be able to be increased by an octave");
 
         // Make the base note disappear faster than the rest
         let attack = self.seconds(self.get_params().attack);
@@ -35,6 +35,7 @@ impl SynthInstrument for Bell {
         let mut result = base_note_vol_multiplier
             * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
+        // Add higher notes
         if let Some(note) = base_note.up_an_octave() {
             let freq: Frequency = note.into();
             result += 0.5 * (freq.0 * self.time()).sin();

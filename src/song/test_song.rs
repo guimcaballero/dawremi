@@ -19,7 +19,7 @@ impl Song for Test {
         Some(sequence!(@lyrics
                 self,
                 len: 1.,
-                fun: |note| self.bell(note),
+                fun: |note| self.drum_hihat(note),
 
                 (G4 G4 D4 D4 E4 E4 (D4 * 2.)),
         ))
@@ -38,7 +38,8 @@ impl Song for Test {
             fun: |note| self.bell(note),
             pat: (C4 _  C4 _),
         );
-        Some(tracks)
+        None
+        // Some(tracks)
     }
 }
 
@@ -53,6 +54,27 @@ impl Test {
     fn bell(&self, note: Note) -> Synth {
         Synth::new(
             box Bell::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn drum_kick(&self, note: Note) -> Synth {
+        Synth::new(
+            box DrumKick::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn drum_snare(&self, note: Note) -> Synth {
+        Synth::new(
+            box DrumSnare::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn drum_hihat(&self, note: Note) -> Synth {
+        Synth::new(
+            box DrumHiHat::new(note, self.get_sample_rate()),
             note,
             self.get_sample_rate(),
         )
