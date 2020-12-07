@@ -18,19 +18,18 @@ impl Song for Test {
     #[allow(unreachable_code)]
     fn track1(&self) -> Option<Vec<f64>> {
         return None;
-        Some(sequence!(@lyrics
+        Some(sequence!(
                 self,
                 len: 1.,
                 fun: |note| self.hihat(note),
 
-                (G4 G4 D4 D4 E4 E4 (D4 * 2.)),
+                G4 G4 D4 D4 E4 E4 (D4 * 2.)
         ))
     }
 
     fn track2(&self) -> Option<Vec<f64>> {
         let tracks = pattern!(
             self,
-            length: 8., // TODO Make something to calculate this automatically
             repetitions: 4,
 
             beat: 1.,
@@ -54,6 +53,7 @@ impl Song for Test {
 }
 
 impl Test {
+    #[allow(dead_code)]
     fn harmonica(&self, note: Note) -> Synth {
         Synth::new(
             box Harmonica::new(note, self.get_sample_rate()),

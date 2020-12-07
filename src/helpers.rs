@@ -125,14 +125,13 @@ macro_rules! join_tracks {
             // Add the track or an empty Signal
             $(
                 .add_amp(signal::from_iter(
-                    // To loop we need to use $x, so we do this `if true` thing
-                    if true {
-                        tracks
-                            .pop()
-                            .unwrap_or_else(|| silence().take_samples(duration))
-                    } else {
-                        $x.unwrap()
-                    }
+                    tracks
+                        .pop()
+                        .unwrap_or_else(|| {
+                            // To loop we need to use $x, so we just ignore it
+                            join_tracks!(@ignore $x);
+                            silence().take_samples(duration)
+                        })
                 ))
             )*
             ;
@@ -141,31 +140,41 @@ macro_rules! join_tracks {
                 .map(move |s| s / (number_of_tracks as f64))
         }
     };
+    (@ignore $x:expr) => {()}
 }
 
 macro_rules! pattern {
     // With a function that takes a note
-    ($self:ident, length: $length:expr, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
-        join_tracks![
-            duration: $self.duration(),
-            $(
-                {
-                    // TODO We might want to use a different set of notes somewhere else.
-                    // Make something to abstract this or smth
-                    use crate::notes::Note::*;
+    ($self:ident, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
+        {
+            let mut take_duration = 0.;
 
-                    let mut vec: Vec<f64> = Vec::new();
-                    $(
-                        vec.append(
-                            &mut sequence!(@map $self fun: $fun, $x)
-                                .take_samples($self.beats($beat * sequence!(@unwrap_len $x)))
-                        );
-                    )*
-                    Some(vec)
-                },
-            )*
-        ]
-            .take_samples($self.beats($length))
-            .repeat($rep);
+            join_tracks![
+                duration: $self.duration(),
+                $(
+                    {
+                        // TODO We might want to use a different set of notes somewhere else.
+                        // Make something to abstract this or smth
+                        use crate::notes::Note::*;
+
+                        // Basically a thing to get unused_assignments to shut up
+                        let _ = format!("{}", take_duration);
+
+                        take_duration = 0.;
+                        let mut vec: Vec<f64> = Vec::new();
+                        $(
+                            take_duration += $beat * sequence!(@unwrap_len $x);
+                            vec.append(
+                                &mut sequence!(@map $self fun: $fun, $x)
+                                    .take_samples($self.beats($beat * sequence!(@unwrap_len $x)))
+                            );
+                        )*
+                        Some(vec)
+                    },
+                )*
+            ]
+                .take_samples($self.beats(take_duration))
+                .repeat($rep)
+         }
     };
 }

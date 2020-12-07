@@ -41,15 +41,16 @@ impl Song for Test {
     #[allow(unreachable_code)]
     fn track1(&self) -> Option<Vec<f64>> {
         return None;
-        Some(sequence!(@lyrics
+        Some(sequence!(
                 self,
                 len: 1.,
                 fun: |note| self.hihat(note),
 
-                (G4 G4 D4 D4 E4 E4 (D4 * 2.)),
+                G4 G4 D4 D4 E4 E4 (D4 * 2.)
         ))
     }
 }
+
 impl Test {
     fn harmonica(&self, note: Note) -> Synth {
         Synth::new(
