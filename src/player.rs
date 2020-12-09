@@ -28,6 +28,8 @@ fn run<T>(
 where
     T: cpal::Sample,
 {
+    let sample_rate = config.sample_rate.0;
+
     song.set_sample_rate(config.sample_rate.0 as f64);
 
     // Save to a file
@@ -36,14 +38,16 @@ where
 
         let spec = hound::WavSpec {
             channels: 1,
-            sample_rate: 44100,
+            sample_rate,
             bits_per_sample: 16,
             sample_format: hound::SampleFormat::Int,
         };
         let mut writer = WavWriter::create(&format!("output/{}.wav", song.name()), spec).unwrap();
+
         for i in song.play() {
             let val = i as f32;
             let value: i16 = cpal::Sample::from::<f32>(&val);
+
             writer.write_sample(value).unwrap();
         }
     }
