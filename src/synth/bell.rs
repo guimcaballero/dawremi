@@ -1,6 +1,6 @@
 use super::*;
 
-instrument!(Bell,);
+simple_instrument!(Bell);
 impl SynthInstrument for Bell {
     fn get_params(&self) -> SynthParams {
         SynthParams {

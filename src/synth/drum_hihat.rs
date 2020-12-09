@@ -1,6 +1,6 @@
 use super::*;
 
-instrument!(DrumHiHat,);
+simple_instrument!(DrumHiHat);
 impl SynthInstrument for DrumHiHat {
     fn get_params(&self) -> SynthParams {
         SynthParams {

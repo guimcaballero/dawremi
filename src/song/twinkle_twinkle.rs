@@ -26,7 +26,7 @@ impl Song for TwinkleTwinkle {
         Some(sequence!(@lyrics
                 self,
                 len: 0.5,
-                fun: |note| self.synth(note),
+                fun: |note| self.plucked(note),
 
                 [twin-kle  twin-kle  lit-tle star],
                 (G4 __ G4 __ D4 __ D4 __ E4 __ E4 __ (D4 * 2.) __ __),
@@ -66,6 +66,13 @@ impl TwinkleTwinkle {
     fn synth(&self, note: Note) -> Synth {
         Synth::new(
             box Harmonica::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn plucked(&self, note: Note) -> Synth {
+        Synth::new(
+            box Plucked::new(note, self.get_sample_rate()),
             note,
             self.get_sample_rate(),
         )

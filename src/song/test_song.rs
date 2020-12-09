@@ -20,7 +20,7 @@ impl Song for Test {
         Some(sequence!(
                 self,
                 len: 1.,
-                fun: |note| self.bell(note),
+                fun: |note| self.plucked(note),
 
                 G4 G4 D4 D4 E4 E4 (D4 * 2.)
         ))
@@ -57,6 +57,13 @@ impl Test {
     fn harmonica(&self, note: Note) -> Synth {
         Synth::new(
             box Harmonica::new(note, self.get_sample_rate()),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn plucked(&self, note: Note) -> Synth {
+        Synth::new(
+            box Plucked::new(note, self.get_sample_rate()),
             note,
             self.get_sample_rate(),
         )

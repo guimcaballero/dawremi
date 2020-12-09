@@ -1,3 +1,4 @@
+use crate::helpers::*;
 use crate::notes::*;
 use core::f64::consts::TAU;
 use rand::prelude::*;
@@ -93,26 +94,45 @@ pub trait HasSample {
     }
 }
 
-macro_rules! instrument {
-    ($name:ident, $( $id:ident : $type:ty ),*) => {
+macro_rules! simple_instrument {
+    ($name:ident) => {
         #[derive(Clone, Copy)]
         pub struct $name {
             note: Note,
             sample_rate: f64,
             sample: usize,
-            $( $id: $type )*
         }
 
         impl $name {
             #[allow(dead_code)]
-            pub fn new(note: Note, sample_rate: f64, $( $id: $type, )*) -> Self {
+            pub fn new(note: Note, sample_rate: f64) -> Self {
                 Self {
                     note,
                     sample_rate,
                     sample: 0,
-                    $($id,)*
                 }
             }
+        }
+
+        impl HasSample for $name {
+            fn sample(&self) -> f64 {
+                self.sample as f64
+            }
+            fn sample_rate(&self) -> f64 {
+                self.sample_rate
+            }
+        }
+    };
+}
+
+macro_rules! instrument {
+    ($name:ident $(, $id:ident : $type:ty )* $(,)?) => {
+        #[derive(Clone)]
+        pub struct $name {
+            note: Note,
+            sample_rate: f64,
+            sample: usize,
+            $( $id: $type, )*
         }
 
         impl HasSample for $name {
@@ -136,3 +156,5 @@ mod drum_snare;
 pub use drum_snare::DrumSnare;
 mod drum_hihat;
 pub use drum_hihat::DrumHiHat;
+mod plucked;
+pub use plucked::Plucked;

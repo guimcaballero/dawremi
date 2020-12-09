@@ -1,6 +1,6 @@
 use super::*;
 
-instrument!(Harmonica,);
+simple_instrument!(Harmonica);
 impl SynthInstrument for Harmonica {
     fn get_params(&self) -> SynthParams {
         SynthParams {
