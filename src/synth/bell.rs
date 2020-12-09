@@ -5,8 +5,8 @@ impl SynthInstrument for Bell {
     fn get_params(&self) -> SynthParams {
         SynthParams {
             attack: 0.01,
-            decay: 0.5,
-            release: 0.,
+            decay: 0.7,
+            release: 0.1,
 
             attack_amplitude: 1.,
             sustain_amplitude: 0.,
@@ -38,16 +38,20 @@ impl SynthInstrument for Bell {
         // Add higher notes
         if let Some(note) = base_note.up_an_octave() {
             let freq: Frequency = note.into();
-            result += 0.5 * (freq.0 * self.time()).sin();
+            result +=
+                0.5 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
             if let Some(note) = note.up_an_octave() {
                 let freq: Frequency = note.into();
-                result += 0.125 * (freq.0 * self.time()).sin();
+                result += 0.125
+                    * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
                 if let Some(note) = note.up_an_octave() {
                     let freq: Frequency = note.into();
                     if self.sample > attack {
-                        result += 0.0125 * (freq.0 * self.time()).sin();
+                        result += 0.0125
+                            * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin())
+                                .sin();
                     }
                 }
             }

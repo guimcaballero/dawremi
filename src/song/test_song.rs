@@ -17,36 +17,36 @@ impl Song for Test {
 
     #[allow(unreachable_code)]
     fn track1(&self) -> Option<Vec<f64>> {
-        return None;
         Some(sequence!(
                 self,
                 len: 1.,
-                fun: |note| self.hihat(note),
+                fun: |note| self.bell(note),
 
                 G4 G4 D4 D4 E4 E4 (D4 * 2.)
         ))
     }
 
     fn track2(&self) -> Option<Vec<f64>> {
+        return None;
         let tracks = pattern!(
             self,
             repetitions: 4,
 
             beat: 1.,
             fun: |note| self.bell(note),
-            pat: (_ _ _ _   _ C4 _ _),
+            pat: (__ __ __ __  __ C4 __ __),
 
             beat: 1.,
             fun: |note| self.kick(note),
-            pat: (C4 _  _  _ C4 _  _  _),
+            pat: (C4 __ __ __  C4 __ __ __),
 
             beat: 1.,
             fun: |note| self.snare(note),
-            pat: (_  _  C4 _ _  _ C4 _),
+            pat: (__ __ C4 __  __ __ C4 __),
 
             beat: 1.,
             fun: |note| self.hihat(note),
-            pat: (C4 C4 C4 C4 C4 C4 C4 C4),
+            pat: (C4 C4 C4 C4  C4 C4 C4 C4),
         );
         Some(tracks)
     }

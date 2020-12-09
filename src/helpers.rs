@@ -105,8 +105,10 @@ macro_rules! sequence {
     (@unwrap_len $x:tt) => { 1. };
 
     (@map $self:ident fun: $fun:expr, _) => { silence() };
+    (@map $self:ident fun: $fun:expr, __) => { silence() };
     (@map $self:ident fun: $fun:expr, $x:tt) => { $fun(sequence!(@unwrap_note, $x)) };
     (@map $self:ident sign: $sign:expr, _) => { silence() };
+    (@map $self:ident sign: $sign:expr, __) => { silence() };
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
 
