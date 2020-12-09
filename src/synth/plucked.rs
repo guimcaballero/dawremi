@@ -34,9 +34,10 @@ impl SynthInstrument for Plucked {
     fn note(&mut self) -> f64 {
         self.sample += 1;
 
+        let prev = self.noise[(self.sample - 1) % self.noise_length];
         let result = self.noise[self.sample % self.noise_length];
         let next = self.noise[(self.sample + 1) % self.noise_length];
-        self.noise[self.sample % self.noise_length] = (result + next) * 0.996 / 2.;
+        self.noise[self.sample % self.noise_length] = (result + next + prev) * 0.996 / 3.;
 
         result
     }
