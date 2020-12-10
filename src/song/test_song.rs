@@ -22,7 +22,7 @@ impl Song for Test {
                 len: 1.,
                 fun: |note| self.plucked(note),
 
-                G4 G4 D4 D4 E4 E4 (D4 * 2.)
+                G2 G2 D2 D2 E4 E4 (D4 * 2.)
         ))
     }
 

@@ -29,8 +29,7 @@ where
     T: cpal::Sample,
 {
     let sample_rate = config.sample_rate.0;
-
-    song.set_sample_rate(config.sample_rate.0 as f64);
+    song.set_sample_rate(sample_rate as f64);
 
     // Save to a file
     {
