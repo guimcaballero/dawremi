@@ -4,9 +4,9 @@ simple_instrument!(DrumSnare);
 impl SynthInstrument for DrumSnare {
     fn get_params(&self) -> SynthParams {
         SynthParams {
-            attack: 0.,
-            decay: 0.2,
-            release: 0.,
+            attack: 0,
+            decay: self.seconds(0.2),
+            release: 0,
 
             attack_amplitude: 0.5,
             sustain_amplitude: 0.,

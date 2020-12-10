@@ -4,9 +4,9 @@ simple_instrument!(Harmonica);
 impl SynthInstrument for Harmonica {
     fn get_params(&self) -> SynthParams {
         SynthParams {
-            attack: 0.1,
-            decay: 0.1,
-            release: 0.2,
+            attack: self.seconds(0.1),
+            decay: self.seconds(0.1),
+            release: self.seconds(0.2),
 
             attack_amplitude: 1.0,
             sustain_amplitude: 0.8,

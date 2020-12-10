@@ -4,9 +4,9 @@ simple_instrument!(DrumHiHat);
 impl SynthInstrument for DrumHiHat {
     fn get_params(&self) -> SynthParams {
         SynthParams {
-            attack: 0.01,
-            decay: 0.05,
-            release: 0.,
+            attack: self.seconds(0.01),
+            decay: self.seconds(0.05),
+            release: 0,
 
             attack_amplitude: 1.,
             sustain_amplitude: 0.,

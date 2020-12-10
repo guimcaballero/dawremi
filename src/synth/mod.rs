@@ -17,19 +17,14 @@ impl Synth {
         }
     }
 
-    /// Returns the number of samples that should be taken to pass x seconds
-    fn seconds(&self, x: f64) -> usize {
-        (self.sample_rate * x) as usize
-    }
-
     pub fn take_samples(&mut self, samples: usize) -> Vec<f64> {
         let params = self.instrument.get_params();
         let vec: Vec<f64> = self.instrument.take_samples(samples);
 
         // Make a vec with the volumes and multiply them
-        let attack = self.seconds(params.attack);
-        let decay = self.seconds(params.decay);
-        let release = self.seconds(params.release);
+        let attack = params.attack;
+        let decay = params.decay;
+        let release = params.release;
 
         let attack_sustain_diff = params.attack_amplitude - params.sustain_amplitude;
         let samples_release_diff = samples.checked_sub(release).unwrap_or_default();
@@ -66,9 +61,9 @@ impl Synth {
 
 #[derive(Clone, Copy)]
 pub struct SynthParams {
-    attack: f64,
-    decay: f64,
-    release: f64,
+    attack: usize,
+    decay: usize,
+    release: usize,
 
     attack_amplitude: f64,
     sustain_amplitude: f64,

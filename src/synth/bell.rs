@@ -4,9 +4,9 @@ simple_instrument!(Bell);
 impl SynthInstrument for Bell {
     fn get_params(&self) -> SynthParams {
         SynthParams {
-            attack: 0.01,
-            decay: 0.7,
-            release: 0.1,
+            attack: self.seconds(0.01),
+            decay: self.seconds(0.7),
+            release: self.seconds(0.1),
 
             attack_amplitude: 1.,
             sustain_amplitude: 0.,
@@ -24,7 +24,7 @@ impl SynthInstrument for Bell {
             .expect("Note passed to Bell should be able to be increased by an octave");
 
         // Make the base note disappear faster than the rest
-        let attack = self.seconds(self.get_params().attack);
+        let attack = self.get_params().attack;
         let base_note_vol_multiplier = if self.sample > attack {
             attack as f64 / self.sample as f64
         } else {

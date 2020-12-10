@@ -22,9 +22,11 @@ impl Plucked {
 impl SynthInstrument for Plucked {
     fn get_params(&self) -> SynthParams {
         SynthParams {
-            attack: 0.01,
-            decay: 0.7,
-            release: 0.1,
+            // We basically want the initial random noise to not be very noticeable
+            attack: self.noise_length * 3,
+
+            decay: self.seconds(0.7),
+            release: self.seconds(0.1),
 
             attack_amplitude: 1.,
             sustain_amplitude: 0.,
