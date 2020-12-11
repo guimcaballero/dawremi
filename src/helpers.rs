@@ -1,21 +1,6 @@
 #![macro_use]
 use dasp::signal::{self, Signal};
 
-/// Adds the expressions to a vector if they're not None
-macro_rules! some_vec {
-    ($($x:expr),* $(,)?) => (
-        {
-            let mut temp = Vec::new();
-            $(
-                if let Some(val) = $x {
-                    temp.push(val);
-                }
-            )*
-                temp
-        }
-    );
-}
-
 pub fn silence() -> signal::Equilibrium<f64> {
     signal::equilibrium()
 }
@@ -112,71 +97,62 @@ macro_rules! sequence {
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
 
-/// Joins multiple functions that return Option<Vec<f64>> into a single averaged signal
-macro_rules! join_tracks {
-    (duration: $duration:expr, $($x:expr),* $(,)?) => {
-        {
-            let duration = $duration;
-            let mut tracks = some_vec![
-                $( $x, )*
-            ];
-            let number_of_tracks = tracks.len();
+pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
+    let len = &tracks
+        .iter()
+        .map(|track| track.len())
+        .max()
+        .expect("There should be at least one track to join");
 
-            // Join all of the tracks into one
-            let track = silence()
-            // Add the track or an empty Signal
-            $(
-                .add_amp(signal::from_iter(
-                    tracks
-                        .pop()
-                        .unwrap_or_else(|| {
-                            // To loop we need to use $x, so we just ignore it
-                            join_tracks!(@ignore $x);
-                            silence().take_samples(duration)
-                        })
-                ))
-            )*
-            ;
-
-             track
-                .map(move |s| s / (number_of_tracks as f64))
-        }
-    };
-    (@ignore $x:expr) => {()}
+    (0..*len)
+        .map(|i| {
+            let mut val = 0.;
+            let mut count = 0;
+            for track in &tracks {
+                if let Some(value) = track.get(i) {
+                    val += value;
+                    count += 1;
+                }
+            }
+            val / count as f64
+        })
+        .collect()
 }
 
 macro_rules! pattern {
     // With a function that takes a note
     ($self:ident, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
         {
-            let mut take_duration = 0.;
+            join_tracks(
+                vec![
+                    $(
+                        {
+                            // TODO We might want to use a different set of notes somewhere else.
+                            // Make something to abstract this or smth
+                            use crate::notes::Note::*;
 
-            join_tracks![
-                duration: $self.duration(),
-                $(
-                    {
-                        // TODO We might want to use a different set of notes somewhere else.
-                        // Make something to abstract this or smth
-                        use crate::notes::Note::*;
-
-                        // Basically a thing to get unused_assignments to shut up
-                        let _ = format!("{}", take_duration);
-
-                        take_duration = 0.;
-                        let mut vec: Vec<f64> = Vec::new();
-                        $(
-                            take_duration += $beat * sequence!(@unwrap_len $x);
-                            vec.append(
-                                &mut sequence!(@map $self fun: $fun, $x)
-                                    .take_samples($self.beats($beat * sequence!(@unwrap_len $x)))
-                            );
-                        )*
-                        Some(vec)
-                    },
-                )*
-            ]
-                .take_samples($self.beats(take_duration))
+                            let mut vec: Vec<f64> = Vec::new();
+                            $(
+                                vec.append(
+                                    &mut sequence!(@map $self fun: $fun, $x)
+                                        .take_samples($self.beats($beat * sequence!(@unwrap_len $x)))
+                                );
+                            )*
+                            vec
+                        },
+                    )*
+                ]
+            )
                 .repeat($rep)
          }
     };
+}
+
+mod test {
+    #[test]
+    fn join_tracks_test() {
+        let tracks = vec![vec![1., 1., 0., 0.5, 0.3], vec![0., 1., 0., 0.5, 0.5]];
+
+        assert_eq!(vec![0.5, 1., 0., 0.5, 0.4], super::join_tracks(tracks))
+    }
 }

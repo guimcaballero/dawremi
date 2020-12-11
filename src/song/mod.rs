@@ -9,18 +9,9 @@ use std::io::stdin;
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
     fn play(&mut self) -> Audio {
-        let synth = join_tracks![
-            duration: self.duration(),
+        let synth = join_tracks(self.tracks());
 
-            self.track1(),
-            self.track2(),
-            self.track3(),
-            self.track4(),
-            self.track5(),
-            self.track6(),
-        ];
-
-        let synth = synth
+        let synth = signal::from_iter(synth)
             .mul_amp(signal::from_iter(self.volume()))
             // Add some delay in the front if we enable metronome
             .delay(if cfg!(feature = "metronome") {
@@ -35,6 +26,8 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         Box::new(synth)
     }
 
+    fn tracks(&self) -> Vec<Vec<f64>>;
+
     fn metronome(&mut self) -> Vec<f64> {
         if cfg!(feature = "metronome") {
             self.sound_signal("assets/metronome.wav")
@@ -46,27 +39,6 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         } else {
             silence().take_samples(self.duration())
         }
-    }
-
-    // Tracks
-
-    fn track1(&self) -> Option<Vec<f64>> {
-        None
-    }
-    fn track2(&self) -> Option<Vec<f64>> {
-        None
-    }
-    fn track3(&self) -> Option<Vec<f64>> {
-        None
-    }
-    fn track4(&self) -> Option<Vec<f64>> {
-        None
-    }
-    fn track5(&self) -> Option<Vec<f64>> {
-        None
-    }
-    fn track6(&self) -> Option<Vec<f64>> {
-        None
     }
 
     // Helper methods to use on tracks
@@ -211,6 +183,10 @@ mod test {
         fn duration(&self) -> usize {
             self.beats(12.)
         }
+
+        fn tracks(&self) -> Vec<Vec<f64>> {
+            vec![]
+        }
     }
 
     #[test]
@@ -254,23 +230,22 @@ mod test {
             self.beats(12.)
         }
 
-        fn track1(&self) -> Option<Vec<f64>> {
-            // We have twinkle twinkle with lyrics to ensure that the lyrics macro works when changing things
-            Some(sequence!(@lyrics
-                self,
-                len: 0.5, fun: |note: Note| self.hz(note.into()).sine(),
+        fn tracks(&self) -> Vec<Vec<f64>> {
+            vec![sequence!(@lyrics
+                      self,
+                      len: 0.5, fun: |note: Note| self.hz(note.into()).sine(),
 
-                [twin-kle  twin-kle  lit-tle star],
-                (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
+                      [twin-kle  twin-kle  lit-tle star],
+                      (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
 
-                [how  I    won-der  how  you  are],
-                (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
+                      [how  I    won-der  how  you  are],
+                      (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
 
-                (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
-                (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
-                (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
-                (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
-            ))
+                      (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
+                      (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
+                      (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
+                      (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
+            )]
         }
     }
 

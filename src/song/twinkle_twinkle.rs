@@ -14,16 +14,20 @@ impl Song for TwinkleTwinkle {
     fn name(&self) -> &'static str {
         "Twinkle Twinkle"
     }
-
     fn bpm(&self) -> usize {
         120
     }
     fn duration(&self) -> usize {
         self.beats(8. * 6.)
     }
+    fn tracks(&self) -> Vec<Vec<f64>> {
+        vec![self.track1(), self.track2()]
+    }
+}
 
-    fn track1(&self) -> Option<Vec<f64>> {
-        Some(sequence!(@lyrics
+impl TwinkleTwinkle {
+    fn track1(&self) -> Vec<f64> {
+        sequence!(@lyrics
                 self,
                 len: 0.5,
                 fun: |note| self.plucked(note),
@@ -36,17 +40,15 @@ impl Song for TwinkleTwinkle {
                 (D4 __ D4 __ C4 __ C4 __ B4 __ B4 __ (A4 * 2.) __ __),
                 (G4 __ G4 __ D4 __ D4 __ E4 __ E4 __ (D4 * 2.) __ __),
                 (C4 __ C4 __ B4 __ B4 __ A4 __ A4 __ (G4 * 2.) __ __),
-        ))
+        )
     }
 
-    #[allow(unreachable_code)]
-    fn track2(&self) -> Option<Vec<f64>> {
-        return None;
+    fn track2(&self) -> Vec<f64> {
         let sign = CustomSignal {
             sample: 0,
             sample_rate: self.get_sample_rate(),
         };
-        Some(sequence!(@lyrics
+        sequence!(@lyrics
                 self,
                 len: 0.5, signal: sign,
 
@@ -58,11 +60,10 @@ impl Song for TwinkleTwinkle {
                 (x _ x _ x _ x _ x _ x _ x x _ _),
                 (x _ x _ x _ x _ x _ x _ x x _ _),
                 (x _ x _ x _ x _ x _ x _ x x _ _),
-        ))
+        )
     }
-}
 
-impl TwinkleTwinkle {
+    #[allow(dead_code)]
     fn synth(&self, note: Note) -> Synth {
         Synth::new(
             box Harmonica::new(note, self.get_sample_rate()),

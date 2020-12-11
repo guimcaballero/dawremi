@@ -7,28 +7,30 @@ impl Song for Test {
     fn name(&self) -> &'static str {
         "test"
     }
-
     fn bpm(&self) -> usize {
         120
     }
     fn duration(&self) -> usize {
         self.beats(16.)
     }
+    fn tracks(&self) -> Vec<Vec<f64>> {
+        vec![self.plucked_track(), self.track2()]
+    }
+}
 
-    #[allow(unreachable_code)]
-    fn track1(&self) -> Option<Vec<f64>> {
-        Some(sequence!(
-                self,
-                len: 1.,
-                fun: |note| self.plucked(note),
+impl Test {
+    fn plucked_track(&self) -> Vec<f64> {
+        sequence!(
+            self,
+            len: 1.,
+            fun: |note| self.plucked(note),
 
-                G2 G2 D2 D2 E4 E4 (D4 * 2.)
-        ))
+            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+        )
     }
 
-    fn track2(&self) -> Option<Vec<f64>> {
-        return None;
-        let tracks = pattern!(
+    fn track2(&self) -> Vec<f64> {
+        pattern!(
             self,
             repetitions: 4,
 
@@ -47,12 +49,9 @@ impl Song for Test {
             beat: 1.,
             fun: |note| self.hihat(note),
             pat: (C4 C4 C4 C4  C4 C4 C4 C4),
-        );
-        Some(tracks)
+        )
     }
-}
 
-impl Test {
     #[allow(dead_code)]
     fn harmonica(&self, note: Note) -> Synth {
         Synth::new(
