@@ -8,6 +8,7 @@ mod song;
 use song::*;
 mod player;
 use player::start;
+mod effects;
 mod notes;
 mod record;
 mod synth;

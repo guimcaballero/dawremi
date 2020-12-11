@@ -1,4 +1,5 @@
 use super::*;
+use crate::effects::*;
 use crate::synth::*;
 
 song!(Test,);
@@ -14,7 +15,13 @@ impl Song for Test {
         self.beats(16.)
     }
     fn tracks(&self) -> Vec<Vec<f64>> {
-        vec![self.plucked_track(), self.track2()]
+        vec![
+            self.plucked_track().effect(&Flanger {
+                freq: 5.,
+                sample_amplitude: self.seconds(0.02),
+            }),
+            self.track2(),
+        ]
     }
 }
 
