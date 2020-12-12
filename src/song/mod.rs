@@ -57,7 +57,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         } else {
             let reader = hound::WavReader::open(path).unwrap();
 
-            let spec = dbg!(reader.spec());
+            let spec = reader.spec();
 
             let orig = reader
                 .into_samples::<i16>()

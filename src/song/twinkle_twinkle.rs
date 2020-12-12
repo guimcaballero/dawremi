@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::*;
 use crate::synth::*;
 
@@ -63,7 +65,6 @@ impl TwinkleTwinkle {
         )
     }
 
-    #[allow(dead_code)]
     fn synth(&self, note: Note) -> Synth {
         Synth::new(
             box Harmonica::new(note, self.get_sample_rate()),

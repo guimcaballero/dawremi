@@ -1,5 +1,3 @@
-use dasp::signal;
-
 pub trait EffectExtension {
     fn effect(self, effect: &impl Effect) -> Vec<f64>;
 }
@@ -25,7 +23,6 @@ impl Effect for Flanger {
             .iter()
             .enumerate()
             .map(|(i, val)| {
-                // TODO Implement this
                 let offset =
                     self.sample_amplitude as f64 * 0.5 * ((self.freq * i as f64).sin() - 1.);
 
