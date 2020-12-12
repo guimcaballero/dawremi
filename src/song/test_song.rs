@@ -14,7 +14,7 @@ impl Song for Test {
     fn duration(&self) -> usize {
         self.beats(16.)
     }
-    fn tracks(&self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![
             self.plucked_track().effect(&Flanger {
                 freq: 5.,

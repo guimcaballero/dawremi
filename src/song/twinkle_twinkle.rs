@@ -20,7 +20,7 @@ impl Song for TwinkleTwinkle {
     fn duration(&self) -> usize {
         self.beats(8. * 6.)
     }
-    fn tracks(&self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![self.track1(), self.track2()]
     }
 }

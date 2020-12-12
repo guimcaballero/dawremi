@@ -26,7 +26,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         Box::new(synth)
     }
 
-    fn tracks(&self) -> Vec<Vec<f64>>;
+    fn tracks(&mut self) -> Vec<Vec<f64>>;
 
     fn metronome(&mut self) -> Vec<f64> {
         if cfg!(feature = "metronome") {
