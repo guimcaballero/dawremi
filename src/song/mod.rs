@@ -59,25 +59,41 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
 
             let spec = reader.spec();
 
-            let orig = reader
-                .into_samples::<i16>()
-                .filter_map(Result::ok)
-                .map(i16::to_sample::<f64>);
+            // Only process when sample rate is different
+            let vec = if spec.sample_rate as f64 != sample_rate {
+                let orig = reader
+                    .into_samples::<i16>()
+                    // NOTE Eventually this will be removed when we implement stereo
+                    .step_by(spec.channels.into())
+                    .filter_map(Result::ok)
+                    .map(i16::to_sample::<f64>);
 
-            // Convert the signal's sample rate using `Sinc` interpolation.
-            use dasp::{interpolate::sinc::Sinc, ring_buffer};
+                // Convert the signal's sample rate using `Sinc` interpolation.
+                use dasp::{interpolate::sinc::Sinc, ring_buffer};
+                let signal = signal::from_interleaved_samples_iter(orig);
+                let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
+                let sinc = Sinc::new(ring_buffer);
+                let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate);
 
-            let signal = signal::from_interleaved_samples_iter(orig);
-            let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
-            let sinc = Sinc::new(ring_buffer);
-            let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate);
-            let vec = new_signal
-                .until_exhausted()
-                .step_by(spec.channels.into())
-                .map(|frame| frame[0])
-                .collect::<Vec<f64>>();
+                // TODO We probably should implement something to save this to a file
+                // with the new sample rate, so we don't process it every time
+
+                new_signal
+                    .until_exhausted()
+                    .map(|frame| frame[0])
+                    .collect::<Vec<f64>>()
+            } else {
+                reader
+                    .into_samples::<i16>()
+                    // NOTE Eventually this will be removed when we implement stereo
+                    .step_by(spec.channels.into())
+                    .filter_map(Result::ok)
+                    .map(i16::to_sample::<f64>)
+                    .collect::<Vec<f64>>()
+            };
 
             hashmap.insert(path.to_string(), vec.clone());
+
             vec
         }
     }
