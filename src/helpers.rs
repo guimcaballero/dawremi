@@ -18,6 +18,7 @@ pub trait RepeatExtension {
     fn repeat(self, times: usize) -> Vec<f64>;
     fn collect(self) -> Self;
     fn take_samples(self, samples: usize) -> Vec<f64>;
+    fn chain(self, new: &mut Vec<f64>) -> Vec<f64>;
 }
 
 impl RepeatExtension for Vec<f64> {
@@ -35,6 +36,11 @@ impl RepeatExtension for Vec<f64> {
             .cycle()
             .take(self.len() * times)
             .collect()
+    }
+
+    fn chain(mut self, new: &mut Vec<f64>) -> Vec<f64> {
+        self.append(new);
+        self
     }
 }
 
