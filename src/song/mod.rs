@@ -49,16 +49,32 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     }
 
     fn sound(&mut self, path: &str) -> Vec<f64> {
+        let sample_rate = self.get_sample_rate();
+
         let hashmap = self.get_sound_hashmap();
         if let Some(vec) = hashmap.get(path) {
             vec.to_vec()
         } else {
             let reader = hound::WavReader::open(path).unwrap();
 
-            let vec = reader
+            let spec = dbg!(reader.spec());
+
+            let orig = reader
                 .into_samples::<i16>()
                 .filter_map(Result::ok)
-                .map(i16::to_sample::<f64>)
+                .map(i16::to_sample::<f64>);
+
+            // Convert the signal's sample rate using `Sinc` interpolation.
+            use dasp::{interpolate::sinc::Sinc, ring_buffer};
+
+            let signal = signal::from_interleaved_samples_iter(orig);
+            let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
+            let sinc = Sinc::new(ring_buffer);
+            let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate);
+            let vec = new_signal
+                .until_exhausted()
+                .step_by(spec.channels.into())
+                .map(|frame| frame[0])
                 .collect::<Vec<f64>>();
 
             hashmap.insert(path.to_string(), vec.clone());
