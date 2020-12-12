@@ -37,8 +37,9 @@ impl Test {
                     .sound("assets/audio.wav")
                     .effect(&BassBoost {
                         selectivity: 140.,
-                        ratio: 1.,
                         gain: 1.,
+                        bass_ratio: 0.6,
+                        input_ratio: 0.4,
                     })
                     .take_samples(self.seconds(7.)),
             )
