@@ -14,20 +14,36 @@ impl Song for Test {
         120
     }
     fn duration(&self) -> usize {
-        self.beats(16.)
+        self.seconds(14.)
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![
-            self.plucked_track().effect(&Flanger {
-                freq: 5.,
-                sample_amplitude: self.seconds(0.02),
-            }),
-            self.track2(),
+            // self.plucked_track().effect(&Flanger {
+            //     freq: 5.,
+            //     sample_amplitude: self.seconds(0.02),
+            // }),
+            // self.track2(),
+            self.audio(),
         ]
     }
 }
 
 impl Test {
+    fn audio(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .take_samples(self.seconds(7.))
+            .chain(
+                &mut self
+                    .sound("assets/audio.wav")
+                    .effect(&BassBoost {
+                        selectivity: 140.,
+                        ratio: 1.,
+                        gain: 1.,
+                    })
+                    .take_samples(self.seconds(7.)),
+            )
+    }
+
     fn plucked_track(&self) -> Vec<f64> {
         sequence!(
             self,
