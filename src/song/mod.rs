@@ -216,7 +216,7 @@ mod test {
             self.beats(12.)
         }
 
-        fn tracks(&self) -> Vec<Vec<f64>> {
+        fn tracks(&mut self) -> Vec<Vec<f64>> {
             vec![]
         }
     }
@@ -233,6 +233,7 @@ mod test {
     /// When loading a sound, it should get added to the hashmap so we don't load it twice
     fn sounds_get_added_to_hashmap() {
         let mut song = EmptySong::default();
+        song.set_sample_rate(48_000.);
 
         let path = "assets/beep.wav";
         let _ = song.sound(path);
@@ -262,21 +263,13 @@ mod test {
             self.beats(12.)
         }
 
-        fn tracks(&self) -> Vec<Vec<f64>> {
+        fn tracks(&mut self) -> Vec<Vec<f64>> {
             vec![sequence!(@lyrics
                       self,
                       len: 0.5, fun: |note: Note| self.hz(note.into()).sine(),
 
                       [twin-kle  twin-kle  lit-tle star],
                       (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
-
-                      [how  I    won-der  how  you  are],
-                      (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
-
-                      (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
-                      (D4 _ D4 _ C4 _ C4 _ B4 _ B4 _ (A4 * 2.) _ _),
-                      (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),
-                      (C4 _ C4 _ B4 _ B4 _ A4 _ A4 _ (G4 * 2.) _ _),
             )]
         }
     }
@@ -291,7 +284,7 @@ mod test {
     #[test]
     fn can_play_song() {
         let mut song = SongWithTrack::default();
-        song.set_sample_rate(44_000.0);
+        song.set_sample_rate(48_000.0);
         let _ = song.play();
     }
 }
