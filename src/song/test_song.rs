@@ -19,7 +19,8 @@ impl Song for Test {
     fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![
             // self.bass_boost(),
-            self.reverb(),
+            // self.mt_reverb(),
+            self.conv_reverb(),
         ]
     }
 }
@@ -41,7 +42,20 @@ impl Test {
             )
     }
 
-    fn reverb(&mut self) -> Vec<f64> {
+    fn mt_reverb(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .effect(&Convolution::new(
+                self.sound("assets/reverbs/large_long_echo_hall.wav"),
+            ))
+            .take_samples(self.seconds(7.))
+            .chain(
+                &mut self
+                    .sound("assets/audio.wav")
+                    .take_samples(self.seconds(7.)),
+            )
+    }
+
+    fn conv_reverb(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .effect(&MultitapReverb::new(self.get_sample_rate()))
             .take_samples(self.seconds(7.))
