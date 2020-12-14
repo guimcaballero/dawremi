@@ -18,18 +18,14 @@ impl Song for Test {
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![
-            // self.plucked_track().effect(&Flanger {
-            //     freq: 5.,
-            //     sample_amplitude: self.seconds(0.02),
-            // }),
-            // self.track2(),
-            self.audio(),
+            // self.bass_boost(),
+            self.reverb(),
         ]
     }
 }
 
 impl Test {
-    fn audio(&mut self) -> Vec<f64> {
+    fn bass_boost(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(7.))
             .chain(
@@ -41,6 +37,17 @@ impl Test {
                         bass_ratio: 0.6,
                         input_ratio: 0.4,
                     })
+                    .take_samples(self.seconds(7.)),
+            )
+    }
+
+    fn reverb(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .effect(&MultitapReverb::new(self.get_sample_rate()))
+            .take_samples(self.seconds(7.))
+            .chain(
+                &mut self
+                    .sound("assets/audio.wav")
                     .take_samples(self.seconds(7.)),
             )
     }

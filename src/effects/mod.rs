@@ -15,3 +15,5 @@ mod flanger;
 pub use flanger::Flanger;
 mod bass_boost;
 pub use bass_boost::BassBoost;
+mod multitap_reverb;
+pub use multitap_reverb::MultitapReverb;
