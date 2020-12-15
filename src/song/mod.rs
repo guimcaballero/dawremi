@@ -1,5 +1,6 @@
 use crate::helpers::*;
 use crate::notes::*;
+use crate::sounds::Metronome;
 use dasp::{
     signal::{self, ConstHz},
     Sample, Signal,
@@ -14,6 +15,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         let synth = signal::from_iter(synth)
             .mul_amp(signal::from_iter(self.volume()))
             // Add some delay in the front if we enable metronome
+            // This way we get like 3 beats of the metronome before we start
             .delay(if cfg!(feature = "metronome") {
                 self.beats(3.)
             } else {
@@ -30,7 +32,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
 
     fn metronome(&mut self) -> Vec<f64> {
         if cfg!(feature = "metronome") {
-            self.sound_signal("assets/metronome.wav")
+            self.sound_signal(Metronome.into())
                 .take(self.beats(0.2))
                 .chain(silence().take(self.beats(0.8)))
                 .cycle()

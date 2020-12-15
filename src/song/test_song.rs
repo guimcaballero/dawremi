@@ -2,6 +2,7 @@
 
 use super::*;
 use crate::effects::*;
+use crate::sounds::Reverb;
 use crate::synth::*;
 
 song!(Test,);
@@ -45,7 +46,7 @@ impl Test {
     fn mt_reverb(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .effect(&Convolution::new(
-                self.sound("assets/reverbs/large_long_echo_hall.wav"),
+                self.sound(Reverb::LargeLongEchoHall.into()),
             ))
             .take_samples(self.seconds(7.))
             .chain(
