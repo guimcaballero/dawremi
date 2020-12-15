@@ -62,7 +62,8 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             let spec = reader.spec();
 
             // Only process when sample rate is different
-            let vec = if spec.sample_rate as f64 != sample_rate {
+            // We do the abs thing cause we have them as floats
+            let vec = if (spec.sample_rate as f64 - sample_rate).abs() > 0.01 {
                 let orig = reader
                     .into_samples::<i16>()
                     // NOTE Eventually this will be removed when we implement stereo
