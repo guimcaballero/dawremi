@@ -11,7 +11,7 @@ use player::start;
 mod effects;
 mod notes;
 mod record;
-mod sounds;
+mod sound_files;
 mod synth;
 
 fn main() -> Result<(), anyhow::Error> {

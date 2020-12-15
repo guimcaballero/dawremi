@@ -1,6 +1,6 @@
 use crate::helpers::*;
 use crate::notes::*;
-use crate::sounds::Metronome;
+use crate::sound_files::Metronome;
 use dasp::{
     signal::{self, ConstHz},
     Sample, Signal,
