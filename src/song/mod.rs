@@ -286,7 +286,7 @@ mod test {
     #[test]
     fn can_play_song() {
         let mut song = SongWithTrack::default();
-        song.set_sample_rate(48_000.0);
+        song.set_sample_rate(400.0);
         let _ = song.play();
     }
 }

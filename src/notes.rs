@@ -162,11 +162,10 @@ impl From<f64> for Frequency {
     }
 }
 
+#[cfg(test)]
 mod test {
-    #[allow(unused_imports)]
     use super::*;
 
-    #[allow(unused_macros)]
     macro_rules! check_freq_note {
         ( $freq:expr, $note:tt) => {
             let note: Frequency = Note::$note.into();

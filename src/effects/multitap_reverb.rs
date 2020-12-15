@@ -54,8 +54,8 @@ impl Effect for MultitapReverb {
 }
 
 // Some tests because I'm not confident that this implementation works correctly
+#[cfg(test)]
 mod test {
-    #[allow(unused_imports)]
     use super::*;
 
     #[test]

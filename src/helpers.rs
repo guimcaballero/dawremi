@@ -154,11 +154,14 @@ macro_rules! pattern {
     };
 }
 
+#[cfg(test)]
 mod test {
+    use super::*;
+
     #[test]
     fn join_tracks_test() {
         let tracks = vec![vec![1., 1., 0., 0.5, 0.3], vec![0., 1., 0., 0.5, 0.5]];
 
-        assert_eq!(vec![0.5, 1., 0., 0.5, 0.4], super::join_tracks(tracks))
+        assert_eq!(vec![0.5, 1., 0., 0.5, 0.4], join_tracks(tracks))
     }
 }
