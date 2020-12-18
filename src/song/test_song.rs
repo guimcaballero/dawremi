@@ -43,9 +43,9 @@ impl Test {
             )
     }
 
-    fn mt_reverb(&mut self) -> Vec<f64> {
+    fn conv_reverb(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
-            .effect(&Convolution::new(
+            .effect(&SlowConvolution::new(
                 self.sound(Reverb::LargeLongEchoHall.into()),
             ))
             .take_samples(self.seconds(7.))
@@ -56,10 +56,10 @@ impl Test {
             )
     }
 
-    fn conv_reverb(&mut self) -> Vec<f64> {
+    fn mt_reverb(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .effect(&MultitapReverb::new(self.get_sample_rate()))
-            .take_samples(self.seconds(7.))
+            .take_samples(self.seconds(3.))
             .chain(
                 &mut self
                     .sound("assets/audio.wav")

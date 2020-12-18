@@ -18,4 +18,4 @@ pub use bass_boost::BassBoost;
 mod multitap_reverb;
 pub use multitap_reverb::MultitapReverb;
 mod convolution;
-pub use convolution::Convolution;
+pub use convolution::SlowConvolution;
