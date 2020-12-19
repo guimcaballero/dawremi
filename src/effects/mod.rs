@@ -17,5 +17,5 @@ mod bass_boost;
 pub use bass_boost::BassBoost;
 mod multitap_reverb;
 pub use multitap_reverb::MultitapReverb;
-mod convolution;
-pub use convolution::SlowConvolution;
+mod slow_convolution;
+pub use slow_convolution::SlowConvolution;
