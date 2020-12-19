@@ -43,7 +43,7 @@ impl Test {
             )
     }
 
-    fn conv_reverb(&mut self) -> Vec<f64> {
+    fn slow_conv_reverb(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .effect(&SlowConvolution::new(
                 self.sound(Reverb::LargeLongEchoHall.into()),
@@ -54,6 +54,14 @@ impl Test {
                     .sound("assets/audio.wav")
                     .take_samples(self.seconds(7.)),
             )
+    }
+
+    fn conv_reverb(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .effect(&Convolution::new(
+                self.sound(Reverb::LargeLongEchoHall.into()),
+            ))
+            .chain(&mut self.sound("assets/audio.wav"))
     }
 
     fn mt_reverb(&mut self) -> Vec<f64> {

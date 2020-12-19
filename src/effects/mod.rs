@@ -1,3 +1,5 @@
+use crate::helpers::*;
+
 pub trait EffectExtension {
     fn effect(self, effect: &impl Effect) -> Vec<f64>;
 }
@@ -19,3 +21,5 @@ mod multitap_reverb;
 pub use multitap_reverb::MultitapReverb;
 mod slow_convolution;
 pub use slow_convolution::SlowConvolution;
+mod fft_convolution;
+pub use fft_convolution::Convolution;
