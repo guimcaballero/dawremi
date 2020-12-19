@@ -8,6 +8,18 @@ use dasp::{
 use std::collections::HashMap;
 use std::io::stdin;
 
+pub type Audio = signal::Take<
+    signal::AddAmp<
+        signal::Delay<
+            signal::MulAmp<
+                signal::FromIterator<std::vec::IntoIter<f64>>,
+                signal::FromIterator<std::vec::IntoIter<f64>>,
+            >,
+        >,
+        signal::FromIterator<std::vec::IntoIter<f64>>,
+    >,
+>;
+
 pub trait Song: HasSampleRate + HasSoundHashMap {
     fn play(&mut self) -> Audio {
         let synth = join_tracks(self.tracks());
@@ -25,7 +37,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             .add_amp(signal::from_iter(self.metronome()))
             .take(self.duration());
 
-        Box::new(synth)
+        synth
     }
 
     fn tracks(&mut self) -> Vec<Vec<f64>>;
@@ -162,8 +174,6 @@ macro_rules! song {
         }
     };
 }
-
-pub type Audio = Box<dyn Iterator<Item = f64> + Send>;
 
 // Songs
 

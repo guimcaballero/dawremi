@@ -30,6 +30,7 @@ where
 {
     let sample_rate = config.sample_rate.0;
     song.set_sample_rate(sample_rate as f64);
+    let mut song_audio = song.play();
 
     // Save to a file
     {
@@ -43,15 +44,13 @@ where
         };
         let mut writer = WavWriter::create(&format!("output/{}.wav", song.name()), spec).unwrap();
 
-        for i in song.play() {
+        for i in song_audio.clone() {
             let val = i as f32;
             let value: i16 = cpal::Sample::from::<f32>(&val);
 
             writer.write_sample(value).unwrap();
         }
     }
-
-    let mut synth = song.play();
 
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = mpsc::sync_channel(1);
@@ -61,8 +60,20 @@ where
     let channels = config.channels as usize;
     let stream = device.build_output_stream(
         config,
-        move |data: &mut [T], _: &cpal::OutputCallbackInfo| {
-            write_data(data, channels, &complete_tx, &mut synth)
+        move |output: &mut [T], _: &cpal::OutputCallbackInfo| {
+            for frame in output.chunks_mut(channels) {
+                let sample = match &song_audio.next() {
+                    None => {
+                        complete_tx.try_send(()).ok();
+                        0.0
+                    }
+                    Some(sample) => *sample as f32,
+                };
+                let value: T = cpal::Sample::from::<f32>(&sample);
+                for sample in frame.iter_mut() {
+                    *sample = value;
+                }
+            }
         },
         err_fn,
     )?;
@@ -74,27 +85,4 @@ where
     stream.pause()?;
 
     Ok(())
-}
-
-fn write_data<T>(
-    output: &mut [T],
-    channels: usize,
-    complete_tx: &mpsc::SyncSender<()>,
-    signal: &mut Audio,
-) where
-    T: cpal::Sample,
-{
-    for frame in output.chunks_mut(channels) {
-        let sample = match signal.next() {
-            None => {
-                complete_tx.try_send(()).ok();
-                0.0
-            }
-            Some(sample) => sample as f32,
-        };
-        let value: T = cpal::Sample::from::<f32>(&sample);
-        for sample in frame.iter_mut() {
-            *sample = value;
-        }
-    }
 }
