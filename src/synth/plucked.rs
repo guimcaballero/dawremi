@@ -1,14 +1,35 @@
 use super::*;
+use crate::helpers::interpolation::interpolate;
 use dasp::signal;
 
 instrument!(Plucked, noise_length: usize, noise: Vec<f64>);
 
+pub enum InitialBurstType {
+    Random,
+    Triangle(usize, usize),
+    DoubleTriangle,
+}
+impl InitialBurstType {
+    fn noise(&self, length: usize) -> Vec<f64> {
+        match self {
+            InitialBurstType::Random => signal::noise(42069).take_samples(length),
+            InitialBurstType::DoubleTriangle => {
+                interpolate(vec![(length / 4, 1.), (length * 3 / 4, -1.), (length, 0.)])
+            }
+            InitialBurstType::Triangle(a, b) => {
+                let top = (length * a) / b;
+                interpolate(vec![(top, 1.), (length, 0.)])
+            }
+        }
+    }
+}
+
 impl Plucked {
     #[allow(dead_code)]
-    pub fn new(note: Note, sample_rate: f64) -> Self {
+    pub fn new(burst: InitialBurstType, note: Note, sample_rate: f64) -> Self {
         let freq: Frequency = note.into();
         let noise_length = (sample_rate / freq.0) as usize;
-        let noise = signal::noise(42069).take_samples(noise_length);
+        let noise = burst.noise(noise_length);
         Self {
             note,
             sample_rate,

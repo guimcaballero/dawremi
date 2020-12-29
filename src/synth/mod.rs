@@ -152,4 +152,4 @@ pub use drum_snare::DrumSnare;
 mod drum_hihat;
 pub use drum_hihat::DrumHiHat;
 mod plucked;
-pub use plucked::Plucked;
+pub use plucked::{InitialBurstType, Plucked};

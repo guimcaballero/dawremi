@@ -21,7 +21,8 @@ impl Song for Test {
         vec![
             // self.bass_boost(),
             // self.mt_reverb(),
-            self.conv_reverb(),
+            // self.conv_reverb(),
+            self.plucked_track(),
         ]
     }
 }
@@ -79,10 +80,24 @@ impl Test {
         sequence!(
             self,
             len: 1.,
-            fun: |note| self.plucked(note),
+            fun: |note| self.plucked_triangle(note),
 
             G2 G2 D2 D2 E4 E4 (D4 * 2.)
         )
+        .chain(&mut sequence!(
+            self,
+            len: 1.,
+            fun: |note| self.plucked_double_triangle(note),
+
+            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+        ))
+        .chain(&mut sequence!(
+            self,
+            len: 1.,
+            fun: |note| self.plucked(note),
+
+            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+        ))
     }
 
     fn track2(&self) -> Vec<f64> {
@@ -116,9 +131,31 @@ impl Test {
             self.get_sample_rate(),
         )
     }
+    fn plucked_double_triangle(&self, note: Note) -> Synth {
+        Synth::new(
+            box Plucked::new(
+                InitialBurstType::DoubleTriangle,
+                note,
+                self.get_sample_rate(),
+            ),
+            note,
+            self.get_sample_rate(),
+        )
+    }
+    fn plucked_triangle(&self, note: Note) -> Synth {
+        Synth::new(
+            box Plucked::new(
+                InitialBurstType::Triangle(2, 3),
+                note,
+                self.get_sample_rate(),
+            ),
+            note,
+            self.get_sample_rate(),
+        )
+    }
     fn plucked(&self, note: Note) -> Synth {
         Synth::new(
-            box Plucked::new(note, self.get_sample_rate()),
+            box Plucked::new(InitialBurstType::Random, note, self.get_sample_rate()),
             note,
             self.get_sample_rate(),
         )

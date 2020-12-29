@@ -74,7 +74,7 @@ impl TwinkleTwinkle {
     }
     fn plucked(&self, note: Note) -> Synth {
         Synth::new(
-            box Plucked::new(note, self.get_sample_rate()),
+            box Plucked::new(InitialBurstType::Random, note, self.get_sample_rate()),
             note,
             self.get_sample_rate(),
         )

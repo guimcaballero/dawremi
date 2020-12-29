@@ -2,7 +2,7 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use hound::WavWriter;
 use std::sync::mpsc;
 
-use crate::song::{Audio, Song};
+use crate::song::Song;
 
 pub fn start(song: Box<dyn Song>) -> Result<(), anyhow::Error> {
     let host = cpal::default_host();
