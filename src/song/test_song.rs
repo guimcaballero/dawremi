@@ -12,7 +12,7 @@ impl Song for Test {
         "test"
     }
     fn bpm(&self) -> usize {
-        120
+        180
     }
     fn duration(&self) -> usize {
         self.seconds(14.)
@@ -79,31 +79,31 @@ impl Test {
     fn plucked_track(&self) -> Vec<f64> {
         sequence!(
             self,
-            len: 1.,
+            len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Triangle(2, 3)),
 
-            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         )
         .chain(&mut sequence!(
             self,
-            len: 1.,
+            len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::DoubleTriangle),
 
-            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
         .chain(&mut sequence!(
             self,
-            len: 1.,
+            len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Sine),
 
-            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
         .chain(&mut sequence!(
             self,
-            len: 1.,
+            len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Random),
 
-            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
     }
 

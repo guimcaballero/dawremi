@@ -4,13 +4,14 @@ macro_rules! sequence {
     // This a test to be able to do something with vocaloids down the line
     (@lyrics $self:ident, $len_id:ident : $len:expr, $sign_id:ident : $sign:expr, $( $([ $($lyrics:tt)* ],)? ( $($x:tt)* ),)*) => {
         sequence!($self,
-                  $len_id: $len, $sign_id: $sign,
+                  // TODO Add note above
+                  $len_id: $len, note: Note, $sign_id: $sign,
                   $($($x)*)*
         )
     };
 
     // With a signal
-    ($self:ident, len: $len:expr, signal: $sign:expr, $($x:tt)*) => {
+    ($self:ident, len: $len:expr, note: $note:ident, signal: $sign:expr, $($x:tt)*) => {
         {
             let mut vec: Vec<f64> = Vec::new();
             $(
@@ -23,11 +24,9 @@ macro_rules! sequence {
         }
     };
     // With a function that takes a note
-    ($self:ident, len: $len:expr, fun: $fun:expr, $($x:tt)*) => {
+    ($self:ident, len: $len:expr, note: $note:ident, fun: $fun:expr, $($x:tt)*) => {
         {
-            // TODO We might want to use a different set of notes somewhere else.
-            // Make something to abstract this or smth
-            use crate::notes::Note::*;
+            use crate::notes::$note::*;
 
             let mut vec: Vec<f64> = Vec::new();
                 $(
@@ -53,7 +52,7 @@ macro_rules! sequence {
 
     (@map $self:ident fun: $fun:expr, _) => { silence() };
     (@map $self:ident fun: $fun:expr, __) => { silence() };
-    (@map $self:ident fun: $fun:expr, $x:tt) => { $fun(sequence!(@unwrap_note, $x)) };
+    (@map $self:ident fun: $fun:expr, $x:tt) => { $fun(sequence!(@unwrap_note, $x).into()) };
     (@map $self:ident sign: $sign:expr, _) => { silence() };
     (@map $self:ident sign: $sign:expr, __) => { silence() };
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
