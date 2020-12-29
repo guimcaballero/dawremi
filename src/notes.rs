@@ -162,6 +162,190 @@ impl From<f64> for Frequency {
     }
 }
 
+macro_rules! enum_to_note {
+    ($(#[$meta:meta])* $vis:vis enum $name:ident {
+        $($(#[$vmeta:meta])* $vname:ident => $val:ident,)*
+    }) => {
+        $(#[$meta])*
+            $vis enum $name {
+                $($(#[$vmeta])* $vname,)*
+            }
+
+        impl From<$name> for Note {
+            fn from(f: $name) -> Note {
+                match f {
+                    $($name::$vname => Note::$val,)*
+                }
+            }
+        }
+    }
+}
+
+enum_to_note! {
+    #[allow(dead_code)]
+    #[derive(Clone, Copy, Debug, PartialEq)]
+
+    // From https://i.redd.it/vabojwxo2yf31.jpg
+    pub enum GuitarFretboard {
+        E0  => E4,
+        E1  => F4,
+        E2  => Fs4,
+        E3  => G4,
+        E4  => Gs4,
+        E5  => A4,
+        E6  => As4,
+        E7  => B4,
+        E8  => C5,
+        E9  => Cs5,
+        E10 => D5,
+        E11 => Ds5,
+        E12 => E5,
+        E13 => F5,
+        E14 => Fs5,
+        E15 => G5,
+        E16 => Gs5,
+        E17 => A5,
+        E18 => As5,
+        E19 => B5,
+        E20 => C6,
+        E21 => Cs6,
+        E22 => D6,
+        E23 => Ds6,
+        E24 => E6,
+
+        B0  => B3,
+        B1  => C4,
+        B2  => Cs4,
+        B3  => D4,
+        B4  => Ds4,
+        B5  => E4,
+        B6  => F4,
+        B7  => Fs4,
+        B8  => G4,
+        B9  => Gs4,
+        B10 => A4,
+        B11 => As4,
+        B12 => B4,
+        B13 => C5,
+        B14 => Cs5,
+        B15 => D5,
+        B16 => Ds5,
+        B17 => E5,
+        B18 => F5,
+        B19 => Fs5,
+        B20 => G5,
+        B21 => Gs5,
+        B22 => A5,
+        B23 => As5,
+        B24 => B5,
+
+        G0  => G3,
+        G1  => Gs3,
+        G2  => A3,
+        G3  => As3,
+        G4  => B3,
+        G5  => C4,
+        G6  => Cs4,
+        G7  => D4,
+        G8  => Ds4,
+        G9  => E4,
+        G10 => F4,
+        G11 => Fs4,
+        G12 => G4,
+        G13 => Gs4,
+        G14 => A4,
+        G15 => As4,
+        G16 => B4,
+        G17 => C5,
+        G18 => Cs5,
+        G19 => D5,
+        G20 => Ds5,
+        G21 => E5,
+        G22 => F5,
+        G23 => Fs5,
+        G24 => G5,
+
+        D0  => D3,
+        D1  => Ds3,
+        D2  => E3,
+        D3  => F3,
+        D4  => Fs3,
+        D5  => G3,
+        D6  => Gs3,
+        D7  => A3,
+        D8  => As3,
+        D9  => B3,
+        D10 => C4,
+        D11 => Cs4,
+        D12 => D4,
+        D13 => Ds4,
+        D14 => E4,
+        D15 => F4,
+        D16 => Fs4,
+        D17 => G4,
+        D18 => Gs4,
+        D19 => A4,
+        D20 => As4,
+        D21 => B4,
+        D22 => C5,
+        D23 => Cs5,
+        D24 => D5,
+
+        A0  => A2,
+        A1  => As2,
+        A2  => B2,
+        A3  => C3,
+        A4  => Cs3,
+        A5  => D3,
+        A6  => Ds3,
+        A7  => E3,
+        A8  => F3,
+        A9  => Fs3,
+        A10 => G3,
+        A11 => Gs3,
+        A12 => A3,
+        A13 => As3,
+        A14 => B3,
+        A15 => C4,
+        A16 => Cs4,
+        A17 => D4,
+        A18 => Ds4,
+        A19 => E4,
+        A20 => F4,
+        A21 => Fs4,
+        A22 => G4,
+        A23 => Gs4,
+        A24 => A4,
+
+        // L for low E
+        L0  => E2,
+        L1  => F2,
+        L2  => Fs2,
+        L3  => G2,
+        L4  => Gs2,
+        L5  => A2,
+        L6  => As2,
+        L7  => B2,
+        L8  => C3,
+        L9  => Cs3,
+        L10 => D3,
+        L11 => Ds3,
+        L12 => E3,
+        L13 => F3,
+        L14 => Fs3,
+        L15 => G3,
+        L16 => Gs3,
+        L17 => A3,
+        L18 => As3,
+        L19 => B3,
+        L20 => C4,
+        L21 => Cs4,
+        L22 => D4,
+        L23 => Ds4,
+        L24 => E4,
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
