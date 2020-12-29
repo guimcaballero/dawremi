@@ -8,6 +8,7 @@ pub enum InitialBurstType {
     Random,
     Triangle(usize, usize),
     DoubleTriangle,
+    Sine,
 }
 impl InitialBurstType {
     fn noise(&self, length: usize) -> Vec<f64> {
@@ -20,6 +21,10 @@ impl InitialBurstType {
                 let top = (length * a) / b;
                 interpolate(vec![(top, 1.), (length, 0.)])
             }
+            InitialBurstType::Sine => signal::rate(length as f64)
+                .const_hz(1.0)
+                .sine()
+                .take_samples(length),
         }
     }
 }

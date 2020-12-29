@@ -80,21 +80,28 @@ impl Test {
         sequence!(
             self,
             len: 1.,
-            fun: |note| self.plucked_triangle(note),
+            fun: |note| self.plucked(note, InitialBurstType::Triangle(2, 3)),
 
             G2 G2 D2 D2 E4 E4 (D4 * 2.)
         )
         .chain(&mut sequence!(
             self,
             len: 1.,
-            fun: |note| self.plucked_double_triangle(note),
+            fun: |note| self.plucked(note, InitialBurstType::DoubleTriangle),
 
             G2 G2 D2 D2 E4 E4 (D4 * 2.)
         ))
         .chain(&mut sequence!(
             self,
             len: 1.,
-            fun: |note| self.plucked(note),
+            fun: |note| self.plucked(note, InitialBurstType::Sine),
+
+            G2 G2 D2 D2 E4 E4 (D4 * 2.)
+        ))
+        .chain(&mut sequence!(
+            self,
+            len: 1.,
+            fun: |note| self.plucked(note, InitialBurstType::Random),
 
             G2 G2 D2 D2 E4 E4 (D4 * 2.)
         ))
@@ -131,31 +138,9 @@ impl Test {
             self.get_sample_rate(),
         )
     }
-    fn plucked_double_triangle(&self, note: Note) -> Synth {
+    fn plucked(&self, note: Note, burst: InitialBurstType) -> Synth {
         Synth::new(
-            box Plucked::new(
-                InitialBurstType::DoubleTriangle,
-                note,
-                self.get_sample_rate(),
-            ),
-            note,
-            self.get_sample_rate(),
-        )
-    }
-    fn plucked_triangle(&self, note: Note) -> Synth {
-        Synth::new(
-            box Plucked::new(
-                InitialBurstType::Triangle(2, 3),
-                note,
-                self.get_sample_rate(),
-            ),
-            note,
-            self.get_sample_rate(),
-        )
-    }
-    fn plucked(&self, note: Note) -> Synth {
-        Synth::new(
-            box Plucked::new(InitialBurstType::Random, note, self.get_sample_rate()),
+            box Plucked::new(burst, note, self.get_sample_rate()),
             note,
             self.get_sample_rate(),
         )
