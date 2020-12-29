@@ -1,48 +1,4 @@
 #![macro_use]
-use dasp::signal::{self, Signal};
-
-pub fn silence() -> signal::Equilibrium<f64> {
-    signal::equilibrium()
-}
-
-pub trait TakeSamplesExtension {
-    fn take_samples(self, samples: usize) -> Vec<f64>;
-}
-impl<T: Signal<Frame = f64>> TakeSamplesExtension for T {
-    fn take_samples(self, samples: usize) -> Vec<f64> {
-        self.take(samples).collect()
-    }
-}
-
-pub trait RepeatExtension {
-    fn repeat(self, times: usize) -> Vec<f64>;
-    fn collect(self) -> Self;
-    fn take_samples(self, samples: usize) -> Vec<f64>;
-    fn chain(self, new: &mut Vec<f64>) -> Vec<f64>;
-}
-
-impl RepeatExtension for Vec<f64> {
-    fn collect(self) -> Self {
-        self
-    }
-
-    fn take_samples(self, samples: usize) -> Vec<f64> {
-        self.iter().cloned().take(samples).collect()
-    }
-
-    fn repeat(self, times: usize) -> Vec<f64> {
-        self.iter()
-            .cloned()
-            .cycle()
-            .take(self.len() * times)
-            .collect()
-    }
-
-    fn chain(mut self, new: &mut Vec<f64>) -> Vec<f64> {
-        self.append(new);
-        self
-    }
-}
 
 macro_rules! sequence {
     // This a test to be able to do something with vocaloids down the line
@@ -152,63 +108,6 @@ macro_rules! pattern {
                 .repeat($rep)
          }
     };
-}
-
-pub mod interpolation {
-    pub fn lerp(a: f64, b: f64, i: f64) -> f64 {
-        a + i * (b - a)
-    }
-
-    pub fn equidistant_points(a: f64, b: f64, n: usize) -> Vec<f64> {
-        (0..n).map(|i| lerp(a, b, i as f64 / n as f64)).collect()
-    }
-
-    pub fn interpolate(mut vec: Vec<(usize, f64)>) -> Vec<f64> {
-        if vec.is_empty() {
-            return Vec::new();
-        }
-
-        if vec[0].0 != 0 {
-            vec.insert(0, (0, 0.));
-        }
-
-        let mut res = Vec::new();
-
-        for win in vec.windows(2) {
-            res.append(&mut equidistant_points(
-                win[0].1,
-                win[1].1,
-                win[1].0 - win[0].0,
-            ));
-        }
-        res.push(vec.last().unwrap().1);
-
-        res
-    }
-
-    #[cfg(test)]
-    mod test {
-        use super::*;
-
-        #[test]
-        fn interpolation_works_empty() {
-            let expected = Vec::<f64>::new();
-            let actual = interpolate(Vec::new());
-
-            assert_eq!(expected, actual);
-        }
-
-        #[test]
-        fn interpolation_works() {
-            let expected = vec![0., 0.5, 1., 0.5, 0.];
-            let actual = interpolate(vec![(2, 1.), (4, 0.)]);
-            assert_eq!(expected, actual);
-
-            let expected = vec![0., 1. / 3., 2. / 3., 1., 0.];
-            let actual = interpolate(vec![(3, 1.), (4, 0.)]);
-            assert_eq!(expected, actual);
-        }
-    }
 }
 
 #[cfg(test)]
