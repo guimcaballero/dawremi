@@ -13,6 +13,8 @@ pub trait Effect {
     fn run(&self, input: Vec<f64>) -> Vec<f64>;
 }
 
+mod volume;
+pub use volume::Volume;
 mod flanger;
 pub use flanger::Flanger;
 mod bass_boost;
