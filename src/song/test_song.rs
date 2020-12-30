@@ -15,7 +15,7 @@ impl Song for Test {
         180
     }
     fn duration(&self) -> usize {
-        self.seconds(14.)
+        self.seconds(18.)
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![
@@ -88,6 +88,13 @@ impl Test {
             self,
             len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::DoubleTriangle),
+
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
+        ))
+        .chain(&mut sequence!(
+            self,
+            len: 1., note: GuitarFretboard,
+            fun: |note| self.plucked(note, InitialBurstType::Hill),
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
