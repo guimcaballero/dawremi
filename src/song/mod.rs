@@ -207,6 +207,7 @@ macro_rules! songs {
 
 songs!(
     1 => twinkle_twinkle => TwinkleTwinkle,
+    2 => audio_effects => AudioEffectsDemo,
     _ => test_song => Test,
 );
 
