@@ -76,6 +76,47 @@ impl Test {
             )
     }
 
+    fn test_new_sequence(&mut self) -> Vec<f64> {
+        let notes1: Vec<Option<Note>> = {
+            use Note::*;
+            option_vec![A4, A5, A6, _, A6]
+        };
+
+        let sound1 = notes1.generate(
+            &|note, length| {
+                self.plucked(note, InitialBurstType::Triangle(2, 3))
+                    .take_samples(length)
+            },
+            self.beats(1.),
+        );
+        let sound2 = notes1.map_notes(Note::up_an_octave).generate(
+            &|note, length| {
+                self.plucked(note, InitialBurstType::Triangle(2, 3))
+                    .take_samples(length)
+            },
+            self.beats(1.),
+        );
+
+        let bass = {
+            use GuitarFretboard::*;
+            option_vec![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
+        }
+        .into_notes()
+        .generate(
+            &|note, length| {
+                self.plucked(note, InitialBurstType::Sine)
+                    .take_samples(length)
+            },
+            self.beats(1.),
+        );
+
+        join_tracks(vec![sound1, sound2, bass])
+            .effect(&Convolution::new(
+                self.sound(Reverb::LargeLongEchoHall.into()),
+            ))
+            .effect(&Volume { mult: 0.5 })
+    }
+
     fn plucked_track(&self) -> Vec<f64> {
         sequence!(
             self,

@@ -58,6 +58,16 @@ macro_rules! sequence {
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
 
+macro_rules! option_vec {
+    ( $( $x:tt ),*  $(,)?) => {
+        vec![
+            $( option_vec!(@unpack $x),)*
+        ]
+    };
+    (@unpack _) => { None };
+    (@unpack $x:tt) => { Some($x) };
+}
+
 pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
     let len = &tracks
         .iter()

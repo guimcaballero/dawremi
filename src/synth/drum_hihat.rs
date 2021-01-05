@@ -18,11 +18,7 @@ impl SynthInstrument for DrumHiHat {
         let a_lfo = 1.;
         let f_lfo = 1.;
 
-        let base_note = self
-            .note
-            .down_an_octave()
-            .expect("Note passed to Drum Kick should be able to be decreased by 3 octaves");
-        let freq: Frequency = base_note.into();
+        let freq: Frequency = self.note.into();
 
         let square =
             if (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin() > 0. {

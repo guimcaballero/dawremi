@@ -18,10 +18,7 @@ impl SynthInstrument for Bell {
         let a_lfo = 0.001;
         let f_lfo = 5.0;
 
-        let base_note = self
-            .note
-            .up_an_octave()
-            .expect("Note passed to Bell should be able to be increased by an octave");
+        let base_note = self.note.up_an_octave();
 
         // Make the base note disappear faster than the rest
         let attack = self.get_params().attack;
@@ -36,25 +33,20 @@ impl SynthInstrument for Bell {
             * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
         // Add higher notes
-        if let Some(note) = base_note.up_an_octave() {
-            let freq: Frequency = note.into();
-            result +=
-                0.5 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+        let note = base_note.up_an_octave();
+        let freq: Frequency = note.into();
+        result += 0.5 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
-            if let Some(note) = note.up_an_octave() {
-                let freq: Frequency = note.into();
-                result += 0.125
-                    * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+        let note = note.up_an_octave();
+        let freq: Frequency = note.into();
+        result +=
+            0.125 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
-                if let Some(note) = note.up_an_octave() {
-                    let freq: Frequency = note.into();
-                    if self.sample > attack {
-                        result += 0.0125
-                            * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin())
-                                .sin();
-                    }
-                }
-            }
+        let note = note.up_an_octave();
+        let freq: Frequency = note.into();
+        if self.sample > attack {
+            result += 0.0125
+                * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
         }
 
         result

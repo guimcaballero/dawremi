@@ -18,13 +18,7 @@ impl SynthInstrument for DrumSnare {
         let a_lfo = 1.;
         let f_lfo = 0.5;
 
-        let base_note = self
-            .note
-            .down_an_octave()
-            .expect("Note passed to Drum Kick should be able to be decreased by 3 octaves")
-            .down_an_octave()
-            .expect("Note passed to Drum Kick should be able to be decreased by 3 octaves");
-        let freq: Frequency = base_note.into();
+        let freq: Frequency = self.note.into();
 
         0.3 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin()
             + 0.7 * rand::thread_rng().gen_range(-1., 1.)

@@ -138,13 +138,25 @@ back_to_enum! {
 }
 
 impl Note {
-    pub fn up_an_octave(&self) -> Option<Note> {
-        let n = *self as i16;
-        Note::try_from(n + 12).ok()
+    #[allow(dead_code)]
+    pub fn up_an_octave(self) -> Note {
+        let n = self as i16;
+        Note::try_from(n + 12).expect("Raise note an octave")
     }
-    pub fn down_an_octave(&self) -> Option<Note> {
-        let n = *self as i16;
-        Note::try_from(n - 12).ok()
+    #[allow(dead_code)]
+    pub fn down_an_octave(self) -> Note {
+        let n = self as i16;
+        Note::try_from(n - 12).expect("Lower note an octave")
+    }
+    #[allow(dead_code)]
+    pub fn up_a_note(self) -> Note {
+        let n = self as i16;
+        Note::try_from(n + 1).expect("Raise one note")
+    }
+    #[allow(dead_code)]
+    pub fn down_a_note(self) -> Note {
+        let n = self as i16;
+        Note::try_from(n - 1).expect("Lower one note")
     }
 }
 
