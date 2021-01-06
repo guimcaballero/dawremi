@@ -6,6 +6,7 @@ pub struct SlowConvolution {
     sound: Vec<f64>,
 }
 impl SlowConvolution {
+    #[allow(dead_code)]
     pub fn new(mut sound: Vec<f64>) -> Self {
         sound.reverse();
         Self { sound }
