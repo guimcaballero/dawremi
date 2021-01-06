@@ -31,28 +31,34 @@ macro_rules! sequence {
             let mut vec: Vec<f64> = Vec::new();
                 $(
                     vec.append(
-                        &mut sequence!(@map $self fun: $fun, $x)
-                            .take_samples($self.beats($len * sequence!(@unwrap_len $x)))
+                        &mut sequence!(@map $self fun: $fun, len: $len, $x)
                     );
                 )*
             vec
         }
     };
-    // With default params
-    ($self:ident, $($x:tt)*) => {
-        sequence!($self, len: 1., fun: |note| $self.hz(note).square(), $( $x * 1. )*)
-    };
 
     // Helpers
 
-    (@unwrap_note, ($x:tt * $len:expr)) => { $x };
-    (@unwrap_note, $x:tt) => { $x };
+    (@unwrap_note, ([$($x:tt)*] * $len:expr)) => { [$($x,)*] };
+    (@unwrap_note, ($x:tt * $len:expr)) => { [$x] };
+    (@unwrap_note, $x:tt) => { [$x] };
     (@unwrap_len ($x:tt * $len:expr)) => { $len };
     (@unwrap_len $x:tt) => { 1. };
 
-    (@map $self:ident fun: $fun:expr, _) => { silence() };
-    (@map $self:ident fun: $fun:expr, __) => { silence() };
-    (@map $self:ident fun: $fun:expr, $x:tt) => { $fun(sequence!(@unwrap_note, $x).into()) };
+    (@map $self:ident fun: $fun:expr, len: $len:expr, _) =>  { silence().take_samples($self.beats(1.))};
+    (@map $self:ident fun: $fun:expr, len: $len:expr, __) => { silence().take_samples($self.beats(1.))};
+    (@map $self:ident fun: $fun:expr, len: $len:expr, $x:tt) => {
+        join_tracks(
+            sequence!(@unwrap_note, $x)
+                    .iter()
+                    .map(|note| {
+                        $fun(Note::from(*note))
+                            .take_samples($self.beats($len * sequence!(@unwrap_len $x)))
+                    })
+                    .collect()
+        )
+    };
     (@map $self:ident sign: $sign:expr, _) => { silence() };
     (@map $self:ident sign: $sign:expr, __) => { silence() };
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
@@ -91,22 +97,21 @@ pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
 }
 
 macro_rules! pattern {
+    // TODO Try to merge both of these, so that the general one is used if the inner one is not provided
+
     // With a function that takes a note
-    ($self:ident, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
+    ($self:ident, note: $note:ident, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
         {
             join_tracks(
                 vec![
                     $(
                         {
-                            // TODO We might want to use a different set of notes somewhere else.
-                            // Make something to abstract this or smth
-                            use crate::notes::Note::*;
+                            use crate::notes::$note::*;
 
                             let mut vec: Vec<f64> = Vec::new();
                             $(
                                 vec.append(
-                                    &mut sequence!(@map $self fun: $fun, $x)
-                                        .take_samples($self.beats($beat * sequence!(@unwrap_len $x)))
+                                    &mut sequence!(@map $self fun: $fun, len: $beat, $x)
                                 );
                             )*
                             vec
@@ -117,6 +122,30 @@ macro_rules! pattern {
                 .repeat($rep)
          }
     };
+
+    ($self:ident, repetitions: $rep:expr, $( beat: $beat:expr, note: $note:ident, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
+        {
+            join_tracks(
+                vec![
+                    $(
+                        {
+                            use crate::notes::$note::*;
+
+                            let mut vec: Vec<f64> = Vec::new();
+                            $(
+                                vec.append(
+                                    &mut sequence!(@map $self fun: $fun, len: $beat, $x)
+                                );
+                            )*
+                                vec
+                        },
+                    )*
+                ]
+            )
+                .repeat($rep)
+        }
+    };
+
 }
 
 #[cfg(test)]

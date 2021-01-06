@@ -70,7 +70,7 @@ impl Test {
             len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Triangle(2, 3)),
 
-            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
+            (L5 * 2.) ([L5 L6] * 1.) _ L8 L8 _ L1 L1 _ L4 L4
         )
         .chain(&mut sequence!(
             self,
@@ -105,6 +105,7 @@ impl Test {
     fn track2(&self) -> Vec<f64> {
         pattern!(
             self,
+            note: Note,
             repetitions: 4,
 
             beat: 1.,
@@ -120,6 +121,33 @@ impl Test {
             pat: (__ __ C4 __  __ __ C4 __),
 
             beat: 1.,
+            fun: |note| self.hihat(note),
+            pat: (C4 C4 C4 C4  C4 C4 C4 C4),
+        )
+    }
+
+    fn track3(&self) -> Vec<f64> {
+        pattern!(
+            self,
+            repetitions: 4,
+
+            beat: 1.,
+            note: Note,
+            fun: |note| self.bell(note),
+            pat: (__ __ __ __  __ C4 __ __),
+
+            beat: 1.,
+            note: Note,
+            fun: |note| self.kick(note),
+            pat: (C4 __ __ __  C4 __ __ __),
+
+            beat: 1.,
+            note: Note,
+            fun: |note| self.snare(note),
+            pat: (__ __ C4 __  __ __ C4 __),
+
+            beat: 1.,
+            note: Note,
             fun: |note| self.hihat(note),
             pat: (C4 C4 C4 C4  C4 C4 C4 C4),
         )
