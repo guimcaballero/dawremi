@@ -109,8 +109,9 @@ impl Test {
             repetitions: 4,
 
             beat: 1.,
+            note: GuitarFretboard,
             fun: |note| self.bell(note),
-            pat: (__ __ __ __  __ C4 __ __),
+            pat: (__ __ __ __  __ L5 __ __),
 
             beat: 1.,
             fun: |note| self.kick(note),
@@ -121,33 +122,6 @@ impl Test {
             pat: (__ __ C4 __  __ __ C4 __),
 
             beat: 1.,
-            fun: |note| self.hihat(note),
-            pat: (C4 C4 C4 C4  C4 C4 C4 C4),
-        )
-    }
-
-    fn track3(&self) -> Vec<f64> {
-        pattern!(
-            self,
-            repetitions: 4,
-
-            beat: 1.,
-            note: Note,
-            fun: |note| self.bell(note),
-            pat: (__ __ __ __  __ C4 __ __),
-
-            beat: 1.,
-            note: Note,
-            fun: |note| self.kick(note),
-            pat: (C4 __ __ __  C4 __ __ __),
-
-            beat: 1.,
-            note: Note,
-            fun: |note| self.snare(note),
-            pat: (__ __ C4 __  __ __ C4 __),
-
-            beat: 1.,
-            note: Note,
             fun: |note| self.hihat(note),
             pat: (C4 C4 C4 C4  C4 C4 C4 C4),
         )

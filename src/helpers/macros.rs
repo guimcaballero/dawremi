@@ -100,13 +100,13 @@ macro_rules! pattern {
     // TODO Try to merge both of these, so that the general one is used if the inner one is not provided
 
     // With a function that takes a note
-    ($self:ident, note: $note:ident, repetitions: $rep:expr, $( beat: $beat:expr, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
+    ($self:ident, note: $note:ident, repetitions: $rep:expr, $( beat: $beat:expr, $(note: $subnote:ident,)? fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
         {
             join_tracks(
                 vec![
                     $(
                         {
-                            use crate::notes::$note::*;
+                            pattern!(@note_ident $note $($subnote)?);
 
                             let mut vec: Vec<f64> = Vec::new();
                             $(
@@ -123,29 +123,8 @@ macro_rules! pattern {
          }
     };
 
-    ($self:ident, repetitions: $rep:expr, $( beat: $beat:expr, note: $note:ident, fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
-        {
-            join_tracks(
-                vec![
-                    $(
-                        {
-                            use crate::notes::$note::*;
-
-                            let mut vec: Vec<f64> = Vec::new();
-                            $(
-                                vec.append(
-                                    &mut sequence!(@map $self fun: $fun, len: $beat, $x)
-                                );
-                            )*
-                                vec
-                        },
-                    )*
-                ]
-            )
-                .repeat($rep)
-        }
-    };
-
+    (@note_ident $a:ident $b:ident) => { use crate::notes::$b::*; };
+    (@note_ident $a:ident) => { use crate::notes::$a::*; };
 }
 
 #[cfg(test)]
