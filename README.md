@@ -18,7 +18,7 @@ You can also use `cargo run --features metronome` to run with the metronome acti
 
 ## Making songs
 
-Create a new Rust file in the `src/song/` directory. You have to create a new struct using the `song!()` macro, and then implement the `Song` trait:
+Create a new Rust file in the `src/song/` directory. You have to create a new struct using the `song!()` macro, and then implement the `Song` trait. The following is a demo song:
 
 ```rust
 use super::*;
@@ -62,7 +62,7 @@ impl Test {
             self,
             // The lenght of one note in beats
             len: 1.,
-            // The type of notes we want to use. GuitarFretboard simulates a guitar tab,
+            // The note representation we want to use. GuitarFretboard simulates a guitar tab,
             // using the first letter as the string, and the number as the finger position
             // L is the low e string
             note: GuitarFretboard,
