@@ -51,7 +51,7 @@ impl<'a> VecOptionNote<'a> for Vec<Option<Note>> {
         let mut vec: Vec<f64> = Vec::new();
         for opt_note in self {
             if let Some(note) = opt_note {
-                vec.append(&mut fun(note.clone().into(), length));
+                vec.append(&mut fun(*note, length));
             } else {
                 silence().take_samples(length);
             }

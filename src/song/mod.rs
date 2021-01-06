@@ -22,9 +22,9 @@ pub type Audio = signal::Take<
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
     fn play(&mut self) -> Audio {
-        let synth = join_tracks(self.tracks());
+        let tracks = join_tracks(self.tracks());
 
-        let synth = signal::from_iter(synth)
+        signal::from_iter(tracks)
             .mul_amp(signal::from_iter(self.volume()))
             // Add some delay in the front if we enable metronome
             // This way we get like 3 beats of the metronome before we start
@@ -35,9 +35,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             })
             // We add the metronome after the volume
             .add_amp(signal::from_iter(self.metronome()))
-            .take(self.duration());
-
-        synth
+            .take(self.duration())
     }
 
     fn tracks(&mut self) -> Vec<Vec<f64>>;
