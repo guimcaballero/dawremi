@@ -138,6 +138,9 @@ back_to_enum! {
 }
 
 impl Note {
+    // All of this functions can panic, this way we know at compile time if our note will exist or not
+    // And if it doesn't we can add it to the enum
+
     #[allow(dead_code)]
     pub fn up_an_octave(self) -> Note {
         let n = self as i16;
@@ -381,24 +384,18 @@ mod test {
     #[test]
     fn going_up_octave() {
         let c5 = Note::C4.up_an_octave();
-        assert_eq!(c5, Some(Note::C5));
+        assert_eq!(c5, Note::C5);
 
         let a3 = Note::A2.up_an_octave();
-        assert_eq!(a3, Some(Note::A3));
-
-        let none = Note::B8.up_an_octave();
-        assert_eq!(none, None);
+        assert_eq!(a3, Note::A3);
     }
 
     #[test]
     fn going_down_octave() {
         let c5 = Note::C6.down_an_octave();
-        assert_eq!(c5, Some(Note::C5));
+        assert_eq!(c5, Note::C5);
 
         let a3 = Note::A4.down_an_octave();
-        assert_eq!(a3, Some(Note::A3));
-
-        let none = Note::A0.down_an_octave();
-        assert_eq!(none, None);
+        assert_eq!(a3, Note::A3);
     }
 }
