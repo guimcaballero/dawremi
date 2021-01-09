@@ -64,14 +64,15 @@ macro_rules! sequence {
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
 
-macro_rules! option_vec {
+macro_rules! note_list {
     ( $( $x:tt ),*  $(,)?) => {
         vec![
-            $( option_vec!(@unpack $x),)*
+            $( note_list!(@unpack $x),)*
         ]
     };
-    (@unpack _) => { None };
-    (@unpack $x:tt) => { Some($x) };
+    (@unpack _) => { vec![] };
+    (@unpack [$($x:tt),*] $(,)?) => { vec![ $($x,)* ] };
+    (@unpack $x:tt) => { vec![$x] };
 }
 
 pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
@@ -97,8 +98,6 @@ pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
 }
 
 macro_rules! pattern {
-    // TODO Try to merge both of these, so that the general one is used if the inner one is not provided
-
     // With a function that takes a note
     ($self:ident, note: $note:ident, repetitions: $rep:expr, $( beat: $beat:expr, $(note: $subnote:ident,)? fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
         {

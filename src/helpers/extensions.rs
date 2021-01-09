@@ -1,3 +1,4 @@
+use crate::helpers::join_tracks;
 use crate::helpers::silence;
 use crate::notes::Note;
 use dasp::signal::Signal;
@@ -41,12 +42,12 @@ impl RepeatExtension for Vec<f64> {
     }
 }
 
-pub trait VecOptionNote<'a> {
+pub trait NoteList<'a> {
     fn generate(&self, fun: &'a dyn Fn(Note, usize) -> Vec<f64>, length: usize) -> Vec<f64>;
     fn map_notes<U: Copy + Fn(Note) -> Note>(&self, fun: U) -> Self;
 }
 
-impl<'a> VecOptionNote<'a> for Vec<Option<Note>> {
+impl<'a> NoteList<'a> for Vec<Option<Note>> {
     fn generate(&self, fun: &'a dyn Fn(Note, usize) -> Vec<f64>, length: usize) -> Vec<f64> {
         let mut vec: Vec<f64> = Vec::new();
         for opt_note in self {
@@ -63,13 +64,34 @@ impl<'a> VecOptionNote<'a> for Vec<Option<Note>> {
     }
 }
 
-pub trait IntoVecOptionNote {
-    fn into_notes(self) -> Vec<Option<Note>>;
-}
-impl<T: Clone + Into<Note>> IntoVecOptionNote for Vec<Option<T>> {
-    fn into_notes(self) -> Vec<Option<Note>> {
+impl<'a> NoteList<'a> for Vec<Vec<Note>> {
+    fn generate(&self, fun: &'a dyn Fn(Note, usize) -> Vec<f64>, length: usize) -> Vec<f64> {
+        let mut vec: Vec<f64> = Vec::new();
+        for note_list in self {
+            if note_list.is_empty() {
+                silence().take_samples(length);
+            } else {
+                vec.append(&mut join_tracks(
+                    note_list.iter().map(|note| fun(*note, length)).collect(),
+                ));
+            }
+        }
+        vec
+    }
+    fn map_notes<U: Copy + Fn(Note) -> Note>(&self, fun: U) -> Self {
         self.iter()
-            .map(|a| a.as_ref().map(|b| b.clone().into()))
+            .map(|list| list.iter().map(|note| fun(*note)).collect())
+            .collect()
+    }
+}
+
+pub trait IntoNoteList {
+    fn into_notes(self) -> Vec<Vec<Note>>;
+}
+impl<T: Clone + Into<Note>> IntoNoteList for Vec<Vec<T>> {
+    fn into_notes(self) -> Vec<Vec<Note>> {
+        self.iter()
+            .map(|a| a.iter().map(|b| b.clone().into()).collect())
             .collect()
     }
 }

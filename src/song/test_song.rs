@@ -24,9 +24,9 @@ impl Song for Test {
 
 impl Test {
     fn test_new_sequence(&mut self) -> Vec<f64> {
-        let notes1: Vec<Option<Note>> = {
+        let notes1 = {
             use Note::*;
-            option_vec![A4, A5, A6, _, A6]
+            note_list![[A4, C4], A5, A6, _, A6]
         };
 
         let sound1 = notes1.generate(
@@ -46,7 +46,7 @@ impl Test {
 
         let bass = {
             use GuitarFretboard::*;
-            option_vec![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
+            note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
         }
         .into_notes()
         .generate(
