@@ -64,7 +64,14 @@ impl Test {
             .effect(&Volume { mult: 0.5 })
     }
 
-    fn plucked_track(&self) -> Vec<f64> {
+    fn effect_bundle(&mut self) -> EffectBundle {
+        EffectBundle(vec![
+            box Convolution::new(self.sound(Reverb::LargeLongEchoHall.into())),
+            box Volume { mult: 0.5 },
+        ])
+    }
+
+    fn plucked_track(&mut self) -> Vec<f64> {
         sequence!(
             self,
             len: 1., note: GuitarFretboard,
@@ -100,6 +107,7 @@ impl Test {
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
+        .effect(&self.effect_bundle())
     }
 
     fn track2(&self) -> Vec<f64> {
