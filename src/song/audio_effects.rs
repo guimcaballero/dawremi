@@ -8,7 +8,7 @@ song!(AudioEffectsDemo,);
 
 impl Song for AudioEffectsDemo {
     fn name(&self) -> &'static str {
-        "test"
+        "Audio effects"
     }
     fn bpm(&self) -> usize {
         180
