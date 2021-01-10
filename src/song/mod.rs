@@ -1,9 +1,10 @@
 use crate::helpers::*;
 use crate::notes::*;
+use crate::sound_files::open_file;
 use crate::sound_files::Metronome;
 use dasp::{
     signal::{self, ConstHz},
-    Sample, Signal,
+    Signal,
 };
 use std::collections::HashMap;
 use std::io::stdin;
@@ -64,47 +65,13 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         let sample_rate = self.get_sample_rate();
 
         let hashmap = self.get_sound_hashmap();
+
+        // If the audio is in the hashmap, return that
+        // Else, load it and insert it in the hashmap
         if let Some(vec) = hashmap.get(path) {
             vec.to_vec()
         } else {
-            let reader = hound::WavReader::open(path).unwrap();
-
-            let spec = reader.spec();
-
-            // Only process when sample rate is different
-            // We do the abs thing cause we have them as floats
-            let vec = if (spec.sample_rate as f64 - sample_rate).abs() > 0.01 {
-                let orig = reader
-                    .into_samples::<i16>()
-                    // NOTE Eventually this will be removed when we implement stereo
-                    .step_by(spec.channels.into())
-                    .filter_map(Result::ok)
-                    .map(i16::to_sample::<f64>);
-
-                // Convert the signal's sample rate using `Sinc` interpolation.
-                use dasp::{interpolate::sinc::Sinc, ring_buffer};
-                let signal = signal::from_interleaved_samples_iter(orig);
-                let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
-                let sinc = Sinc::new(ring_buffer);
-                let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate);
-
-                // TODO We probably should implement something to save this to a file
-                // with the new sample rate, so we don't process it every time
-
-                new_signal
-                    .until_exhausted()
-                    .map(|frame| frame[0])
-                    .collect::<Vec<f64>>()
-            } else {
-                reader
-                    .into_samples::<i16>()
-                    // NOTE Eventually this will be removed when we implement stereo
-                    .step_by(spec.channels.into())
-                    .filter_map(Result::ok)
-                    .map(i16::to_sample::<f64>)
-                    .collect::<Vec<f64>>()
-            };
-
+            let vec = open_file(path, sample_rate as u32);
             hashmap.insert(path.to_string(), vec.clone());
 
             vec

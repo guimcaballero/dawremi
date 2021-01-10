@@ -1,5 +1,5 @@
+use crate::sound_files::save_file;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use hound::WavWriter;
 use std::sync::mpsc;
 
 use crate::song::Song;
@@ -33,24 +33,12 @@ where
     let mut song_audio = song.play();
 
     // Save to a file
-    {
-        // we keep it in a block so that the writer gets dropped before we start playing the song
-
-        let spec = hound::WavSpec {
-            channels: 1,
-            sample_rate,
-            bits_per_sample: 16,
-            sample_format: hound::SampleFormat::Int,
-        };
-        let mut writer = WavWriter::create(&format!("output/{}.wav", song.name()), spec).unwrap();
-
-        for i in song_audio.clone() {
-            let val = i as f32;
-            let value: i16 = cpal::Sample::from::<f32>(&val);
-
-            writer.write_sample(value).unwrap();
-        }
-    }
+    // TODO Move this to main
+    save_file(
+        song_audio.clone().collect(),
+        &format!("output/{}.wav", song.name()),
+        sample_rate,
+    );
 
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = mpsc::sync_channel(1);

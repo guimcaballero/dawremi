@@ -1,3 +1,72 @@
+use dasp::{signal, Sample, Signal};
+use hound::WavWriter;
+
+pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
+    let reader = hound::WavReader::open(path).unwrap();
+
+    let spec = reader.spec();
+
+    // Only process when sample rate is different
+    // We do the abs thing cause we have them as floats
+    if spec.sample_rate != sample_rate {
+        // TODO Check if a file with the correct sample rate and name exists in
+        // ---- the processed folder
+
+        let file_exists = false;
+        if file_exists {
+            todo!()
+        } else {
+            let orig = reader
+                .into_samples::<i16>()
+                // NOTE Eventually this will be removed when we implement stereo
+                .step_by(spec.channels.into())
+                .filter_map(Result::ok)
+                .map(i16::to_sample::<f64>);
+
+            // Convert the signal's sample rate using `Sinc` interpolation.
+            use dasp::{interpolate::sinc::Sinc, ring_buffer};
+            let signal = signal::from_interleaved_samples_iter(orig);
+            let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
+            let sinc = Sinc::new(ring_buffer);
+            let new_signal =
+                signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
+
+            // TODO We probably should implement something to save this to a file
+            // with the new sample rate, so we don't process it every time
+
+            new_signal
+                .until_exhausted()
+                .map(|frame| frame[0])
+                .collect::<Vec<f64>>()
+        }
+    } else {
+        reader
+            .into_samples::<i16>()
+            // NOTE Eventually this will be removed when we implement stereo
+            .step_by(spec.channels.into())
+            .filter_map(Result::ok)
+            .map(i16::to_sample::<f64>)
+            .collect::<Vec<f64>>()
+    }
+}
+
+pub fn save_file(audio: Vec<f64>, path: &str, sample_rate: u32) {
+    let spec = hound::WavSpec {
+        channels: 1,
+        sample_rate,
+        bits_per_sample: 16,
+        sample_format: hound::SampleFormat::Int,
+    };
+    let mut writer = WavWriter::create(path, spec).unwrap();
+
+    for i in audio {
+        let val = i as f32;
+        let value: i16 = cpal::Sample::from::<f32>(&val);
+
+        writer.write_sample(value).unwrap();
+    }
+}
+
 pub enum Reverb {
     BlockInside,
     BottleHall,
