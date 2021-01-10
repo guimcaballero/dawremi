@@ -2,7 +2,7 @@
 
 use super::*;
 use crate::effects::*;
-use crate::sound_files::Reverb;
+use crate::sound_files::enums::Reverb;
 use crate::synth::*;
 
 song!(Test,);

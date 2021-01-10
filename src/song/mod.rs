@@ -1,7 +1,7 @@
 use crate::helpers::*;
 use crate::notes::*;
-use crate::sound_files::open_file;
-use crate::sound_files::Metronome;
+use crate::sound_files::enums::Metronome;
+use crate::sound_files::io::open_file;
 use dasp::{
     signal::{self, ConstHz},
     Signal,
