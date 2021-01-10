@@ -6,15 +6,32 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
 
     let spec = reader.spec();
 
-    // Only process when sample rate is different
-    // We do the abs thing cause we have them as floats
+    // Check if the file has the same sample rate as the song
+    // If it doesn't we resample the file
+    // If it does, we just return the file
     if spec.sample_rate != sample_rate {
-        // TODO Check if a file with the correct sample rate and name exists in
-        // ---- the processed folder
+        // If we have to resample the file, first:
+        // Check if we already have it processed
+        // If we do, load that
+        // If we don't, resample the file and save it
 
-        let file_exists = false;
-        if file_exists {
-            todo!()
+        let processed_filename = format!(
+            "assets/processed/{}-{}",
+            sample_rate,
+            path.replace("/", "_")
+        );
+
+        // TODO Check at what time the file was processed to see if we need to update it
+
+        if let Ok(processed_file) = hound::WavReader::open(&processed_filename) {
+            let processed_spec = reader.spec();
+            processed_file
+                .into_samples::<i16>()
+                // NOTE Eventually this will be removed when we implement stereo
+                .step_by(processed_spec.channels.into())
+                .filter_map(Result::ok)
+                .map(i16::to_sample::<f64>)
+                .collect::<Vec<f64>>()
         } else {
             let orig = reader
                 .into_samples::<i16>()
@@ -31,13 +48,14 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
             let new_signal =
                 signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
 
-            // TODO We probably should implement something to save this to a file
-            // with the new sample rate, so we don't process it every time
-
-            new_signal
+            let vec = new_signal
                 .until_exhausted()
                 .map(|frame| frame[0])
-                .collect::<Vec<f64>>()
+                .collect::<Vec<f64>>();
+
+            save_file(vec.clone(), &processed_filename, sample_rate);
+
+            vec
         }
     } else {
         reader

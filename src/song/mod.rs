@@ -212,7 +212,7 @@ mod test {
     /// When loading a sound, it should get added to the hashmap so we don't load it twice
     fn sounds_get_added_to_hashmap() {
         let mut song = EmptySong::default();
-        song.set_sample_rate(44_100.);
+        song.set_sample_rate(48_000.);
 
         let path = "assets/beep.wav";
         let _ = song.sound(path);
