@@ -7,7 +7,6 @@ use dasp::{
     Signal,
 };
 use std::collections::HashMap;
-use std::io::stdin;
 
 pub type Audio = signal::Take<
     signal::AddAmp<
@@ -22,7 +21,7 @@ pub type Audio = signal::Take<
 >;
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
-    fn play(&mut self) -> Audio {
+    fn generate(&mut self) -> Audio {
         let tracks = join_tracks(self.tracks());
 
         signal::from_iter(tracks)
@@ -114,6 +113,7 @@ pub trait HasSoundHashMap {
     fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<f64>>;
 }
 
+#[macro_export]
 macro_rules! song {
     ($name:ident, $( $id:ident : $type:ty ),*) => {
         #[derive(Default)]
@@ -123,7 +123,7 @@ macro_rules! song {
             $( $id: $type )*
         }
 
-        impl HasSampleRate for $name {
+        impl self::HasSampleRate for $name {
             fn set_sample_rate(&mut self, sample_rate: f64) {
                 self.sample_rate = Some(sample_rate);
             }
@@ -132,49 +132,13 @@ macro_rules! song {
             }
         }
 
-        impl HasSoundHashMap for $name {
+        impl self::HasSoundHashMap for $name {
             fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<f64>>{
                 &mut self.sound_hashmap
             }
         }
     };
 }
-
-// Songs
-
-macro_rules! songs {
-    ( $($num:pat =>  $mod:ident => $struct:ident,)* ) => {
-        $(
-            mod $mod;
-            pub use $mod::$struct;
-        )*
-
-        pub fn select_song() -> Box<dyn Song> {
-            println!("Select a song:");
-
-            $(
-                println!("[{}]: {}", stringify!($num), $struct::default().name());
-            )*
-
-            let mut s = String::new();
-            stdin()
-                .read_line(&mut s)
-                .expect("Did not enter a correct string");
-
-            match s.trim().parse().unwrap_or(u32::MAX) {
-                $(
-                    $num => box $struct::default(),
-                )*
-            }
-        }
-    };
-}
-
-songs!(
-    1 => twinkle_twinkle => TwinkleTwinkle,
-    2 => audio_effects => AudioEffectsDemo,
-    _ => test_song => Test,
-);
 
 // Tests
 

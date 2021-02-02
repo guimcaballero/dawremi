@@ -1,0 +1,17 @@
+[package]
+name = "dawremi_core"
+version = "0.1.0"
+authors = ["guimcaballero <guim.caballero@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.34"
+cpal = "0.13.1"
+dasp = { git = "https://github.com/RustAudio/dasp/", branch = "master", features = ["all"] }
+hound = "3.4.0"
+rand = "0.7.3"
+realfft = "0.4.0"
+rustfft = "5.0.0"
+
+[features]
+metronome = []

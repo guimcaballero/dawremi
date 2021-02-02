@@ -4,7 +4,7 @@ use std::sync::mpsc;
 
 use crate::song::Song;
 
-pub fn start(song: Box<dyn Song>) -> Result<(), anyhow::Error> {
+pub fn start_song(song: Box<dyn Song>) -> Result<(), anyhow::Error> {
     let host = cpal::default_host();
     let device = host
         .default_output_device()
@@ -30,7 +30,7 @@ where
 {
     let sample_rate = config.sample_rate.0;
     song.set_sample_rate(sample_rate as f64);
-    let mut song_audio = song.play();
+    let mut song_audio = song.generate();
 
     // Save to a file
     save_file(

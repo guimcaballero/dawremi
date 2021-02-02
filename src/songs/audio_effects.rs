@@ -1,8 +1,6 @@
 #![allow(dead_code)]
 
-use super::*;
-use crate::effects::*;
-use crate::sound_files::enums::Reverb;
+use dawremi_core::prelude::*;
 
 song!(AudioEffectsDemo,);
 

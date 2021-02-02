@@ -3,16 +3,12 @@
 
 use std::io::stdin;
 
-mod helpers;
-mod song;
-use song::*;
-mod player;
-use player::start;
-mod effects;
-mod notes;
-mod record;
-mod sound_files;
-mod synth;
+#[macro_use]
+extern crate dawremi_core;
+use dawremi_core::{prelude::*, record};
+
+mod songs;
+use songs::*;
 
 fn main() -> Result<(), anyhow::Error> {
     // Recording mode
@@ -28,5 +24,5 @@ fn main() -> Result<(), anyhow::Error> {
 
     // Playing mode
     let song = select_song();
-    start(song)
+    start_song(song)
 }

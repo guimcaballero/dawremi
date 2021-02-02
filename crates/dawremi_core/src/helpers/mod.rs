@@ -1,5 +1,3 @@
-#![macro_use]
-
 use dasp::signal;
 
 mod extensions;

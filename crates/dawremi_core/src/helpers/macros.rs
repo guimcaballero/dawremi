@@ -1,5 +1,4 @@
-#![macro_use]
-
+#[macro_export]
 macro_rules! sequence {
     // This a test to be able to do something with vocaloids down the line
     (@lyrics $self:ident, $len_id:ident : $len:expr, $sign_id:ident : $sign:expr, $( $([ $($lyrics:tt)* ],)? ( $($x:tt)* ),)*) => {
@@ -26,7 +25,7 @@ macro_rules! sequence {
     // With a function that takes a note
     ($self:ident, len: $len:expr, note: $note:ident, fun: $fun:expr, $($x:tt)*) => {
         {
-            use crate::notes::$note::*;
+            use $note::*;
 
             let mut vec: Vec<f64> = Vec::new();
                 $(
@@ -65,6 +64,7 @@ macro_rules! sequence {
     (@map $self:ident sign: $sign:expr, $_x:tt) => { $sign };
 }
 
+#[macro_export]
 macro_rules! note_list {
     ( $( $x:tt ),*  $(,)?) => {
         vec![
@@ -98,6 +98,7 @@ pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
         .collect()
 }
 
+#[macro_export]
 macro_rules! pattern {
     // With a function that takes a note
     ($self:ident, note: $note:ident, repetitions: $rep:expr, $( beat: $beat:expr, $(note: $subnote:ident,)? fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {
@@ -123,8 +124,8 @@ macro_rules! pattern {
          }
     };
 
-    (@note_ident $a:ident $b:ident) => { use crate::notes::$b::*; };
-    (@note_ident $a:ident) => { use crate::notes::$a::*; };
+    (@note_ident $a:ident $b:ident) => { use $b::*; };
+    (@note_ident $a:ident) => { use $a::*; };
 }
 
 #[cfg(test)]

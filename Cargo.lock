@@ -547,6 +547,14 @@ name = "dawremi"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "dawremi_core",
+]
+
+[[package]]
+name = "dawremi_core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
  "cpal",
  "dasp",
  "hound",
