@@ -18,11 +18,42 @@ impl Song for Test {
         self.seconds(18.)
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
-        vec![self.plucked_track()]
+        vec![self.afrodite()]
     }
 }
 
 impl Test {
+    fn afrodite(&mut self) -> Vec<f64> {
+        let sound1 = sequence!(
+            self,
+            len: 1., note: GuitarFretboard,
+            fun: |note| self.plucked(note, InitialBurstType::Triangle(2, 3)),
+
+            D3 D3 D3 (D3 * 0.5) D4 _
+            [D3 G4] G6 G7 B6 G7 G7 G6 _
+            D7 (G6 * 0.5) G7 D7 D6 D4
+
+            [L5 A5 D5]
+        );
+
+        let chord = {
+            use GuitarFretboard::*;
+            vec![A4, D3, G4, B2, E4]
+        };
+        let notes = vec![chord.clone(), chord.clone(), chord.clone(), chord].into_notes();
+        let mut sound = notes.generate(
+            &|note, length| {
+                self.plucked(note, InitialBurstType::Triangle(2, 3))
+                    .take_samples(length)
+            },
+            self.beats(1.),
+        );
+
+        sound1
+            .chain(&mut sound)
+            .effect(&Convolution::new(self.sound(Reverb::ParkingGarage.into())))
+    }
+
     fn test_new_sequence(&mut self) -> Vec<f64> {
         let notes1 = {
             use Note::*;

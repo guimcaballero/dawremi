@@ -33,7 +33,6 @@ where
     let mut song_audio = song.play();
 
     // Save to a file
-    // TODO Move this to main
     save_file(
         song_audio.clone().collect(),
         &format!("output/{}.wav", song.name()),

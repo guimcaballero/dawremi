@@ -42,6 +42,7 @@ macro_rules! sequence {
 
     (@unwrap_note, ([$($x:tt)*] * $len:expr)) => { [$($x,)*] };
     (@unwrap_note, ($x:tt * $len:expr)) => { [$x] };
+    (@unwrap_note, [$($x:tt)*]) => { [$($x,)*] };
     (@unwrap_note, $x:tt) => { [$x] };
     (@unwrap_len ($x:tt * $len:expr)) => { $len };
     (@unwrap_len $x:tt) => { 1. };
