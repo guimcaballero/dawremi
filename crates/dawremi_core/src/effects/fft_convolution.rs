@@ -10,9 +10,7 @@ pub struct Convolution {
     sound: Vec<f64>,
 }
 impl Convolution {
-    pub fn new(mut sound: Vec<f64>) -> Self {
-        sound.reverse();
-
+    pub fn new(sound: Vec<f64>) -> Self {
         Self { sound }
     }
 }
