@@ -3,6 +3,7 @@
 
 pub mod effects;
 pub mod helpers;
+pub mod looper;
 pub mod notes;
 pub mod player;
 pub mod record;
