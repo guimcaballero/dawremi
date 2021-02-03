@@ -86,6 +86,9 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::notes::*;
+    use crate::{sequence, song};
+    use std::collections::HashMap;
 
     song!(EmptySong,);
     impl Song for EmptySong {
