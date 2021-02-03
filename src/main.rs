@@ -5,7 +5,7 @@ use std::io::stdin;
 
 #[macro_use]
 extern crate dawremi_core;
-use dawremi_core::{prelude::*, record};
+use dawremi_core::record;
 
 mod songs;
 use songs::*;
@@ -23,6 +23,6 @@ fn main() -> Result<(), anyhow::Error> {
     }
 
     // Playing mode
-    let song = select_song();
-    start_song(song)
+    let mut song = select_song();
+    song.play()
 }

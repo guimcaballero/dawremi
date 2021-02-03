@@ -1,27 +1,40 @@
 use crate::helpers::*;
 use crate::notes::*;
+use crate::player::*;
 use crate::sound_files::enums::Metronome;
 use crate::sound_files::io::open_file;
+use crate::sound_files::io::save_file;
+use anyhow::Result;
 use dasp::{
     signal::{self, ConstHz},
     Signal,
 };
 use std::collections::HashMap;
 
-pub type Audio = signal::Take<
-    signal::AddAmp<
-        signal::Delay<
-            signal::MulAmp<
-                signal::FromIterator<std::vec::IntoIter<f64>>,
-                signal::FromIterator<std::vec::IntoIter<f64>>,
-            >,
-        >,
-        signal::FromIterator<std::vec::IntoIter<f64>>,
-    >,
->;
-
 pub trait Song: HasSampleRate + HasSoundHashMap {
-    fn generate(&mut self) -> Audio {
+    fn save_to_file(&mut self) {
+        // Save to a file
+        save_file(
+            self.generate(),
+            &format!("output/{}.wav", self.name()),
+            self.get_sample_rate() as u32,
+        );
+    }
+
+    fn play(&mut self) -> Result<()> {
+        let config = get_player_config();
+
+        self.set_sample_rate(config.sample_rate as f64);
+
+        let player = Player {
+            audio: self.generate().into(),
+            cycle: false,
+        };
+
+        run_player(player, config)
+    }
+
+    fn generate(&mut self) -> Vec<f64> {
         let tracks = join_tracks(self.tracks());
 
         signal::from_iter(tracks)
@@ -36,6 +49,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             // We add the metronome after the volume
             .add_amp(signal::from_iter(self.metronome()))
             .take(self.duration())
+            .collect()
     }
 
     fn tracks(&mut self) -> Vec<Vec<f64>>;

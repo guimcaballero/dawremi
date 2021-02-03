@@ -12,7 +12,7 @@ impl Song for Test {
         180
     }
     fn duration(&self) -> usize {
-        self.seconds(18.)
+        self.seconds(4.)
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![self.afrodite()]
