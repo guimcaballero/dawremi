@@ -22,26 +22,27 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
         let modified = has_file_been_modified(path, &processed_filename);
         if metadata(&processed_filename).is_ok() && !modified {
             if let Ok(processed_file) = hound::WavReader::open(&processed_filename) {
-                let processed_spec = reader.spec();
+                let processed_spec = processed_file.spec();
                 return processed_file
-                    .into_samples::<i16>()
+                    .into_samples::<i32>()
                     // NOTE Eventually this will be removed when we implement stereo
                     .step_by(processed_spec.channels.into())
-                    .filter_map(Result::ok)
-                    .map(i16::to_sample::<f64>)
+                    .map(Result::unwrap)
+                    .map(|val| sample(val, processed_spec.bits_per_sample))
                     .collect::<Vec<f64>>();
             };
         }
 
         // Otherwise we resample it, save it as a new file, and return it
+        println!("resampling and saving");
         resample_and_save(reader, &processed_filename, sample_rate)
     } else {
         reader
-            .into_samples::<i16>()
+            .into_samples::<i32>()
             // NOTE Eventually this will be removed when we implement stereo
             .step_by(spec.channels.into())
-            .filter_map(Result::ok)
-            .map(i16::to_sample::<f64>)
+            .map(Result::unwrap)
+            .map(|val| sample(val, spec.bits_per_sample))
             .collect::<Vec<f64>>()
     }
 }
@@ -64,6 +65,10 @@ fn has_file_been_modified(path1: &str, path2: &str) -> bool {
     false
 }
 
+fn sample(val: i32, bits_per_sample: u16) -> f64 {
+    val as f64 / 2f64.powi(bits_per_sample as i32)
+}
+
 fn resample_and_save(
     reader: WavReader<BufReader<File>>,
     processed_filename: &str,
@@ -71,11 +76,11 @@ fn resample_and_save(
 ) -> Vec<f64> {
     let spec = reader.spec();
     let orig = reader
-        .into_samples::<i16>()
+        .into_samples::<i32>()
         // NOTE Eventually this will be removed when we implement stereo
         .step_by(spec.channels.into())
-        .filter_map(Result::ok)
-        .map(i16::to_sample::<f64>);
+        .map(Result::unwrap)
+        .map(|val| sample(val, spec.bits_per_sample));
 
     // Convert the signal's sample rate using `Sinc` interpolation.
     use dasp::{interpolate::sinc::Sinc, ring_buffer};
