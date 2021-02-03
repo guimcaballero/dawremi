@@ -1,16 +1,16 @@
 use dawremi_core::prelude::*;
 use std::io::stdin;
 
-macro_rules! songs {
+macro_rules! loopers {
     ( $($num:pat =>  $mod:ident => $struct:ident,)* ) => {
         $(
             mod $mod;
             pub use $mod::$struct;
         )*
 
-        pub fn select_song() -> Box<dyn Song> {
+        pub fn select_looper() -> Box<dyn Looper> {
             println!("");
-            println!("Select a song:");
+            println!("Select a looper:");
 
             $(
                 println!("[{}]: {}", stringify!($num), $struct::default().name());
@@ -30,8 +30,6 @@ macro_rules! songs {
     };
 }
 
-songs!(
-    1 => twinkle_twinkle => TwinkleTwinkle,
-    2 => audio_effects => AudioEffectsDemo,
-    _ => test_song => Test,
+loopers!(
+    _ => test_looper => Test,
 );

@@ -43,4 +43,5 @@ pub trait Looper: HasSampleRate + HasSoundHashMap {
 
     fn tracks(&mut self) -> Vec<Vec<f64>>;
     fn bpm(&self) -> usize;
+    fn name(&self) -> &'static str;
 }
