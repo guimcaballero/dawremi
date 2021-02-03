@@ -1,11 +1,12 @@
-use dasp::{signal, Sample, Signal};
+use dasp::{signal, Signal};
 use hound::WavReader;
 use hound::WavWriter;
 use std::fs::*;
 use std::io::BufReader;
 
 pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
-    let reader = hound::WavReader::open(path).expect(&format!("File {} should exist", path));
+    let reader =
+        hound::WavReader::open(path).unwrap_or_else(|_| panic!("File {} should exist", path));
     let spec = reader.spec();
 
     // Check if the file has the same sample rate as the song
@@ -34,7 +35,6 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
         }
 
         // Otherwise we resample it, save it as a new file, and return it
-        println!("resampling and saving");
         resample_and_save(reader, &processed_filename, sample_rate)
     } else {
         reader
@@ -106,8 +106,8 @@ pub fn save_file(audio: Vec<f64>, path: &str, sample_rate: u32) {
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };
-    let mut writer =
-        WavWriter::create(path, spec).expect(&format!("File could not be saved at {}", path));
+    let mut writer = WavWriter::create(path, spec)
+        .unwrap_or_else(|_| panic!("File could not be saved at {}", path));
 
     for i in audio {
         let val = i as f32;

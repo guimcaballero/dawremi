@@ -1,5 +1,15 @@
 #![feature(box_syntax)]
 #![feature(arbitrary_enum_discriminant)]
+#![warn(
+    clippy::all,
+    clippy::pedantic,
+    clippy::nursery,
+    clippy::style,
+    clippy::perf,
+    clippy::complexity
+)]
+#![allow(clippy::wildcard_imports, clippy::enum_glob_use)]
+#![warn(clippy::wrong_pub_self_convention, clippy::unseparated_literal_suffix)]
 
 use std::io::stdin;
 
@@ -7,10 +17,8 @@ use std::io::stdin;
 extern crate dawremi_core;
 use dawremi_core::record;
 
-mod songs;
-use songs::*;
 mod loopers;
-use loopers::*;
+mod songs;
 
 fn main() {
     // Recording mode
@@ -24,23 +32,23 @@ fn main() {
         .read_line(&mut s)
         .expect("Did not enter a correct string");
 
-    println!("");
+    println!();
 
     match s.trim() {
         "R" | "r" => record::main().expect("Recording failed"),
         "L" | "l" => {
-            let mut l = select_looper();
+            let mut l = loopers::select_looper();
             l.play().expect("Unable to play song")
         }
         "S" | "s" => {
             // Playing mode
-            let mut song = select_song();
+            let mut song = songs::select_song();
             song.set_sample_rate(44_100.);
             song.save_to_file()
         }
         _ => {
             // Playing mode
-            let mut song = select_song();
+            let mut song = songs::select_song();
             song.play().expect("Unable to play song")
         }
     }
