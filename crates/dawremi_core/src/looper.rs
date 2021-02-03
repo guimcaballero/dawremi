@@ -1,56 +1,46 @@
 use crate::helpers::*;
+use crate::player::*;
+use crate::traits::*;
+use anyhow::Result;
 use num::integer::lcm;
 
-pub struct Looper {
-    tracks: Vec<LooperTrack>,
-}
-impl Looper {
-    fn new(tracks: Vec<LooperTrack>) -> Self {
-        Self { tracks }
-    }
-
-    fn generate(mut self) -> Vec<f64> {
-        if self.tracks.is_empty() {
-            return Vec::new();
-        }
-
-        let lcm = self.tracks.iter().fold(1, |acc, track| lcm(acc, track.len));
-
-        let tracks = self
-            .tracks
+pub trait Looper: HasSampleRate + HasSoundHashMap {
+    fn generate(&mut self) -> Vec<f64> {
+        let mut tracks: Vec<(usize, Vec<f64>)> = self
+            .tracks()
             .drain(..)
-            .map(|track| track.track.repeat(lcm / track.len))
+            .map(|track| (track.len(), track))
+            .collect();
+
+        let lcm = tracks.iter().fold(1, |acc, track| lcm(acc, track.0));
+
+        let tracks = tracks
+            .drain(..)
+            .map(|track| track.1.repeat(lcm / track.0))
             .collect();
 
         join_tracks(tracks)
     }
-}
 
-pub struct LooperTrack {
-    track: Vec<f64>,
-    len: usize,
-}
-impl LooperTrack {
-    fn new(track: Vec<f64>) -> Self {
-        Self {
-            len: track.len(),
-            track,
-        }
+    fn play(&mut self) -> Result<()> {
+        let config = get_player_config();
+
+        self.set_sample_rate(config.sample_rate as f64);
+
+        let player = Player {
+            audio: self.generate().into(),
+            cycle: true,
+        };
+
+        run_player(player, config)
     }
-}
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn generate() {
-        let looper = Looper::new(vec![
-            LooperTrack::new(vec![0., 1., 0.]),
-            LooperTrack::new(vec![0., 1., 1., 1.]),
-        ]);
-
-        let expected = vec![0.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.0, 0.5, 1.0, 0.5];
-        assert_eq!(expected, looper.generate());
+    /// Returns the number of samples that should be taken to pass x beats
+    fn beats(&self, x: f64) -> usize {
+        let bps = self.bpm() as f64 / 60.;
+        self.seconds(x / bps)
     }
+
+    fn tracks(&mut self) -> Vec<Vec<f64>>;
+    fn bpm(&self) -> usize;
 }

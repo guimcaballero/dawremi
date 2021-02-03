@@ -41,10 +41,10 @@ pub(crate) struct Player {
 pub(crate) fn run_player(
     player: Player,
     PlayerConfig {
-        sample_rate,
         sample_format,
         device,
         stream_config,
+        ..
     }: PlayerConfig,
 ) -> Result<()> {
     match sample_format {

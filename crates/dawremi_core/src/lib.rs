@@ -10,6 +10,7 @@ pub mod record;
 pub mod song;
 pub mod sound_files;
 pub mod synth;
+pub mod traits;
 
 pub mod prelude {
     pub use std::collections::HashMap;
@@ -21,4 +22,5 @@ pub mod prelude {
     pub use super::song::*;
     pub use super::sound_files::{enums::*, io::*};
     pub use super::synth::*;
+    pub use super::traits::*;
 }
