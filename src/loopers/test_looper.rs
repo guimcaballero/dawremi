@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use dawremi_core::prelude::*;
+use dawremi_core::sound_files::enums::princess_girlfriend::*;
 
 song!(Test,);
 
@@ -21,11 +22,12 @@ impl Test {
     fn drum(&mut self) -> Vec<f64> {
         sequence!(
             self,
-            len: 1., note: GuitarFretboard,
-            fun: |note| self.kick(note),
+            len: 1.,
+            signal: self.sound(Snares::DeathStarSnare.into()),
 
-            L5 __
+            x __
         )
+        .effect(&Volume { mult: 1.5 })
     }
 
     fn smth(&mut self) -> Vec<f64> {
@@ -36,6 +38,7 @@ impl Test {
 
             __ B4 __ B4
         )
+        .effect(&Volume { mult: 0.5 })
     }
 
     // Instruments

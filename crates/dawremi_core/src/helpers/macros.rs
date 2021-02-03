@@ -10,7 +10,7 @@ macro_rules! sequence {
     };
 
     // With a signal
-    ($self:ident, len: $len:expr, note: $note:ident, signal: $sign:expr, $($x:tt)*) => {
+    ($self:ident, len: $len:expr, $(note: $note:ident,)? signal: $sign:expr, $($x:tt)*) => {
         {
             let mut vec: Vec<f64> = Vec::new();
             $(
