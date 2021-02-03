@@ -9,7 +9,6 @@ macro_rules! songs {
         )*
 
         pub fn select_song() -> Box<dyn Song> {
-            println!("");
             println!("Select a song:");
 
             $(

@@ -12,10 +12,11 @@ use songs::*;
 mod loopers;
 use loopers::*;
 
-fn main() -> Result<(), anyhow::Error> {
+fn main() {
     // Recording mode
     println!("Press R to go into recording mode");
     println!("Press L to go into looper mode");
+    println!("Press S to save a song as a file");
     println!("Press anything else to go into playing mode");
 
     let mut s = String::new();
@@ -23,16 +24,24 @@ fn main() -> Result<(), anyhow::Error> {
         .read_line(&mut s)
         .expect("Did not enter a correct string");
 
+    println!("");
+
     match s.trim() {
-        "R" => record::main(),
+        "R" | "r" => record::main().expect("Recording failed"),
         "L" | "l" => {
             let mut l = select_looper();
-            l.play()
+            l.play().expect("Unable to play song")
+        }
+        "S" | "s" => {
+            // Playing mode
+            let mut song = select_song();
+            song.set_sample_rate(44_100.);
+            song.save_to_file()
         }
         _ => {
             // Playing mode
             let mut song = select_song();
-            song.play()
+            song.play().expect("Unable to play song")
         }
     }
 }

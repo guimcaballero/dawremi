@@ -9,7 +9,6 @@ macro_rules! loopers {
         )*
 
         pub fn select_looper() -> Box<dyn Looper> {
-            println!("");
             println!("Select a looper:");
 
             $(
