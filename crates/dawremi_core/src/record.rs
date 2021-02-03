@@ -17,10 +17,21 @@ pub fn main() -> Result<(), anyhow::Error> {
         .default_input_config()
         .expect("Failed to get default input config");
     println!("Default input config: {:?}", config);
+
+    let time = {
+        use std::time::{SystemTime, UNIX_EPOCH};
+
+        let start = SystemTime::now();
+        let since_the_epoch = start
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards");
+        since_the_epoch.as_millis()
+    };
+
     // The WAV file we're recording to.
-    const PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/recorded/recorded.wav");
+    let path = format!("output/recorded/recorded_{}.wav", time);
     let spec = wav_spec_from_config(&config);
-    let writer = hound::WavWriter::create(PATH, spec)?;
+    let writer = hound::WavWriter::create(&path, spec)?;
     let writer = Arc::new(Mutex::new(Some(writer)));
 
     // A flag to indicate that recording is in progress.
@@ -67,7 +78,7 @@ pub fn main() -> Result<(), anyhow::Error> {
 
     drop(stream);
     writer.lock().unwrap().take().unwrap().finalize()?;
-    println!("Recording {} complete!", PATH);
+    println!("Recording {} complete!", path);
     Ok(())
 }
 
