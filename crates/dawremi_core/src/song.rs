@@ -169,16 +169,16 @@ mod test {
     /// Songs should have at least one working track to work
     fn cant_play_empty_song() {
         let mut song = EmptySong::default();
-        let _ = song.play();
+        let _ = song.generate();
     }
 
     #[test]
     /// When loading a sound, it should get added to the hashmap so we don't load it twice
     fn sounds_get_added_to_hashmap() {
         let mut song = EmptySong::default();
-        song.set_sample_rate(48_000.);
+        song.set_sample_rate(44_100.);
 
-        let path = "assets/beep.wav";
+        let path = "../../assets/beep.wav";
         let _ = song.sound(path);
 
         assert!(song.sound_hashmap.contains_key(path));
@@ -221,13 +221,13 @@ mod test {
     #[should_panic]
     fn playing_song_before_setting_sample_rate_panics() {
         let mut song = SongWithTrack::default();
-        let _ = song.play();
+        let _ = song.generate();
     }
 
     #[test]
     fn can_play_song() {
         let mut song = SongWithTrack::default();
         song.set_sample_rate(400.0);
-        let _ = song.play();
+        let _ = song.generate();
     }
 }

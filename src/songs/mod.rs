@@ -1,4 +1,4 @@
-use dawremi_core::song::Song;
+use dawremi_core::prelude::*;
 use std::io::stdin;
 
 macro_rules! songs {

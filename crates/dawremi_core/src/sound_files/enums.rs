@@ -142,13 +142,23 @@ mod test {
 
         for item in vec {
             let path: &str = item.into();
-            assert!(Path::new(path).exists());
+
+            let dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+            let parent = dir.parent().unwrap().parent().unwrap();
+            let p = parent.join(path);
+
+            assert!(p.as_path().exists());
         }
     }
 
     #[test]
     fn check_metronome_file() {
         let path: &str = Metronome.into();
-        assert!(Path::new(path).exists());
+
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let parent = dir.parent().unwrap().parent().unwrap();
+        let p = parent.join(path);
+
+        assert!(p.as_path().exists());
     }
 }
