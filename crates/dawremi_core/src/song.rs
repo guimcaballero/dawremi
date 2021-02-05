@@ -32,7 +32,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     fn generate(&mut self) -> Vec<f64> {
         let tracks = join_tracks(self.tracks());
 
-        signal::from_iter(tracks)
+        let vec = signal::from_iter(tracks)
             .mul_amp(signal::from_iter(self.volume()))
             // Add some delay in the front if we enable metronome
             // This way we get like 3 beats of the metronome before we start
@@ -44,7 +44,17 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             // We add the metronome after the volume
             .add_amp(signal::from_iter(self.metronome()))
             .take(self.duration())
-            .collect()
+            .collect::<Vec<f64>>();
+
+        // Normalize
+        let (max, min) = vec
+            .iter()
+            .cloned()
+            .fold((-1. / 0., 1. / 0.), |(max, min), a| {
+                (f64::max(max, a), f64::min(min, a))
+            });
+        let max = f64::max(max.abs(), min.abs());
+        vec.iter().map(|a| a / max).collect()
     }
 
     fn metronome(&mut self) -> Vec<f64> {

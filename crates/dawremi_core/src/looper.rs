@@ -19,7 +19,17 @@ pub trait Looper: HasSampleRate + HasSoundHashMap {
             .map(|track| track.1.repeat(lcm / track.0))
             .collect();
 
-        join_tracks(tracks)
+        let vec = join_tracks(tracks);
+
+        // Normalize
+        let (max, min) = vec
+            .iter()
+            .cloned()
+            .fold((-1. / 0., 1. / 0.), |(max, min), a| {
+                (f64::max(max, a), f64::min(min, a))
+            });
+        let max = f64::max(max.abs(), min.abs());
+        vec.iter().map(|a| a / max).collect()
     }
 
     fn play(&mut self) -> Result<()> {
