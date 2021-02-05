@@ -21,9 +21,19 @@ impl MultitapReverb {
             (seconds(0.532, sample_rate), 0.0891),
             (seconds(0.662, sample_rate), 0.2238),
         ];
+
+        Self::new_with_taps(taps)
+    }
+
+    pub fn new_with_taps(taps: Vec<(usize, f64)>) -> Self {
         Self {
+            max_buffer: taps
+                .iter()
+                .map(|(l, _)| l)
+                .max()
+                .expect("There should be a max")
+                + 10,
             taps,
-            max_buffer: seconds(0.662, sample_rate) + 10,
         }
     }
 }
