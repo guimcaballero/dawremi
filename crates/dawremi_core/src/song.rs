@@ -7,12 +7,13 @@ use anyhow::Result;
 use dasp::{signal, Signal};
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
-    fn save_to_file(&mut self) {
+    fn save_to_file(&mut self, bits_per_sample: u16) {
         // Save to a file
         save_file(
             self.generate(),
             &format!("output/{}.wav", self.name()),
             self.get_sample_rate() as u32,
+            bits_per_sample,
         );
     }
 

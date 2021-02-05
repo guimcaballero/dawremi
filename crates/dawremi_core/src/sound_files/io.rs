@@ -29,7 +29,7 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
                     // NOTE Eventually this will be removed when we implement stereo
                     .step_by(processed_spec.channels.into())
                     .map(Result::unwrap)
-                    .map(|val| sample(val, processed_spec.bits_per_sample))
+                    .map(|val| i_to_f(val, processed_spec.bits_per_sample))
                     .collect::<Vec<f64>>();
             };
         }
@@ -42,7 +42,7 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
             // NOTE Eventually this will be removed when we implement stereo
             .step_by(spec.channels.into())
             .map(Result::unwrap)
-            .map(|val| sample(val, spec.bits_per_sample))
+            .map(|val| i_to_f(val, spec.bits_per_sample))
             .collect::<Vec<f64>>()
     }
 }
@@ -65,10 +65,6 @@ fn has_file_been_modified(path1: &str, path2: &str) -> bool {
     false
 }
 
-fn sample(val: i32, bits_per_sample: u16) -> f64 {
-    val as f64 / 2f64.powi(bits_per_sample as i32)
-}
-
 fn resample_and_save(
     reader: WavReader<BufReader<File>>,
     processed_filename: &str,
@@ -80,7 +76,7 @@ fn resample_and_save(
         // NOTE Eventually this will be removed when we implement stereo
         .step_by(spec.channels.into())
         .map(Result::unwrap)
-        .map(|val| sample(val, spec.bits_per_sample));
+        .map(|val| i_to_f(val, spec.bits_per_sample));
 
     // Convert the signal's sample rate using `Sinc` interpolation.
     use dasp::{interpolate::sinc::Sinc, ring_buffer};
@@ -94,27 +90,78 @@ fn resample_and_save(
         .map(|frame| frame[0])
         .collect::<Vec<f64>>();
 
-    save_file(vec.clone(), &processed_filename, sample_rate);
+    save_file(vec.clone(), &processed_filename, sample_rate, 24);
 
     vec
 }
 
-pub fn save_file(audio: Vec<f64>, path: &str, sample_rate: u32) {
+pub fn save_file(audio: Vec<f64>, path: &str, sample_rate: u32, bits_per_sample: u16) {
     let spec = hound::WavSpec {
         channels: 1,
         sample_rate,
-        bits_per_sample: 16,
+        bits_per_sample,
         sample_format: hound::SampleFormat::Int,
     };
     let mut writer = WavWriter::create(path, spec)
         .unwrap_or_else(|_| panic!("File could not be saved at {}", path));
 
-    for i in audio {
-        let val = i as f32;
-        let value: i16 = cpal::Sample::from::<f32>(&val);
+    for val in audio {
+        let val = val.clamp(-1., 1.);
+        let value = f_to_i(val, bits_per_sample);
 
         writer
             .write_sample(value)
             .expect("Sample could not be written");
+    }
+}
+
+fn i_to_f(val: i32, bits_per_sample: u16) -> f64 {
+    val as f64 / (1_usize << (bits_per_sample - 1)) as f64
+}
+
+fn f_to_i(val: f64, bits_per_sample: u16) -> i32 {
+    (val * (1_usize << (bits_per_sample - 1)) as f64) as i32
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn f_to_i_for_0() {
+        assert_eq!(0, f_to_i(0., 16));
+        assert_eq!(0, f_to_i(0., 24));
+        assert_eq!(0, f_to_i(0., 32));
+
+        assert_eq!(-(1 << 14), f_to_i(-0.5_f64, 16));
+        assert_eq!(-(1 << 22), f_to_i(-0.5_f64, 24));
+        assert_eq!(-(1 << 30), f_to_i(-0.5_f64, 32));
+
+        assert_eq!(1 << 15, f_to_i(1.0_f64, 16));
+        assert_eq!(1 << 23, f_to_i(1.0_f64, 24));
+        assert_eq!(i32::MAX, f_to_i(1.0_f64, 32));
+
+        assert_eq!(-(1 << 15), f_to_i(-1.0_f64, 16));
+        assert_eq!(-(1 << 23), f_to_i(-1.0_f64, 24));
+        assert_eq!(i32::MIN, f_to_i(-1.0_f64, 32));
+    }
+
+    #[test]
+    fn i_to_f_for_0() {
+        assert_eq!(0., i_to_f(0, 16));
+        assert_eq!(0., i_to_f(0, 24));
+        assert_eq!(0., i_to_f(0, 32));
+
+        assert_eq!(-0.5_f64, i_to_f(-(1 << 14), 16));
+        assert_eq!(-0.5_f64, i_to_f(-(1 << 22), 24));
+        assert_eq!(-0.5_f64, i_to_f(-(1 << 30), 32));
+
+        assert_eq!(1.0_f64, i_to_f(1 << 15, 16));
+        assert_eq!(1.0_f64, i_to_f(1 << 23, 24));
+        assert!((i_to_f(i32::MAX, 32) - 1.0_f64).abs() < 0.00000001);
+
+        assert_eq!(-1.0_f64, i_to_f(-(1 << 15), 16));
+        assert_eq!(-1.0_f64, i_to_f(-(1 << 23), 24));
+        assert_eq!(-1.0_f64, i_to_f(i32::MIN, 32));
     }
 }

@@ -44,7 +44,7 @@ fn main() {
             // Playing mode
             let mut song = songs::select_song();
             song.set_sample_rate(44_100.);
-            song.save_to_file()
+            song.save_to_file(24)
         }
         _ => {
             // Playing mode
