@@ -12,10 +12,10 @@ impl Song for Test {
         180
     }
     fn duration(&self) -> usize {
-        self.seconds(4.)
+        self.seconds(20.)
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
-        vec![self.afrodite()]
+        vec![self.plucked_track()]
     }
 }
 
@@ -38,7 +38,7 @@ impl Test {
             vec![A4, D3, G4, B2, E4]
         };
         let notes = vec![chord.clone(), chord.clone(), chord.clone(), chord].into_notes();
-        let mut sound = notes.generate(
+        let sound = notes.generate(
             &|note, length| {
                 self.plucked(note, InitialBurstType::Triangle(2, 3))
                     .take_samples(length)
@@ -47,7 +47,7 @@ impl Test {
         );
 
         sound1
-            .chain(&mut sound)
+            .chain(sound)
             .effect(&Convolution::new(self.sound(Reverb::ParkingGarage.into())))
     }
 
@@ -99,7 +99,7 @@ impl Test {
         ])
     }
 
-    fn plucked_track(&mut self) -> Vec<f64> {
+    fn test_multiple_notes(&mut self) -> Vec<f64> {
         sequence!(
             self,
             len: 1., note: GuitarFretboard,
@@ -107,35 +107,44 @@ impl Test {
 
             (L5 * 2.) ([L5 L6] * 1.) _ L8 L8 _ L1 L1 _ L4 L4
         )
-        .chain(&mut sequence!(
+    }
+
+    fn plucked_track(&mut self) -> Vec<f64> {
+        sequence!(
+            self,
+            len: 1., note: GuitarFretboard,
+            fun: |note| self.plucked(note, InitialBurstType::Triangle(2, 3)),
+
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
+        )
+        .chain(sequence!(
             self,
             len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::DoubleTriangle),
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
-        .chain(&mut sequence!(
+        .chain(sequence!(
             self,
             len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Hill),
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
-        .chain(&mut sequence!(
+        .chain(sequence!(
             self,
             len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Sine),
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
-        .chain(&mut sequence!(
+        .chain(sequence!(
             self,
             len: 1., note: GuitarFretboard,
             fun: |note| self.plucked(note, InitialBurstType::Random),
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         ))
-        .effect(&self.effect_bundle())
     }
 
     fn track2(&self) -> Vec<f64> {

@@ -28,8 +28,7 @@ impl AudioEffectsDemo {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(7.))
             .chain(
-                &mut self
-                    .sound("assets/audio.wav")
+                self.sound("assets/audio.wav")
                     .effect(&BassBoost {
                         selectivity: 140.,
                         gain: 1.,
@@ -45,7 +44,7 @@ impl AudioEffectsDemo {
             .effect(&Convolution::new(
                 self.sound(Reverb::LargeLongEchoHall.into()),
             ))
-            .chain(&mut self.sound("assets/audio.wav"))
+            .chain(self.sound("assets/audio.wav"))
     }
 
     fn mt_reverb(&mut self) -> Vec<f64> {
@@ -53,8 +52,7 @@ impl AudioEffectsDemo {
             .effect(&MultitapReverb::new(self.get_sample_rate()))
             .take_samples(self.seconds(3.))
             .chain(
-                &mut self
-                    .sound("assets/audio.wav")
+                self.sound("assets/audio.wav")
                     .take_samples(self.seconds(7.)),
             )
     }

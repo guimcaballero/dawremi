@@ -19,7 +19,7 @@ pub trait RepeatExtension {
     // take_samples is here again so cause there's a conflicting implementation if
     // we try to impl TakeSamplesExtension for Vec<f64>
     fn take_samples(self, samples: usize) -> Vec<f64>;
-    fn chain(self, new: &mut Vec<f64>) -> Vec<f64>;
+    fn chain(self, new: Vec<f64>) -> Vec<f64>;
 }
 
 impl RepeatExtension for Vec<f64> {
@@ -40,8 +40,8 @@ impl RepeatExtension for Vec<f64> {
             .collect()
     }
 
-    fn chain(mut self, new: &mut Vec<f64>) -> Vec<f64> {
-        self.append(new);
+    fn chain(mut self, mut new: Vec<f64>) -> Vec<f64> {
+        self.append(&mut new);
         self
     }
 }
