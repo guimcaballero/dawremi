@@ -14,7 +14,7 @@ impl Looper for Test {
         180
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
-        vec![self.drum(), self.smth()]
+        vec![self.drum(), self.snare()]
     }
 }
 
@@ -23,52 +23,21 @@ impl Test {
         sequence!(
             self,
             len: 1.,
-            signal: self.sound(Snares::DeathStarSnare.into()),
+            signal: self.sound(Claps::DeepFriedClap.into()),
 
-            x __
+            _ x _ x
         )
         .effect(&Volume { mult: 1.5 })
     }
 
-    fn smth(&mut self) -> Vec<f64> {
+    fn snare(&mut self) -> Vec<f64> {
         sequence!(
             self,
-            len: 1., note: GuitarFretboard,
-            fun: |note| self.kick(note),
+            len: 1.,
+            signal: self.sound(Snares::DeathStarSnare.into()),
 
-            __ B4 __ B4
+            _ _ x _
         )
-        .effect(&Volume { mult: 0.5 })
-    }
-
-    // Instruments
-
-    fn bell(&self, note: Note) -> Synth {
-        Synth::new(
-            box Bell::new(note, self.get_sample_rate()),
-            note,
-            self.get_sample_rate(),
-        )
-    }
-    fn kick(&self, note: Note) -> Synth {
-        Synth::new(
-            box DrumKick::new(note, self.get_sample_rate()),
-            note,
-            self.get_sample_rate(),
-        )
-    }
-    fn snare(&self, note: Note) -> Synth {
-        Synth::new(
-            box DrumSnare::new(note, self.get_sample_rate()),
-            note,
-            self.get_sample_rate(),
-        )
-    }
-    fn hihat(&self, note: Note) -> Synth {
-        Synth::new(
-            box DrumHiHat::new(note, self.get_sample_rate()),
-            note,
-            self.get_sample_rate(),
-        )
+        .effect(&Volume { mult: 1.5 })
     }
 }

@@ -1,5 +1,4 @@
-#![feature(box_syntax)]
-#![feature(arbitrary_enum_discriminant)]
+#![feature(box_syntax, arbitrary_enum_discriminant)]
 #![warn(
     clippy::all,
     clippy::pedantic,

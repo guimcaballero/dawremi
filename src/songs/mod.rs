@@ -32,5 +32,6 @@ macro_rules! songs {
 songs!(
     1 => twinkle_twinkle => TwinkleTwinkle,
     2 => audio_effects => AudioEffectsDemo,
+    3 => guitar_tests => GuitarTests,
     _ => test_song => Test,
 );
