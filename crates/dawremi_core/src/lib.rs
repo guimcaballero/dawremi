@@ -1,5 +1,4 @@
-#![feature(box_syntax)]
-#![feature(arbitrary_enum_discriminant)]
+#![feature(box_syntax, min_const_generics, arbitrary_enum_discriminant)]
 
 pub mod effects;
 pub mod helpers;

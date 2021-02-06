@@ -1,5 +1,105 @@
 use std::convert::TryFrom;
 
+pub struct Frequency(pub f64);
+impl From<f64> for Frequency {
+    fn from(freq: f64) -> Self {
+        Self(freq)
+    }
+}
+
+mod n_tet {
+    // Some microtonal stuff
+    // https://en.wikipedia.org/wiki/31_equal_temperament
+    // https://en.wikipedia.org/wiki/Quarter_tone
+
+    // I might have been listening to too much KG&LW while working today...
+    // Flying microtonal banana rocks
+
+    #![allow(dead_code)]
+
+    use super::*;
+
+    /// I'm using Const generics to define the number of subdivisions, as I think it belongs more on the type
+    /// Also, I just wanted to try it
+    #[derive(Debug, PartialEq, Eq)]
+    pub struct NTet<const N: u8>(i16);
+
+    impl<const N: u8> NTet<N> {
+        /// Octave: 4, Fraction: 0, always corresponds to C4
+        /// The rest are generated accordingly
+        pub fn new(octave: u8, fraction: u8) -> Self {
+            Self((octave as i16 - 4) * N as i16 + fraction as i16)
+        }
+    }
+
+    type Tet7 = NTet<7>;
+    type Tet12 = NTet<12>;
+    type Tet19 = NTet<19>;
+    type Tet24 = NTet<24>;
+    type Tet31 = NTet<31>;
+    type Tet41 = NTet<41>;
+    type Tet53 = NTet<53>;
+    type Tet72 = NTet<72>;
+
+    impl<const N: u8> From<NTet<N>> for Frequency {
+        fn from(note: NTet<N>) -> Self {
+            let initial = 2.0_f64.powf(note.0 as f64 / N as f64);
+
+            let c4f: Frequency = Note::C4.into();
+            Self(c4f.0 * initial)
+        }
+    }
+
+    #[cfg(test)]
+    mod test {
+        use super::*;
+
+        macro_rules! check_freq_equivals_note {
+            ($freq:expr, $note:tt) => {
+                let note: Frequency = Note::$note.into();
+                let freq: Frequency = $freq.into();
+                assert_eq!(format!("{:.4}", note.0), format!("{:.4}", freq.0));
+            };
+        }
+
+        #[test]
+        fn check_some_values() {
+            check_freq_equivals_note!(Tet12::new(2, 0), C2);
+            check_freq_equivals_note!(Tet12::new(4, 0), C4);
+            check_freq_equivals_note!(Tet12::new(4, 1), Cs4);
+            check_freq_equivals_note!(Tet12::new(4, 2), D4);
+            check_freq_equivals_note!(Tet12::new(4, 7), G4);
+            check_freq_equivals_note!(Tet12::new(7, 2), D7);
+
+            check_freq_equivals_note!(Tet24::new(4, 0), C4);
+            check_freq_equivals_note!(Tet24::new(4, 2), Cs4);
+            check_freq_equivals_note!(Tet24::new(4, 4), D4);
+            check_freq_equivals_note!(Tet24::new(4, 14), G4);
+            check_freq_equivals_note!(Tet24::new(7, 4), D7);
+
+            check_freq_equivals_note!(Tet72::new(4, 0), C4);
+            check_freq_equivals_note!(Tet72::new(4, 6), Cs4);
+            check_freq_equivals_note!(Tet72::new(4, 12), D4);
+            check_freq_equivals_note!(Tet72::new(4, 42), G4);
+            check_freq_equivals_note!(Tet72::new(7, 6), Cs7);
+        }
+
+        #[test]
+        fn equalities() {
+            assert_eq!(Tet24::new(4, 2), Tet24::new(3, 26));
+            assert_eq!(Tet24::new(5, 1), Tet24::new(3, 49));
+        }
+    }
+}
+
+impl From<Note> for Frequency {
+    fn from(note: Note) -> Self {
+        let n = note as i16;
+        let a: f64 = 2.0_f64.powf(n as f64 / 12.);
+        Self(440.0 * a)
+    }
+}
+
 macro_rules! back_to_enum {
     ($(#[$meta:meta])* $vis:vis enum $name:ident {
         $($(#[$vmeta:meta])* $vname:ident $(= $val:expr)?,)*
@@ -160,20 +260,6 @@ impl Note {
     pub fn down_a_note(self) -> Note {
         let n = self as i16;
         Note::try_from(n - 1).expect("Lower one note")
-    }
-}
-
-pub struct Frequency(pub f64);
-impl From<Note> for Frequency {
-    fn from(note: Note) -> Self {
-        let n = note as i16;
-        let a: f64 = 2.0_f64.powf(n as f64 / 12.);
-        Self(440.0 * a)
-    }
-}
-impl From<f64> for Frequency {
-    fn from(freq: f64) -> Self {
-        Self(freq)
     }
 }
 
@@ -377,6 +463,7 @@ mod test {
         check_freq_note!(16.35, C0);
         check_freq_note!(98., G2);
         check_freq_note!(440., A4);
+        check_freq_note!(293.66, D4);
         check_freq_note!(1046.5, C6);
         check_freq_note!(7902.13, B8);
     }
