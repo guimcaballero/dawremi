@@ -69,6 +69,18 @@ pub struct SynthParams {
     sustain_amplitude: f64,
 }
 
+pub struct SynthGroup(pub Vec<Synth>);
+impl SynthGroup {
+    pub fn take_samples(&mut self, samples: usize) -> Vec<f64> {
+        join_tracks(
+            self.0
+                .iter_mut()
+                .map(|synth| synth.take_samples(samples))
+                .collect(),
+        )
+    }
+}
+
 pub trait SynthInstrument: HasSample {
     fn get_params(&self) -> SynthParams;
     fn note(&mut self) -> f64;
