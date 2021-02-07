@@ -41,6 +41,8 @@ mod slow_convolution;
 pub use slow_convolution::SlowConvolution;
 mod fft_convolution;
 pub use fft_convolution::Convolution;
+mod pitch_shift;
+pub use pitch_shift::PitchShift;
 
 #[cfg(test)]
 mod test {

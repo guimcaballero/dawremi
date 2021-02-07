@@ -50,6 +50,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf8dcb5b4bbaa28653b647d8c77bd4ed40183b48882e130c1f1ffb73de069fd7"
 
 [[package]]
+name = "apodize"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fca387cdc0a1f9c7a7c26556d584aa2d07fc529843082e4861003cde4ab914ed"
+
+[[package]]
 name = "ascii"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -560,6 +566,7 @@ dependencies = [
  "hound",
  "num",
  "num-integer",
+ "pvoc",
  "rand",
  "realfft",
  "rustfft",
@@ -1163,6 +1170,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pvoc"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "325790fa54aad9622a82dc57832226df71d1775352fd718bf0a7d1ff4f57c597"
+dependencies = [
+ "apodize",
+ "rustfft",
+]
+
+[[package]]
 name = "qstring"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1286,9 +1303,9 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustfft"
-version = "5.0.0"
+version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "615fb8169a56470f08d8c51b4754c6f34bf515fc0129549e8d40dac733e141bd"
+checksum = "a2af893d9cfb30d3d2f2ac4bd2a071232143558e06e791dc768179f0089f68f8"
 dependencies = [
  "num-complex",
  "num-integer",

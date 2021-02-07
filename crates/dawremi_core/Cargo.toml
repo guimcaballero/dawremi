@@ -11,6 +11,7 @@ dasp = { git = "https://github.com/RustAudio/dasp/", branch = "master", features
 hound = "3.4.0"
 num = "0.3.1"
 num-integer = "0.1.44"
+pvoc = "0.1.6"
 rand = "0.7.3"
 realfft = "0.4.0"
 rustfft = "5.0.0"

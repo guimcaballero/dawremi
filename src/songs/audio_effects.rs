@@ -39,6 +39,27 @@ impl AudioEffectsDemo {
             )
     }
 
+    fn pitch_shift(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .take_samples(self.seconds(3.))
+            .chain(
+                self.sound("assets/audio.wav")
+                    .effect(&PitchShift {
+                        sample_rate: self.get_sample_rate(),
+                        shift: 1.3,
+                    })
+                    .take_samples(self.seconds(3.)),
+            )
+            .chain(
+                self.sound("assets/audio.wav")
+                    .effect(&PitchShift {
+                        sample_rate: self.get_sample_rate(),
+                        shift: 0.8,
+                    })
+                    .take_samples(self.seconds(3.)),
+            )
+    }
+
     fn conv_reverb(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .effect(&Convolution::new(
