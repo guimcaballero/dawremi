@@ -43,6 +43,8 @@ mod fft_convolution;
 pub use fft_convolution::Convolution;
 mod pitch_shift;
 pub use pitch_shift::PitchShift;
+mod autotune;
+pub use autotune::Autotune;
 
 #[cfg(test)]
 mod test {

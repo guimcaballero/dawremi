@@ -76,6 +76,17 @@ macro_rules! note_list {
     (@unpack $x:tt) => { vec![$x] };
 }
 
+#[macro_export]
+macro_rules! note_option {
+    ( $( $x:tt ),*  $(,)?) => {
+        vec![
+            $( note_option!(@unpack $x),)*
+        ]
+    };
+    (@unpack _) => { None };
+    (@unpack $x:tt) => { Some($x) };
+}
+
 pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
     let len = &tracks
         .iter()

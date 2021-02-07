@@ -18,7 +18,9 @@ impl Song for AudioEffectsDemo {
         vec![
             // self.bass_boost(),
             // self.mt_reverb(),
-            self.conv_reverb(),
+            // self.conv_reverb(),
+            // self.pitch_shift(),
+            self.autotune(),
         ]
     }
 }
@@ -36,6 +38,23 @@ impl AudioEffectsDemo {
                         input_ratio: 0.4,
                     })
                     .take_samples(self.seconds(7.)),
+            )
+    }
+
+    fn autotune(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .take_samples(self.seconds(4.))
+            .chain(
+                self.sound("assets/audio.wav")
+                    .effect(&Autotune {
+                        sample_rate: self.get_sample_rate(),
+                        beat_length: self.seconds(0.5),
+                        notes: {
+                            use Note::*;
+                            note_option![A3, C4, E4, F4, A3, C4, F4, E4]
+                        },
+                    })
+                    .take_samples(self.seconds(4.)),
             )
     }
 
