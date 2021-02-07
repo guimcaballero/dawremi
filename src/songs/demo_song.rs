@@ -1,26 +1,3 @@
-# Dawremi
-
-Dawremi (pronounced do-re-mi) is a toy code-based Digital Audio Workstation.
-
-It's in a very early stage and documentation is basically non-existant.
-
-## How to run
-
-Make sure you have Nightly Rust installed. Then you can clone this repository and run:
-
-```bash
-cargo run --release
-```
-
-This will let you choose a song, which will then play and be saved to the `output` directory.
-
-You can also use `cargo run --features metronome` to run with the metronome active.
-
-## Making songs
-
-Create a new Rust file in the `src/songs/` directory. You have to create a new struct using the `song!()` macro, and then implement the `Song` trait. The following is a demo song:
-
-```rust
 use dawremi_core::prelude::*;
 
 song!(DemoSong,);
@@ -142,4 +119,3 @@ impl DemoSong {
             .effect(&Volume { mult: 0.5 })
     }
 }
-```
