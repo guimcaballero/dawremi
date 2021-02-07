@@ -20,7 +20,7 @@ impl Effect for Autotune {
                 let freq: Frequency = if let Some(note) = note {
                     note.into()
                 } else {
-                    return chunk.iter().cloned().collect();
+                    return chunk.to_vec();
                 };
 
                 let c4f: Frequency = Note::C4.into();
