@@ -78,10 +78,9 @@ impl DemoSong {
     }
 
     /// This is a helper function
-    fn plucked(&self, note: Note, burst: InitialBurstType) -> Synth {
+    fn plucked(&self, frequency: impl Into<Frequency>, burst: InitialBurstType) -> Synth {
         Synth::new(
-            box Plucked::new(burst, note, self.get_sample_rate()),
-            note,
+            box Plucked::new(burst, frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
@@ -118,12 +117,11 @@ impl DemoSong {
                 self.beats(1.),
             );
 
-        // We can use other types of notes too, converting them back with `into_notes`
+        // We can use other types of notes too
         let bass = {
             use GuitarFretboard::*;
             note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
         }
-        .into_notes()
         .generate(
             &|note, length| {
                 self.plucked(note, InitialBurstType::Sine)
