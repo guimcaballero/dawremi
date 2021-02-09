@@ -1,13 +1,22 @@
 use std::convert::TryFrom;
 
+#[derive(Clone, Copy, Debug)]
 pub struct Frequency(pub f64);
+impl Frequency {
+    pub fn up_an_octave(&self) -> Self {
+        Self(self.0 * 2.)
+    }
+    pub fn down_an_octave(&self) -> Self {
+        Self(self.0 / 2.)
+    }
+}
 impl From<f64> for Frequency {
     fn from(freq: f64) -> Self {
         Self(freq)
     }
 }
 
-mod n_tet {
+pub mod n_tet {
     // Some microtonal stuff
     // https://en.wikipedia.org/wiki/31_equal_temperament
     // https://en.wikipedia.org/wiki/Quarter_tone
@@ -32,14 +41,14 @@ mod n_tet {
         }
     }
 
-    type Tet7 = NTet<7>;
-    type Tet12 = NTet<12>;
-    type Tet19 = NTet<19>;
-    type Tet24 = NTet<24>;
-    type Tet31 = NTet<31>;
-    type Tet41 = NTet<41>;
-    type Tet53 = NTet<53>;
-    type Tet72 = NTet<72>;
+    pub type Tet7 = NTet<7>;
+    pub type Tet12 = NTet<12>;
+    pub type Tet19 = NTet<19>;
+    pub type Tet24 = NTet<24>;
+    pub type Tet31 = NTet<31>;
+    pub type Tet41 = NTet<41>;
+    pub type Tet53 = NTet<53>;
+    pub type Tet72 = NTet<72>;
 
     impl<const N: u8> From<NTet<N>> for Frequency {
         fn from(note: NTet<N>) -> Self {
@@ -277,6 +286,13 @@ macro_rules! enum_to_note {
                 match f {
                     $($name::$vname => Note::$val,)*
                 }
+            }
+        }
+
+        impl From<$name> for Frequency {
+            fn from(f: $name) -> Frequency {
+                let note: Note = f.into();
+                note.into()
             }
         }
     }

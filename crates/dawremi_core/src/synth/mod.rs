@@ -5,14 +5,12 @@ use rand::prelude::*;
 
 pub struct Synth {
     pub instrument: Box<dyn SynthInstrument>,
-    pub note: Note,
     pub sample_rate: f64,
 }
 impl Synth {
-    pub fn new(instrument: Box<dyn SynthInstrument>, note: Note, sample_rate: f64) -> Self {
+    pub fn new(instrument: Box<dyn SynthInstrument>, sample_rate: f64) -> Self {
         Self {
             instrument,
-            note,
             sample_rate,
         }
     }
@@ -105,16 +103,16 @@ macro_rules! simple_instrument {
     ($name:ident) => {
         #[derive(Clone, Copy)]
         pub struct $name {
-            note: Note,
+            frequency: Frequency,
             sample_rate: f64,
             sample: usize,
         }
 
         impl $name {
             #[allow(dead_code)]
-            pub fn new(note: Note, sample_rate: f64) -> Self {
+            pub fn new(frequency: Frequency, sample_rate: f64) -> Self {
                 Self {
-                    note,
+                    frequency,
                     sample_rate,
                     sample: 0,
                 }
@@ -136,7 +134,7 @@ macro_rules! instrument {
     ($name:ident $(, $id:ident : $type:ty )* $(,)?) => {
         #[derive(Clone)]
         pub struct $name {
-            note: Note,
+            frequency: Frequency,
             sample_rate: f64,
             sample: usize,
             $( $id: $type, )*

@@ -75,28 +75,29 @@ impl TwinkleTwinkle {
         .effect(&Volume { mult: 0.5 })
     }
 
-    fn harmonica(&self, note: Note) -> Synth {
+    fn harmonica(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box Harmonica::new(note, self.get_sample_rate()),
-            note,
+            box Harmonica::new(frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
-    fn plucked(&self, note: Note) -> Synth {
+    fn plucked(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box Plucked::new(InitialBurstType::Random, note, self.get_sample_rate()),
-            note,
+            box Plucked::new(
+                InitialBurstType::Random,
+                frequency.into(),
+                self.get_sample_rate(),
+            ),
             self.get_sample_rate(),
         )
     }
-    fn bass(&self, note: Note) -> Synth {
+    fn bass(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
             box Plucked::new(
                 InitialBurstType::DoubleTriangle,
-                note,
+                frequency.into(),
                 self.get_sample_rate(),
             ),
-            note,
             self.get_sample_rate(),
         )
     }

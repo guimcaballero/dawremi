@@ -18,9 +18,9 @@ impl SynthInstrument for DrumKick {
         let a_lfo = 1.;
         let f_lfo = 1.;
 
-        let freq: Frequency = self.note.into();
-
-        0.99 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin()
+        0.99 * (self.frequency.0 * self.time()
+            + a_lfo * self.frequency.0 * (f_lfo * self.time()).sin())
+        .sin()
             + 0.01 * rand::thread_rng().gen_range(-1., 1.)
     }
 }

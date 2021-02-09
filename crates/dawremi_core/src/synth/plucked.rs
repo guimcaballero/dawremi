@@ -39,12 +39,11 @@ impl InitialBurstType {
 
 impl Plucked {
     #[allow(dead_code)]
-    pub fn new(burst: InitialBurstType, note: Note, sample_rate: f64) -> Self {
-        let freq: Frequency = note.into();
-        let noise_length = (sample_rate / freq.0) as usize;
+    pub fn new(burst: InitialBurstType, frequency: Frequency, sample_rate: f64) -> Self {
+        let noise_length = (sample_rate / frequency.0) as usize;
         let noise = burst.noise(noise_length);
         Self {
-            note,
+            frequency,
             sample_rate,
             sample: 0,
             noise,
@@ -59,7 +58,7 @@ impl SynthInstrument for Plucked {
             // We basically want the initial random noise to not be very noticeable
             attack: self.noise_length * 3,
 
-            decay: self.seconds(0.7),
+            decay: self.seconds(0.1),
             release: self.seconds(0.1),
 
             attack_amplitude: 1.,

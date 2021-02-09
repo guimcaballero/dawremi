@@ -14,23 +14,25 @@ impl SynthInstrument for Harmonica {
     }
 
     fn note(&mut self) -> f64 {
-        let freq: Frequency = self.note.into();
         self.sample += 1;
         let a_lfo = 0.001;
         let f_lfo = 7.0;
 
-        let square_1 =
-            if (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin() > 0. {
-                1.
-            } else {
-                -1.
-            };
-        let square_2 = if (freq.0 * 1.5 * self.time()).sin() > 0. {
+        let square_1 = if (self.frequency.0 * self.time()
+            + a_lfo * self.frequency.0 * (f_lfo * self.time()).sin())
+        .sin()
+            > 0.
+        {
             1.
         } else {
             -1.
         };
-        let square_3 = if (freq.0 * 2.0 * self.time()).sin() > 0. {
+        let square_2 = if (self.frequency.0 * 1.5 * self.time()).sin() > 0. {
+            1.
+        } else {
+            -1.
+        };
+        let square_3 = if (self.frequency.0 * 2.0 * self.time()).sin() > 0. {
             1.
         } else {
             -1.

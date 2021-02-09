@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
 use dawremi_core::prelude::*;
-use dawremi_core::sound_files::enums::princess_girlfriend::*;
 
 song!(Test,);
 
@@ -14,30 +13,61 @@ impl Looper for Test {
         180
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
-        vec![self.drum(), self.snare()]
+        vec![
+            // self.kick(),
+            self.snare(),
+            // self.hihat(),
+        ]
     }
 }
 
 impl Test {
-    fn drum(&mut self) -> Vec<f64> {
+    fn kick(&mut self) -> Vec<f64> {
         sequence!(
             self,
             len: 1.,
-            signal: self.sound(Claps::DeepFriedClap.into()),
+            signal: kick(self),
 
-            _ x _ x
+            x _ x _
         )
-        .effect(&Volume { mult: 1.5 })
     }
 
     fn snare(&mut self) -> Vec<f64> {
         sequence!(
             self,
-            len: 1.,
-            signal: self.sound(Snares::DeathStarSnare.into()),
+            len: 1., note: Note,
+            fun: |note| snare(self, note),
 
-            _ _ x _
+            _ C1 _ _
         )
-        .effect(&Volume { mult: 1.5 })
     }
+
+    fn hihat(&mut self) -> Vec<f64> {
+        sequence!(
+            self,
+            len: 1., note: Note,
+            fun: |note| hihat(self, note),
+
+            _ C4 _ _
+        )
+    }
+}
+
+fn kick(song: &dyn HasSampleRate) -> Synth {
+    Synth::new(
+        box DrumKick::new(Note::C1.into(), song.get_sample_rate()),
+        song.get_sample_rate(),
+    )
+}
+fn snare(song: &dyn HasSampleRate, frequency: impl Into<Frequency>) -> Synth {
+    Synth::new(
+        box DrumSnare::new(frequency.into(), song.get_sample_rate()),
+        song.get_sample_rate(),
+    )
+}
+fn hihat(song: &dyn HasSampleRate, frequency: impl Into<Frequency>) -> Synth {
+    Synth::new(
+        box DrumHiHat::new(frequency.into(), song.get_sample_rate()),
+        song.get_sample_rate(),
+    )
 }

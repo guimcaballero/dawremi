@@ -37,7 +37,7 @@ impl Test {
             use GuitarFretboard::*;
             vec![A4, D3, G4, B2, E4]
         };
-        let notes = vec![chord.clone(), chord.clone(), chord.clone(), chord].into_notes();
+        let notes = vec![chord.clone(), chord.clone(), chord.clone(), chord];
         let sound = notes.generate(
             &|note, length| {
                 self.plucked(note, InitialBurstType::Triangle(2, 3))
@@ -76,7 +76,6 @@ impl Test {
             use GuitarFretboard::*;
             note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
         }
-        .into_notes()
         .generate(
             &|note, length| {
                 self.plucked(note, InitialBurstType::Sine)
@@ -154,9 +153,9 @@ impl Test {
             repetitions: 4,
 
             beat: 1.,
-            note: GuitarFretboard,
+            // note: GuitarFretboard,
             fun: |note| self.bell(note),
-            pat: (__ __ __ __  __ L5 __ __),
+            pat: (__ __ __ __  __ C5 __ __),
 
             beat: 1.,
             fun: |note| self.kick(note),
@@ -173,45 +172,39 @@ impl Test {
     }
 
     #[allow(dead_code)]
-    fn harmonica(&self, note: Note) -> Synth {
+    fn harmonica(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box Harmonica::new(note, self.get_sample_rate()),
-            note,
+            box Harmonica::new(frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
-    fn plucked(&self, note: Note, burst: InitialBurstType) -> Synth {
+    fn plucked(&self, frequency: impl Into<Frequency>, burst: InitialBurstType) -> Synth {
         Synth::new(
-            box Plucked::new(burst, note, self.get_sample_rate()),
-            note,
+            box Plucked::new(burst, frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
-    fn bell(&self, note: Note) -> Synth {
+    fn bell(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box Bell::new(note, self.get_sample_rate()),
-            note,
+            box Bell::new(frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
-    fn kick(&self, note: Note) -> Synth {
+    fn kick(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box DrumKick::new(note, self.get_sample_rate()),
-            note,
+            box DrumKick::new(frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
-    fn snare(&self, note: Note) -> Synth {
+    fn snare(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box DrumSnare::new(note, self.get_sample_rate()),
-            note,
+            box DrumSnare::new(frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }
-    fn hihat(&self, note: Note) -> Synth {
+    fn hihat(&self, frequency: impl Into<Frequency>) -> Synth {
         Synth::new(
-            box DrumHiHat::new(note, self.get_sample_rate()),
-            note,
+            box DrumHiHat::new(frequency.into(), self.get_sample_rate()),
             self.get_sample_rate(),
         )
     }

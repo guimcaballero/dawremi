@@ -1,6 +1,6 @@
 use crate::helpers::join_tracks;
 use crate::helpers::silence;
-use crate::notes::Note;
+use crate::notes::{Frequency, Note};
 use dasp::signal::Signal;
 
 pub trait TakeSamplesExtension {
@@ -47,41 +47,14 @@ impl RepeatExtension for Vec<f64> {
 }
 
 pub trait NoteList<'a> {
-    fn generate(&self, fun: &'a dyn Fn(Note, usize) -> Vec<f64>, length: usize) -> Vec<f64>;
     fn map_notes<U: Copy + Fn(Note) -> Note>(&self, fun: U) -> Self;
 }
-
 impl<'a> NoteList<'a> for Vec<Option<Note>> {
-    fn generate(&self, fun: &'a dyn Fn(Note, usize) -> Vec<f64>, length: usize) -> Vec<f64> {
-        let mut vec: Vec<f64> = Vec::new();
-        for opt_note in self {
-            if let Some(note) = opt_note {
-                vec.append(&mut fun(*note, length));
-            } else {
-                silence().take_samples(length);
-            }
-        }
-        vec
-    }
     fn map_notes<U: Copy + Fn(Note) -> Note>(&self, fun: U) -> Self {
         self.iter().map(|opt| opt.map(fun)).collect()
     }
 }
-
 impl<'a> NoteList<'a> for Vec<Vec<Note>> {
-    fn generate(&self, fun: &'a dyn Fn(Note, usize) -> Vec<f64>, length: usize) -> Vec<f64> {
-        let mut vec: Vec<f64> = Vec::new();
-        for note_list in self {
-            if note_list.is_empty() {
-                silence().take_samples(length);
-            } else {
-                vec.append(&mut join_tracks(
-                    note_list.iter().map(|note| fun(*note, length)).collect(),
-                ));
-            }
-        }
-        vec
-    }
     fn map_notes<U: Copy + Fn(Note) -> Note>(&self, fun: U) -> Self {
         self.iter()
             .map(|list| list.iter().map(|note| fun(*note)).collect())
@@ -89,13 +62,60 @@ impl<'a> NoteList<'a> for Vec<Vec<Note>> {
     }
 }
 
-pub trait IntoNoteList {
-    fn into_notes(self) -> Vec<Vec<Note>>;
+fn generate_frequency_list(
+    list: &[Vec<Frequency>],
+    fun: &dyn Fn(Frequency, usize) -> Vec<f64>,
+    length: usize,
+) -> Vec<f64> {
+    let mut vec: Vec<f64> = Vec::new();
+    for note_list in list {
+        if note_list.is_empty() {
+            silence().take_samples(length);
+        } else {
+            vec.append(&mut join_tracks(
+                note_list.iter().map(|note| fun(*note, length)).collect(),
+            ));
+        }
+    }
+    vec
 }
-impl<T: Clone + Into<Note>> IntoNoteList for Vec<Vec<T>> {
-    fn into_notes(self) -> Vec<Vec<Note>> {
+
+pub trait IntoFrequencyList<'a> {
+    fn generate(&self, fun: &'a dyn Fn(Frequency, usize) -> Vec<f64>, length: usize) -> Vec<f64>;
+}
+impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Vec<T>> {
+    fn generate(&self, fun: &'a dyn Fn(Frequency, usize) -> Vec<f64>, length: usize) -> Vec<f64> {
+        let freqs = self.into_freqs();
+        generate_frequency_list(&freqs, fun, length)
+    }
+}
+impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Option<T>> {
+    fn generate(&self, fun: &'a dyn Fn(Frequency, usize) -> Vec<f64>, length: usize) -> Vec<f64> {
+        let freqs = self.into_freqs();
+        generate_frequency_list(&freqs, fun, length)
+    }
+}
+
+pub trait IntoFreqList {
+    fn into_freqs(&self) -> Vec<Vec<Frequency>>;
+}
+impl<T: Clone + Into<Frequency>> IntoFreqList for Vec<Vec<T>> {
+    fn into_freqs(&self) -> Vec<Vec<Frequency>> {
         self.iter()
             .map(|a| a.iter().map(|b| b.clone().into()).collect())
+            .collect()
+    }
+}
+impl<T: Clone + Into<Frequency>> IntoFreqList for Vec<Option<T>> {
+    fn into_freqs(&self) -> Vec<Vec<Frequency>> {
+        self.iter()
+            .map(|a| {
+                if let Some(val) = a {
+                    vec![val.clone().into()]
+                } else {
+                    vec![]
+                }
+            })
             .collect()
     }
 }

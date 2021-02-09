@@ -46,7 +46,7 @@ pub use pitch_shift::PitchShift;
 mod autotune;
 pub use autotune::Autotune;
 mod filter;
-pub use filter::Filter;
+pub use filter::{Filter, FilterMode};
 
 #[cfg(test)]
 mod test {

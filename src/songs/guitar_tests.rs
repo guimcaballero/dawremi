@@ -66,30 +66,35 @@ impl GuitarTests {
     }
 }
 
-fn guitar(song: &dyn Song, note: Note) -> SynthGroup {
+fn guitar(song: &dyn Song, frequency: impl Clone + Into<Frequency>) -> SynthGroup {
     let guitar1 = Synth::new(
         box Plucked::new(
             InitialBurstType::DoubleTriangle,
-            note,
+            frequency.clone().into(),
             song.get_sample_rate(),
         ),
-        note,
         song.get_sample_rate(),
     );
 
     let guitar2 = Synth::new(
-        box Plucked::new(InitialBurstType::Random, note, song.get_sample_rate()),
-        note,
+        box Plucked::new(
+            InitialBurstType::Random,
+            frequency.into(),
+            song.get_sample_rate(),
+        ),
         song.get_sample_rate(),
     );
 
     SynthGroup(vec![guitar1, guitar2])
 }
 
-fn bass(song: &dyn Song, note: Note) -> Synth {
+fn bass(song: &dyn Song, frequency: impl Into<Frequency>) -> Synth {
     Synth::new(
-        box Plucked::new(InitialBurstType::Sine, note, song.get_sample_rate()),
-        note,
+        box Plucked::new(
+            InitialBurstType::Sine,
+            frequency.into(),
+            song.get_sample_rate(),
+        ),
         song.get_sample_rate(),
     )
 }

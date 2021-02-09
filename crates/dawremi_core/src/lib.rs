@@ -17,7 +17,7 @@ pub mod prelude {
     pub use super::effects::*;
     pub use super::helpers::*;
     pub use super::looper::*;
-    pub use super::notes::*;
+    pub use super::notes::{n_tet::*, *};
     pub use super::song::*;
     pub use super::sound_files::{enums::*, io::*};
     pub use super::synth::*;

@@ -18,8 +18,6 @@ impl SynthInstrument for Bell {
         let a_lfo = 0.001;
         let f_lfo = 5.0;
 
-        let base_note = self.note.up_an_octave();
-
         // Make the base note disappear faster than the rest
         let attack = self.get_params().attack;
         let base_note_vol_multiplier = if self.sample > attack {
@@ -28,22 +26,20 @@ impl SynthInstrument for Bell {
             1.
         };
 
-        let freq: Frequency = base_note.into();
         let mut result = base_note_vol_multiplier
-            * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+            * (self.frequency.0 * self.time()
+                + a_lfo * self.frequency.0 * (f_lfo * self.time()).sin())
+            .sin();
 
         // Add higher notes
-        let note = base_note.up_an_octave();
-        let freq: Frequency = note.into();
+        let freq = self.frequency.up_an_octave();
         result += 0.5 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
-        let note = note.up_an_octave();
-        let freq: Frequency = note.into();
+        let freq = self.frequency.up_an_octave();
         result +=
             0.125 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
 
-        let note = note.up_an_octave();
-        let freq: Frequency = note.into();
+        let freq = self.frequency.up_an_octave();
         if self.sample > attack {
             result += 0.0125
                 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();

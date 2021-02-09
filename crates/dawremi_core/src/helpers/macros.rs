@@ -25,12 +25,10 @@ macro_rules! sequence {
     // With a function that takes a note
     ($self:ident, len: $len:expr, note: $note:ident, fun: $fun:expr, $($x:tt)*) => {
         {
-            use $note::*;
-
             let mut vec: Vec<f64> = Vec::new();
                 $(
                     vec.append(
-                        &mut sequence!(@map $self fun: $fun, len: $len, $x)
+                        &mut sequence!(@map $self fun: $fun, len: $len, note: $note, $x)
                     );
                 )*
             vec
@@ -39,21 +37,21 @@ macro_rules! sequence {
 
     // Helpers
 
-    (@unwrap_note, ([$($x:tt)*] * $len:expr)) => { [$($x,)*] };
-    (@unwrap_note, ($x:tt * $len:expr)) => { [$x] };
-    (@unwrap_note, [$($x:tt)*]) => { [$($x,)*] };
-    (@unwrap_note, $x:tt) => { [$x] };
+    (@unwrap_note, $note:ident, ([$($x:tt)*] * $len:expr)) => { [$($note::$x,)*] };
+    (@unwrap_note, $note:ident, ($x:tt * $len:expr)) => { [$note::$x] };
+    (@unwrap_note, $note:ident, [$($x:tt)*]) => { [$($note::$x,)*] };
+    (@unwrap_note, $note:ident, $x:tt) => { [$note::$x] };
     (@unwrap_len ($x:tt * $len:expr)) => { $len };
     (@unwrap_len $x:tt) => { 1. };
 
-    (@map $self:ident fun: $fun:expr, len: $len:expr, _) =>  { silence().take_samples($self.beats(1.))};
-    (@map $self:ident fun: $fun:expr, len: $len:expr, __) => { silence().take_samples($self.beats(1.))};
-    (@map $self:ident fun: $fun:expr, len: $len:expr, $x:tt) => {
+    (@map $self:ident fun: $fun:expr, len: $len:expr, note: $note:ident, _) =>  { silence().take_samples($self.beats(1.))};
+    (@map $self:ident fun: $fun:expr, len: $len:expr, note: $note:ident, __) => { silence().take_samples($self.beats(1.))};
+    (@map $self:ident fun: $fun:expr, len: $len:expr, note: $note:ident, $x:tt) => {
         join_tracks(
-            sequence!(@unwrap_note, $x)
+            sequence!(@unwrap_note, $note, $x)
                     .iter()
                     .map(|note| {
-                        $fun(Note::from(*note))
+                        $fun(*note)
                             .take_samples($self.beats($len * sequence!(@unwrap_len $x)))
                     })
                     .collect()
@@ -118,12 +116,14 @@ macro_rules! pattern {
                 vec![
                     $(
                         {
-                            pattern!(@note_ident $note $($subnote)?);
-
                             let mut vec: Vec<f64> = Vec::new();
                             $(
                                 vec.append(
-                                    &mut sequence!(@map $self fun: $fun, len: $beat, $x)
+                                    &mut sequence!(@map $self
+                                                   fun: $fun,
+                                                   len: $beat,
+                                                   note: $note,
+                                                   $x)
                                 );
                             )*
                             vec
@@ -135,8 +135,8 @@ macro_rules! pattern {
          }
     };
 
-    (@note_ident $a:ident $b:ident) => { use $b::*; };
-    (@note_ident $a:ident) => { use $a::*; };
+    (@note_ident $a:ident $b:ident) => { $b };
+    (@note_ident $a:ident) => { $a };
 }
 
 #[cfg(test)]
