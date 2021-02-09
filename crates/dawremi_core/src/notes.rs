@@ -30,7 +30,7 @@ pub mod n_tet {
 
     /// I'm using Const generics to define the number of subdivisions, as I think it belongs more on the type
     /// Also, I just wanted to try it
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Copy, Clone, Debug, PartialEq, Eq)]
     pub struct NTet<const N: u8>(i16);
 
     impl<const N: u8> NTet<N> {

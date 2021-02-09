@@ -108,6 +108,21 @@ impl Test {
         )
     }
 
+    fn microtonal(&self) -> Vec<f64> {
+        let notes1 = {
+            let n = |a, b| vec![Tet72::new(a, b)];
+            vec![n(2, 0), n(2, 1), n(2, 2), n(2, 3), n(2, 19)]
+        };
+
+        notes1.generate(
+            &|note, length| {
+                self.plucked(note, InitialBurstType::Triangle(2, 3))
+                    .take_samples(length)
+            },
+            self.beats(1.),
+        )
+    }
+
     fn plucked_track(&mut self) -> Vec<f64> {
         sequence!(
             self,
