@@ -47,6 +47,8 @@ mod autotune;
 pub use autotune::Autotune;
 mod filter;
 pub use filter::{Filter, FilterMode};
+mod delay;
+pub use delay::Delay;
 
 #[cfg(test)]
 mod test {

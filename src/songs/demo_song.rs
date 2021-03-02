@@ -5,7 +5,7 @@ song!(DemoSong,);
 impl Song for DemoSong {
     /// Display name for the song
     fn name(&self) -> &'static str {
-        "test"
+        "Demo song"
     }
 
     /// Song's beats per minute

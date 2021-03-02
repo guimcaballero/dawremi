@@ -16,16 +16,30 @@ impl Song for AudioEffectsDemo {
     }
     fn tracks(&mut self) -> Vec<Vec<f64>> {
         vec![
+            self.delay(),
             // self.bass_boost(),
             // self.mt_reverb(),
             // self.conv_reverb(),
             // self.pitch_shift(),
-            self.autotune(),
+            // self.autotune(),
         ]
     }
 }
 
 impl AudioEffectsDemo {
+    fn delay(&mut self) -> Vec<f64> {
+        self.sound("assets/audio.wav")
+            .take_samples(self.seconds(7.))
+            .chain(
+                self.sound("assets/audio.wav")
+                    .effect(&Delay {
+                        delay_time: self.seconds(0.2),
+                        feedback: 0.5,
+                    })
+                    .take_samples(self.seconds(7.)),
+            )
+    }
+
     fn bass_boost(&mut self) -> Vec<f64> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(7.))
