@@ -14,7 +14,7 @@ impl Song for AudioEffectsDemo {
     fn duration(&self) -> usize {
         self.seconds(18.)
     }
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![
             self.delay(),
             // self.bass_boost(),
@@ -27,7 +27,7 @@ impl Song for AudioEffectsDemo {
 }
 
 impl AudioEffectsDemo {
-    fn delay(&mut self) -> Vec<f64> {
+    fn delay(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(7.))
             .chain(
@@ -40,7 +40,7 @@ impl AudioEffectsDemo {
             )
     }
 
-    fn bass_boost(&mut self) -> Vec<f64> {
+    fn bass_boost(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(7.))
             .chain(
@@ -55,7 +55,7 @@ impl AudioEffectsDemo {
             )
     }
 
-    fn autotune(&mut self) -> Vec<f64> {
+    fn autotune(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(4.))
             .chain(
@@ -72,7 +72,7 @@ impl AudioEffectsDemo {
             )
     }
 
-    fn pitch_shift(&mut self) -> Vec<f64> {
+    fn pitch_shift(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(3.))
             .chain(
@@ -93,7 +93,7 @@ impl AudioEffectsDemo {
             )
     }
 
-    fn conv_reverb(&mut self) -> Vec<f64> {
+    fn conv_reverb(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .effect(&Convolution::new(
                 self.sound(Reverb::LargeLongEchoHall.into()),
@@ -101,7 +101,7 @@ impl AudioEffectsDemo {
             .chain(self.sound("assets/audio.wav"))
     }
 
-    fn mt_reverb(&mut self) -> Vec<f64> {
+    fn mt_reverb(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .effect(&MultitapReverb::new(self.get_sample_rate()))
             .take_samples(self.seconds(3.))

@@ -19,17 +19,17 @@ impl Song for DemoSong {
         self.beats(16.)
     }
 
-    /// list of tracks on this song. Each track is just a list of samples (Vec<f64>)
+    /// list of tracks on this song. Each track is just a list of samples (Vec<Frame>)
     /// All of the tracks will be mixed equally
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![self.plucked_track(), self.other_track()]
     }
 }
 
 impl DemoSong {
     /// This is a track
-    fn plucked_track(&self) -> Vec<f64> {
-        // We ue a macro to play a sequence of notes. Returns a Vec<f64>
+    fn plucked_track(&self) -> Vec<Frame> {
+        // We ue a macro to play a sequence of notes. Returns a Vec<Frame>
         sequence!(
             self,
             // The lenght of one note in beats
@@ -62,7 +62,7 @@ impl DemoSong {
         )
     }
 
-    fn other_track(&mut self) -> Vec<f64> {
+    fn other_track(&mut self) -> Vec<Frame> {
         // We can also make a list of notes and manipulate it.
         let notes1: Vec<Vec<Note>> = {
             use Note::*;

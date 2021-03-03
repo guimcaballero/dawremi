@@ -19,13 +19,13 @@ impl Song for TwinkleTwinkle {
     fn duration(&self) -> usize {
         self.beats(8. * 6.)
     }
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![self.main_track(), self.synth_track(), self.bass_track()]
     }
 }
 
 impl TwinkleTwinkle {
-    fn main_track(&self) -> Vec<f64> {
+    fn main_track(&self) -> Vec<Frame> {
         sequence!(@lyrics
                 self,
                 len: 1.,
@@ -42,7 +42,7 @@ impl TwinkleTwinkle {
         )
     }
 
-    fn bass_track(&self) -> Vec<f64> {
+    fn bass_track(&self) -> Vec<Frame> {
         sequence!(@lyrics
                   self,
                   len: 1., fun: |note| self.bass(note),
@@ -58,7 +58,7 @@ impl TwinkleTwinkle {
         )
     }
 
-    fn synth_track(&self) -> Vec<f64> {
+    fn synth_track(&self) -> Vec<Frame> {
         sequence!(@lyrics
                 self,
                 len: 1., fun: |note| self.harmonica(note),

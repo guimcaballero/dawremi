@@ -12,7 +12,7 @@ impl Looper for Test {
     fn bpm(&self) -> usize {
         180
     }
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![
             // self.kick(),
             self.snare(),
@@ -22,7 +22,7 @@ impl Looper for Test {
 }
 
 impl Test {
-    fn kick(&mut self) -> Vec<f64> {
+    fn kick(&mut self) -> Vec<Frame> {
         sequence!(
             self,
             len: 1.,
@@ -32,7 +32,7 @@ impl Test {
         )
     }
 
-    fn snare(&mut self) -> Vec<f64> {
+    fn snare(&mut self) -> Vec<Frame> {
         sequence!(
             self,
             len: 1., note: Note,
@@ -42,7 +42,7 @@ impl Test {
         )
     }
 
-    fn hihat(&mut self) -> Vec<f64> {
+    fn hihat(&mut self) -> Vec<Frame> {
         sequence!(
             self,
             len: 1., note: Note,

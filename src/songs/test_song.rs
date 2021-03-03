@@ -14,13 +14,32 @@ impl Song for Test {
     fn duration(&self) -> usize {
         self.seconds(20.)
     }
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
-        vec![self.plucked_track()]
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
+        vec![self.stereo()]
     }
 }
 
 impl Test {
-    fn afrodite(&mut self) -> Vec<f64> {
+    fn stereo(&mut self) -> Vec<Frame> {
+        let left = sequence!(
+            self,
+            len: 1., note: GuitarFretboard,
+            fun: |note| self.plucked(note, InitialBurstType::Triangle(2, 3)),
+
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
+        );
+        let right = sequence!(
+            self,
+            len: 1., note: GuitarFretboard,
+            fun: |note| self.bell(note),
+
+            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
+        );
+
+        join_left_and_right_channels(left.to_mono(), right.to_mono())
+    }
+
+    fn afrodite(&mut self) -> Vec<Frame> {
         let sound1 = sequence!(
             self,
             len: 1., note: GuitarFretboard,
@@ -51,7 +70,7 @@ impl Test {
             .effect(&Convolution::new(self.sound(Reverb::ParkingGarage.into())))
     }
 
-    fn test_new_sequence(&mut self) -> Vec<f64> {
+    fn test_new_sequence(&mut self) -> Vec<Frame> {
         let notes1 = {
             use Note::*;
             note_list![[A4, C4], A5, A6, _, A6]
@@ -98,7 +117,7 @@ impl Test {
         ])
     }
 
-    fn test_multiple_notes(&mut self) -> Vec<f64> {
+    fn test_multiple_notes(&mut self) -> Vec<Frame> {
         sequence!(
             self,
             len: 1., note: GuitarFretboard,
@@ -108,7 +127,7 @@ impl Test {
         )
     }
 
-    fn microtonal(&self) -> Vec<f64> {
+    fn microtonal(&self) -> Vec<Frame> {
         let notes1 = {
             let n = |a, b| vec![Tet72::new(a, b)];
             vec![n(2, 0), n(2, 1), n(2, 2), n(2, 3), n(2, 19)]
@@ -123,7 +142,7 @@ impl Test {
         )
     }
 
-    fn plucked_track(&mut self) -> Vec<f64> {
+    fn plucked_track(&mut self) -> Vec<Frame> {
         sequence!(
             self,
             len: 1., note: GuitarFretboard,
@@ -161,7 +180,7 @@ impl Test {
         ))
     }
 
-    fn track2(&self) -> Vec<f64> {
+    fn track2(&self) -> Vec<Frame> {
         pattern!(
             self,
             note: Note,

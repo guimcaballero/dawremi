@@ -14,13 +14,13 @@ impl Song for GuitarTests {
     fn duration(&self) -> usize {
         self.beats(8. * 6.)
     }
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![self.in_between_the_castle_ruins_i_found_a_book()]
     }
 }
 
 impl GuitarTests {
-    fn in_between_the_castle_ruins_i_found_a_book(&self) -> Vec<f64> {
+    fn in_between_the_castle_ruins_i_found_a_book(&self) -> Vec<Frame> {
         let guitar = {
             let s1 = sequence!(
                 self,
