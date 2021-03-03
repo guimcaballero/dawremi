@@ -42,8 +42,14 @@ mod test {
 
     #[test]
     fn join_tracks_test() {
-        let tracks = vec![vec![1., 1., 0., 0.5, 0.3], vec![0., 1., 0., 0.5, 0.5]];
+        let tracks = vec![
+            vec![1., 1., 0., 0.5, 0.3].into_frames(),
+            vec![0., 1., 0., 0.5, 0.5].into_frames(),
+        ];
 
-        assert_eq!(vec![0.5, 1., 0., 0.5, 0.4], join_tracks(tracks))
+        assert_eq!(
+            vec![0.5, 1., 0., 0.5, 0.4].into_frames(),
+            join_tracks(tracks)
+        )
     }
 }

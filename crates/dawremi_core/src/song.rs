@@ -162,7 +162,7 @@ mod test {
         fn tracks(&mut self) -> Vec<Vec<Frame>> {
             vec![sequence!(@lyrics
                       self,
-                      len: 0.5, fun: |note: Note| self.hz(note.into()).sine(),
+                      len: 0.5, fun: |_note: Note| vec![Frame::mono(0.5); 100],
 
                       [twin-kle  twin-kle  lit-tle star],
                       (G4 _ G4 _ D4 _ D4 _ E4 _ E4 _ (D4 * 2.) _ _),

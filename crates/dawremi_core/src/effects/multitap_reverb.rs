@@ -76,9 +76,9 @@ mod test {
 
     #[test]
     fn it_works_with_0s() {
-        let smth = vec![0.; 100].effect(&MultitapReverb::new(10.));
+        let smth = vec![Frame::default(); 100].effect(&MultitapReverb::new(10.));
 
-        assert_eq!(smth, vec![0.; 100])
+        assert_eq!(smth, vec![Frame::default(); 100])
     }
 
     #[test]
@@ -93,18 +93,18 @@ mod test {
             (7, 0.2238),
         ];
 
-        let smth = vec![0.5; 100].effect(&MultitapReverb {
+        let smth = vec![Frame::mono(0.5); 100].effect(&MultitapReverb {
             taps,
             max_buffer: 8,
         });
 
         let first = 0.5;
-        assert_eq!(smth[0], first);
+        assert_eq!(smth[0].left, first);
         let second = 0.5 + first * 0.0562;
-        assert_eq!(smth[1], second);
+        assert_eq!(smth[1].left, second);
         let third = 0.5 + second * 0.0562 + first * 0.0707;
-        assert_eq!(smth[2], third);
+        assert_eq!(smth[2].left, third);
         let fourth = 0.5 + third * 0.0562 + second * 0.0707 + first * 0.1778;
-        assert_eq!(smth[3], fourth);
+        assert_eq!(smth[3].left, fourth);
     }
 }
