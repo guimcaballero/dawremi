@@ -31,32 +31,38 @@ pub enum FilterMode {
 }
 
 impl Effect for Filter {
-    fn run(&self, input: Vec<f64>) -> Vec<f64> {
-        let mut ic1eq: f64 = 0.;
-        let mut ic2eq: f64 = 0.;
+    fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
+        let (left, right) = input.split_sides();
 
-        let g = (PI * (self.cutoff / self.sample_rate)).tan();
-        let k = 2.0 - (1.9 * self.resonance.min(1.0).max(0.0));
-
-        let a1 = 1.0 / (1.0 + (g * (g + k)));
-        let a2 = g * a1;
-        let a3 = g * a2;
-
-        input
-            .iter()
-            .map(|val| {
-                let v3 = val - ic2eq;
-                let v1 = (ic1eq * (a1)) + (v3 * (a2));
-                let v2 = ic2eq + (ic1eq * (a2)) + (v3 * (a3));
-                ic1eq = (v1 * 2.0) - ic1eq;
-                ic2eq = (v2 * 2.0) - ic2eq;
-                match self.mode {
-                    FilterMode::LowPass => v2,
-                    FilterMode::BandPass => v1,
-                    FilterMode::HighPass => val - v1 * k - v2,
-                    FilterMode::Notch => val - v1 * k,
-                }
-            })
-            .collect()
+        join_left_and_right_channels(run(self, left), run(self, right))
     }
+}
+
+fn run(filter: &Filter, input: Vec<f64>) -> Vec<f64> {
+    let mut ic1eq: f64 = 0.;
+    let mut ic2eq: f64 = 0.;
+
+    let g = (PI * (filter.cutoff / filter.sample_rate)).tan();
+    let k = 2.0 - (1.9 * filter.resonance.min(1.0).max(0.0));
+
+    let a1 = 1.0 / (1.0 + (g * (g + k)));
+    let a2 = g * a1;
+    let a3 = g * a2;
+
+    input
+        .iter()
+        .map(|val| {
+            let v3 = val - ic2eq;
+            let v1 = (ic1eq * (a1)) + (v3 * (a2));
+            let v2 = ic2eq + (ic1eq * (a2)) + (v3 * (a3));
+            ic1eq = (v1 * 2.0) - ic1eq;
+            ic2eq = (v2 * 2.0) - ic2eq;
+            match filter.mode {
+                FilterMode::LowPass => v2,
+                FilterMode::BandPass => v1,
+                FilterMode::HighPass => val - v1 * k - v2,
+                FilterMode::Notch => val - v1 * k,
+            }
+        })
+        .collect()
 }

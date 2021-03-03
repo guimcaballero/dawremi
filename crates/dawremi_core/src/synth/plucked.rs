@@ -1,6 +1,6 @@
 use super::*;
 use crate::helpers::interpolation::interpolate;
-use dasp::signal;
+use dasp::{signal, Signal};
 
 instrument!(Plucked, noise_length: usize, noise: Vec<f64>);
 
@@ -14,7 +14,7 @@ pub enum InitialBurstType {
 impl InitialBurstType {
     fn noise(&self, length: usize) -> Vec<f64> {
         match self {
-            InitialBurstType::Random => signal::noise(42069).take_samples(length),
+            InitialBurstType::Random => signal::noise(42069).take(length).collect(),
             InitialBurstType::DoubleTriangle => {
                 interpolate(vec![(length / 4, 1.), (length * 3 / 4, -1.), (length, 0.)])
             }
@@ -25,7 +25,8 @@ impl InitialBurstType {
             InitialBurstType::Sine => signal::rate(length as f64)
                 .const_hz(1.0)
                 .sine()
-                .take_samples(length),
+                .take(length)
+                .collect(),
             InitialBurstType::Hill => interpolate(vec![
                 (length * 2 / 8, 0.),
                 (length * 3 / 8, 1.),
@@ -66,7 +67,7 @@ impl SynthInstrument for Plucked {
         }
     }
 
-    fn note(&mut self) -> f64 {
+    fn note(&mut self) -> Frame {
         self.sample += 1;
 
         let prev = self.noise[(self.sample - 1) % self.noise_length];
@@ -74,6 +75,6 @@ impl SynthInstrument for Plucked {
         let next = self.noise[(self.sample + 1) % self.noise_length];
         self.noise[self.sample % self.noise_length] = (result + next + prev) * 0.996 / 3.;
 
-        result
+        Frame::mono(result)
     }
 }

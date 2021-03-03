@@ -1,3 +1,4 @@
+use crate::frame::Frame;
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, SampleFormat, StreamConfig};
@@ -34,7 +35,7 @@ pub(crate) fn get_player_config() -> PlayerConfig {
 }
 
 pub(crate) struct Player {
-    pub audio: VecDeque<f64>,
+    pub audio: VecDeque<Frame>,
     pub cycle: bool,
 }
 
@@ -74,18 +75,24 @@ where
                 let sample = match player.audio.pop_front() {
                     None => {
                         complete_tx.try_send(()).ok();
-                        0.0
+                        Frame::mono(0.0)
                     }
                     Some(sample) => {
                         if player.cycle {
                             player.audio.push_back(sample);
                         }
-                        sample as f32
+                        sample
                     }
                 };
-                let value: T = cpal::Sample::from::<f32>(&sample);
-                for sample in frame.iter_mut() {
-                    *sample = value;
+
+                if frame.len() == 2 {
+                    frame[0] = cpal::Sample::from::<f32>(&(sample.left as f32));
+                    frame[1] = cpal::Sample::from::<f32>(&(sample.right as f32));
+                } else {
+                    let value: T = cpal::Sample::from::<f32>(&(sample.to_mono() as f32));
+                    for sample in frame.iter_mut() {
+                        *sample = value;
+                    }
                 }
             }
         },

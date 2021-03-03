@@ -13,15 +13,27 @@ pub struct BassBoost {
     pub gain: f64,
 }
 impl Effect for BassBoost {
-    fn run(&self, input: Vec<f64>) -> Vec<f64> {
-        let mut cap = 0.;
+    fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
+        let mut cap_left = 0.;
+        let mut cap_right = 0.;
 
         input
             .iter()
-            .map(|val| {
-                let gain = 1.0 / (self.selectivity + 1.0);
-                cap = (val + cap * self.selectivity) * gain;
-                ((val * self.input_ratio + cap * self.bass_ratio) * self.gain).clamp(-1., 1.)
+            .map(|frame| {
+                frame.map_left_right(
+                    |val: f64| {
+                        let gain = 1.0 / (self.selectivity + 1.0);
+                        cap_left = (val + cap_left * self.selectivity) * gain;
+                        ((val * self.input_ratio + cap_left * self.bass_ratio) * self.gain)
+                            .clamp(-1., 1.)
+                    },
+                    |val: f64| {
+                        let gain = 1.0 / (self.selectivity + 1.0);
+                        cap_right = (val + cap_right * self.selectivity) * gain;
+                        ((val * self.input_ratio + cap_right * self.bass_ratio) * self.gain)
+                            .clamp(-1., 1.)
+                    },
+                )
             })
             .collect()
     }

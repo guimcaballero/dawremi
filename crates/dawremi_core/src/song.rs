@@ -1,10 +1,10 @@
 use crate::helpers::*;
 use crate::player::*;
+use crate::prelude::Frame;
 use crate::sound_files::enums::Metronome;
 use crate::sound_files::io::save_file;
 use crate::traits::*;
 use anyhow::Result;
-use dasp::{signal, Signal};
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
     fn save_to_file(&mut self, bits_per_sample: u16) {
@@ -30,11 +30,11 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         run_player(player, config)
     }
 
-    fn generate(&mut self) -> Vec<f64> {
+    fn generate(&mut self) -> Vec<Frame> {
         let tracks = join_tracks(self.tracks());
 
-        let vec = signal::from_iter(tracks)
-            .mul_amp(signal::from_iter(self.volume()))
+        let vec = tracks
+            .multiply(self.volume())
             // Add some delay in the front if we enable metronome
             // This way we get like 3 beats of the metronome before we start
             .delay(if cfg!(feature = "metronome") {
@@ -43,28 +43,26 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
                 0
             })
             // We add the metronome after the volume
-            .add_amp(signal::from_iter(self.metronome()))
-            .take(self.duration())
-            .collect::<Vec<f64>>();
+            .add(self.metronome())
+            .take_samples(self.duration());
 
         // Normalize
         let (max, min) = vec
             .iter()
             .cloned()
             .fold((-1. / 0., 1. / 0.), |(max, min), a| {
-                (f64::max(max, a), f64::min(min, a))
+                (f64::max(max, a.max()), f64::min(min, a.min()))
             });
         let max = f64::max(max.abs(), min.abs());
         vec.iter().map(|a| a / max).collect()
     }
 
-    fn metronome(&mut self) -> Vec<f64> {
+    fn metronome(&mut self) -> Vec<Frame> {
         if cfg!(feature = "metronome") {
-            self.sound_signal(Metronome.into())
-                .take(self.beats(0.2))
-                .chain(silence().take(self.beats(0.8)))
-                .cycle()
-                .take(self.duration())
+            self.sound(Metronome.into())
+                .take_samples(self.beats(0.2))
+                .chain(silence().take_samples(self.beats(0.8)))
+                .cycle_until_samples(self.duration())
                 .collect()
         } else {
             silence().take_samples(self.duration())
@@ -82,11 +80,11 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     // Methods to overload for song customization
 
     /// General volume for all tracks
-    fn volume(&self) -> Vec<f64> {
-        signal::gen(|| 1.0).take_samples(self.duration())
+    fn volume(&self) -> Vec<Frame> {
+        vec![Frame::mono(1.0); self.duration()]
     }
 
-    fn tracks(&mut self) -> Vec<Vec<f64>>;
+    fn tracks(&mut self) -> Vec<Vec<Frame>>;
     fn name(&self) -> &'static str;
     fn duration(&self) -> usize;
     fn bpm(&self) -> usize;
@@ -114,7 +112,7 @@ mod test {
             self.beats(12.)
         }
 
-        fn tracks(&mut self) -> Vec<Vec<f64>> {
+        fn tracks(&mut self) -> Vec<Vec<Frame>> {
             vec![]
         }
     }
@@ -161,7 +159,7 @@ mod test {
             self.beats(12.)
         }
 
-        fn tracks(&mut self) -> Vec<Vec<f64>> {
+        fn tracks(&mut self) -> Vec<Vec<Frame>> {
             vec![sequence!(@lyrics
                       self,
                       len: 0.5, fun: |note: Note| self.hz(note.into()).sine(),

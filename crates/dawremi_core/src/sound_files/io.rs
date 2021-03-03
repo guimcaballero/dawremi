@@ -1,10 +1,12 @@
+use crate::frame::*;
 use dasp::{signal, Signal};
+use hound::WavIntoSamples;
 use hound::WavReader;
 use hound::WavWriter;
 use std::fs::*;
 use std::io::BufReader;
 
-pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
+pub fn open_file(path: &str, sample_rate: u32) -> Vec<Frame> {
     let reader =
         hound::WavReader::open(path).unwrap_or_else(|_| panic!("File {} should exist", path));
     let spec = reader.spec();
@@ -24,27 +26,41 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<f64> {
         if metadata(&processed_filename).is_ok() && !modified {
             if let Ok(processed_file) = hound::WavReader::open(&processed_filename) {
                 let processed_spec = processed_file.spec();
-                return processed_file
-                    .into_samples::<i32>()
-                    // NOTE Eventually this will be removed when we implement stereo
-                    .step_by(processed_spec.channels.into())
-                    .map(Result::unwrap)
-                    .map(|val| i_to_f(val, processed_spec.bits_per_sample))
-                    .collect::<Vec<f64>>();
+                return transform_samples_to_frames(
+                    processed_file.into_samples::<i32>(),
+                    processed_spec.channels,
+                    processed_spec.bits_per_sample,
+                );
             };
         }
 
         // Otherwise we resample it, save it as a new file, and return it
         resample_and_save(reader, &processed_filename, sample_rate)
     } else {
-        reader
-            .into_samples::<i32>()
-            // NOTE Eventually this will be removed when we implement stereo
-            .step_by(spec.channels.into())
-            .map(Result::unwrap)
-            .map(|val| i_to_f(val, spec.bits_per_sample))
-            .collect::<Vec<f64>>()
+        transform_samples_to_frames(
+            reader.into_samples::<i32>(),
+            spec.channels,
+            spec.bits_per_sample,
+        )
     }
+}
+
+fn transform_samples_to_frames(
+    samples: WavIntoSamples<BufReader<File>, i32>,
+    num_channels: u16,
+    bits_per_sample: u16,
+) -> Vec<Frame> {
+    samples
+        .map(Result::unwrap)
+        .map(|val| i_to_f(val, bits_per_sample))
+        .collect::<Vec<f64>>()
+        .windows(num_channels.into())
+        .map(|sample| match sample {
+            [left, right] => Frame::new(*left, *right),
+            [a, ..] => Frame::mono(*a),
+            [] => panic!("Sample has 0 channels"),
+        })
+        .collect::<Vec<Frame>>()
 }
 
 /// Returns true if file at path1 has been changed after path2
@@ -69,35 +85,49 @@ fn resample_and_save(
     reader: WavReader<BufReader<File>>,
     processed_filename: &str,
     sample_rate: u32,
-) -> Vec<f64> {
+) -> Vec<Frame> {
     let spec = reader.spec();
-    let orig = reader
-        .into_samples::<i32>()
-        // NOTE Eventually this will be removed when we implement stereo
-        .step_by(spec.channels.into())
-        .map(Result::unwrap)
-        .map(|val| i_to_f(val, spec.bits_per_sample));
+    let orig = transform_samples_to_frames(
+        reader.into_samples::<i32>(),
+        spec.channels,
+        spec.bits_per_sample,
+    );
+
+    let (left, right) = orig.split_sides();
 
     // Convert the signal's sample rate using `Sinc` interpolation.
     use dasp::{interpolate::sinc::Sinc, ring_buffer};
-    let signal = signal::from_interleaved_samples_iter(orig);
-    let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
-    let sinc = Sinc::new(ring_buffer);
-    let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
+    let left = {
+        let signal = signal::from_interleaved_samples_iter(left);
+        let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
+        let sinc = Sinc::new(ring_buffer);
+        let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
+        new_signal
+            .until_exhausted()
+            .map(|frame| frame[0])
+            .collect::<Vec<f64>>()
+    };
+    let right = {
+        let signal = signal::from_interleaved_samples_iter(right);
+        let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
+        let sinc = Sinc::new(ring_buffer);
+        let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
+        new_signal
+            .until_exhausted()
+            .map(|frame| frame[0])
+            .collect::<Vec<f64>>()
+    };
 
-    let vec = new_signal
-        .until_exhausted()
-        .map(|frame| frame[0])
-        .collect::<Vec<f64>>();
+    let vec = join_left_and_right_channels(left, right);
 
     save_file(vec.clone(), &processed_filename, sample_rate, 24);
 
     vec
 }
 
-pub fn save_file(audio: Vec<f64>, path: &str, sample_rate: u32, bits_per_sample: u16) {
+pub fn save_file(audio: Vec<Frame>, path: &str, sample_rate: u32, bits_per_sample: u16) {
     let spec = hound::WavSpec {
-        channels: 1,
+        channels: 2,
         sample_rate,
         bits_per_sample,
         sample_format: hound::SampleFormat::Int,
@@ -107,11 +137,15 @@ pub fn save_file(audio: Vec<f64>, path: &str, sample_rate: u32, bits_per_sample:
 
     for val in audio {
         let val = val.clamp(-1., 1.);
-        let value = f_to_i(val, bits_per_sample);
 
+        let left = f_to_i(val.left, bits_per_sample);
         writer
-            .write_sample(value)
-            .expect("Sample could not be written");
+            .write_sample(left)
+            .expect("Frame's left value could not be written");
+        let right = f_to_i(val.right, bits_per_sample);
+        writer
+            .write_sample(right)
+            .expect("Frame's left value could not be written");
     }
 }
 

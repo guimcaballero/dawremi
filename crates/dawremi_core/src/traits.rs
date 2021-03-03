@@ -1,3 +1,4 @@
+use crate::frame::*;
 use crate::notes::*;
 use crate::sound_files::io::open_file;
 use dasp::signal::{self, ConstHz};
@@ -23,9 +24,9 @@ pub trait HasSampleRate {
 
 pub trait HasSoundHashMap: HasSampleRate {
     /// Should only be called after setting sample_rate
-    fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<f64>>;
+    fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<Frame>>;
 
-    fn sound(&mut self, path: &str) -> Vec<f64> {
+    fn sound(&mut self, path: &str) -> Vec<Frame> {
         let sample_rate = self.get_sample_rate();
 
         let hashmap = self.get_sound_hashmap();
@@ -41,9 +42,6 @@ pub trait HasSoundHashMap: HasSampleRate {
             vec
         }
     }
-    fn sound_signal(&mut self, path: &str) -> signal::FromIterator<std::vec::IntoIter<f64>> {
-        signal::from_iter(self.sound(path))
-    }
 }
 
 #[macro_export]
@@ -52,7 +50,7 @@ macro_rules! song {
         #[derive(Default)]
         pub struct $name {
             sample_rate: Option<f64>,
-            sound_hashmap: HashMap<String, Vec<f64>>,
+            sound_hashmap: HashMap<String, Vec<Frame>>,
             $( $id: $type )*
         }
 
@@ -66,7 +64,7 @@ macro_rules! song {
         }
 
         impl self::HasSoundHashMap for $name {
-            fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<f64>>{
+            fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<Frame>>{
                 &mut self.sound_hashmap
             }
         }

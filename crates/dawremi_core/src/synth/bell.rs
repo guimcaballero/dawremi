@@ -13,7 +13,7 @@ impl SynthInstrument for Bell {
         }
     }
 
-    fn note(&mut self) -> f64 {
+    fn note(&mut self) -> Frame {
         self.sample += 1;
         let a_lfo = 0.001;
         let f_lfo = 5.0;
@@ -45,6 +45,6 @@ impl SynthInstrument for Bell {
                 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
         }
 
-        result
+        Frame::mono(result)
     }
 }

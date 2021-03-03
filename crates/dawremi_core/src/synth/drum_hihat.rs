@@ -13,7 +13,7 @@ impl SynthInstrument for DrumHiHat {
         }
     }
 
-    fn note(&mut self) -> f64 {
+    fn note(&mut self) -> Frame {
         self.sample += 1;
         let a_lfo = 1.;
         let f_lfo = 1.;
@@ -28,6 +28,8 @@ impl SynthInstrument for DrumHiHat {
             -1.
         };
 
-        0.1 * square + 0.9 * rand::thread_rng().gen_range(-1., 1.)
+        let result = 0.1 * square + 0.9 * rand::thread_rng().gen_range(-1., 1.);
+
+        Frame::mono(result)
     }
 }

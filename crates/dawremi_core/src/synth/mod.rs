@@ -1,3 +1,4 @@
+use crate::frame::*;
 use crate::helpers::*;
 use crate::notes::*;
 use core::f64::consts::TAU;
@@ -15,9 +16,9 @@ impl Synth {
         }
     }
 
-    pub fn take_samples(&mut self, samples: usize) -> Vec<f64> {
+    pub fn take_samples(&mut self, samples: usize) -> Vec<Frame> {
         let params = self.instrument.get_params();
-        let vec: Vec<f64> = self.instrument.take_samples(samples);
+        let vec: Vec<Frame> = self.instrument.take_samples(samples);
 
         // Make a vec with the volumes and multiply them
         let attack = params.attack;
@@ -27,7 +28,7 @@ impl Synth {
         let attack_sustain_diff = params.attack_amplitude - params.sustain_amplitude;
         let samples_release_diff = samples.checked_sub(release).unwrap_or_default();
 
-        let volume_without_release: Vec<f64> = (0..samples)
+        let volume_without_release: Vec<Frame> = (0..samples)
             .map(|i| {
                 let volume = if i < attack {
                     (i as f64 / attack as f64) * params.attack_amplitude
@@ -46,14 +47,12 @@ impl Synth {
 
                 volume * release_multiplier
             })
-            .collect();
+            .collect::<Vec<f64>>()
+            .into_frames();
 
         assert_eq!(vec.len(), volume_without_release.len());
 
-        vec.iter()
-            .zip(volume_without_release)
-            .map(|(val, vol)| val * vol)
-            .collect()
+        vec.multiply(volume_without_release)
     }
 }
 
@@ -69,7 +68,7 @@ pub struct SynthParams {
 
 pub struct SynthGroup(pub Vec<Synth>);
 impl SynthGroup {
-    pub fn take_samples(&mut self, samples: usize) -> Vec<f64> {
+    pub fn take_samples(&mut self, samples: usize) -> Vec<Frame> {
         join_tracks(
             self.0
                 .iter_mut()
@@ -81,12 +80,12 @@ impl SynthGroup {
 
 pub trait SynthInstrument: HasSample {
     fn get_params(&self) -> SynthParams;
-    fn note(&mut self) -> f64;
+    fn note(&mut self) -> Frame;
 
     fn time(&self) -> f64 {
         TAU * self.sample() / self.sample_rate()
     }
-    fn take_samples(&mut self, samples: usize) -> Vec<f64> {
+    fn take_samples(&mut self, samples: usize) -> Vec<Frame> {
         (0..samples).map(|_| self.note()).collect()
     }
 }

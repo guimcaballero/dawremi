@@ -12,7 +12,7 @@ macro_rules! sequence {
     // With a signal
     ($self:ident, len: $len:expr, $(note: $note:ident,)? signal: $sign:expr, $($x:tt)*) => {
         {
-            let mut vec: Vec<f64> = Vec::new();
+            let mut vec: Vec<Frame> = Vec::new();
             $(
                 vec.append(
                     &mut sequence!(@map $self sign: $sign, $x)
@@ -25,7 +25,7 @@ macro_rules! sequence {
     // With a function that takes a note
     ($self:ident, len: $len:expr, note: $note:ident, fun: $fun:expr, $($x:tt)*) => {
         {
-            let mut vec: Vec<f64> = Vec::new();
+            let mut vec: Vec<Frame> = Vec::new();
                 $(
                     vec.append(
                         &mut sequence!(@map $self fun: $fun, len: $len, note: $note, $x)
@@ -85,28 +85,6 @@ macro_rules! note_option {
     (@unpack $x:tt) => { Some($x) };
 }
 
-pub fn join_tracks(tracks: Vec<Vec<f64>>) -> Vec<f64> {
-    let len = &tracks
-        .iter()
-        .map(|track| track.len())
-        .max()
-        .expect("There should be at least one track to join");
-
-    (0..*len)
-        .map(|i| {
-            let mut val = 0.;
-            let mut count = 0;
-            for track in &tracks {
-                if let Some(value) = track.get(i) {
-                    val += value;
-                    count += 1;
-                }
-            }
-            val / count as f64
-        })
-        .collect()
-}
-
 #[macro_export]
 macro_rules! pattern {
     // With a function that takes a note
@@ -116,7 +94,7 @@ macro_rules! pattern {
                 vec![
                     $(
                         {
-                            let mut vec: Vec<f64> = Vec::new();
+                            let mut vec: Vec<Frame> = Vec::new();
                             $(
                                 vec.append(
                                     &mut sequence!(@map $self
@@ -137,16 +115,4 @@ macro_rules! pattern {
 
     (@note_ident $a:ident $b:ident) => { $b };
     (@note_ident $a:ident) => { $a };
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn join_tracks_test() {
-        let tracks = vec![vec![1., 1., 0., 0.5, 0.3], vec![0., 1., 0., 0.5, 0.5]];
-
-        assert_eq!(vec![0.5, 1., 0., 0.5, 0.4], join_tracks(tracks))
-    }
 }

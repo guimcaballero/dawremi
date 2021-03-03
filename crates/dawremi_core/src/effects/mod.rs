@@ -1,27 +1,28 @@
+use crate::frame::*;
 use crate::helpers::*;
 
 pub trait EffectExtension {
-    fn effect(self, effect: &impl Effect) -> Vec<f64>;
+    fn effect(self, effect: &impl Effect) -> Vec<Frame>;
 }
-impl EffectExtension for Vec<f64> {
-    fn effect(self, effect: &impl Effect) -> Vec<f64> {
+impl EffectExtension for Vec<Frame> {
+    fn effect(self, effect: &impl Effect) -> Vec<Frame> {
         effect.run(self)
     }
 }
 
 pub trait Effect {
-    fn run(&self, input: Vec<f64>) -> Vec<f64>;
+    fn run(&self, input: Vec<Frame>) -> Vec<Frame>;
 }
 
 impl Effect for Box<dyn Effect> {
-    fn run(&self, input: Vec<f64>) -> Vec<f64> {
+    fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
         (**self).run(input)
     }
 }
 
 pub struct EffectBundle(pub Vec<Box<dyn Effect>>);
 impl Effect for EffectBundle {
-    fn run(&self, mut input: Vec<f64>) -> Vec<f64> {
+    fn run(&self, mut input: Vec<Frame>) -> Vec<Frame> {
         for effect in &self.0 {
             input = input.effect(effect);
         }
@@ -58,7 +59,7 @@ mod test {
     fn effect_bundle_works() {
         let effect_bundle = EffectBundle(vec![box Volume { mult: 0.5 }]);
 
-        let res = vec![0., 1., 0., 1.].effect(&effect_bundle);
+        let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());
     }
 
@@ -66,7 +67,7 @@ mod test {
     fn effect_bundle_works_empty() {
         let effect_bundle = EffectBundle(vec![]);
 
-        let res = vec![0., 1., 0., 1.].effect(&effect_bundle);
+        let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());
     }
 }

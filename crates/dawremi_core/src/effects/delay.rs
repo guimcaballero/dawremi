@@ -6,15 +6,25 @@ pub struct Delay {
     pub feedback: f64,
 }
 impl Effect for Delay {
-    fn run(&self, input: Vec<f64>) -> Vec<f64> {
-        let mut delay_line = DelayLine::new(self.delay_time);
+    fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
+        let mut delay_left = DelayLine::new(self.delay_time);
+        let mut delay_right = DelayLine::new(self.delay_time);
 
         input
             .iter()
-            .map(|sample| {
-                let ret = sample + delay_line.read();
-                delay_line.write_and_advance(ret * self.feedback);
-                ret
+            .map(|frame| {
+                frame.map_left_right(
+                    |sample| {
+                        let ret = sample + delay_left.read();
+                        delay_left.write_and_advance(ret * self.feedback);
+                        ret
+                    },
+                    |sample| {
+                        let ret = sample + delay_right.read();
+                        delay_right.write_and_advance(ret * self.feedback);
+                        ret
+                    },
+                )
             })
             .collect()
     }

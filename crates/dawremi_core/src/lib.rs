@@ -1,6 +1,7 @@
 #![feature(box_syntax, min_const_generics, arbitrary_enum_discriminant)]
 
 pub mod effects;
+pub mod frame;
 pub mod helpers;
 pub mod looper;
 pub mod notes;
@@ -15,6 +16,7 @@ pub mod prelude {
     pub use std::collections::HashMap;
 
     pub use super::effects::*;
+    pub use super::frame::*;
     pub use super::helpers::*;
     pub use super::looper::*;
     pub use super::notes::{n_tet::*, *};

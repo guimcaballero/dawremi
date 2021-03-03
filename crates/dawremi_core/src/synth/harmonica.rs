@@ -13,7 +13,7 @@ impl SynthInstrument for Harmonica {
         }
     }
 
-    fn note(&mut self) -> f64 {
+    fn note(&mut self) -> Frame {
         self.sample += 1;
         let a_lfo = 0.001;
         let f_lfo = 7.0;
@@ -38,9 +38,11 @@ impl SynthInstrument for Harmonica {
             -1.
         };
 
-        0.02 * square_1
+        let result = 0.02 * square_1
             + 0.5 * square_2
             + 0.15 * square_3
-            + 0.01 * rand::thread_rng().gen_range(-1., 1.)
+            + 0.01 * rand::thread_rng().gen_range(-1., 1.);
+
+        Frame::mono(result)
     }
 }

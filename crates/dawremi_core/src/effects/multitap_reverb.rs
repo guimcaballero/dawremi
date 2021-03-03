@@ -39,28 +39,34 @@ impl MultitapReverb {
 }
 
 impl Effect for MultitapReverb {
-    fn run(&self, input: Vec<f64>) -> Vec<f64> {
-        let mut reverb_buffer = vec![0.; self.max_buffer + 1];
+    fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
+        let (left, right) = input.split_sides();
 
-        input
-            .iter()
-            .enumerate()
-            .map(|(i, val)| {
-                let mut output = *val;
-                for (time, amplitude) in &self.taps {
-                    if i < *time {
-                        continue;
-                    }
-                    if let Some(rev) = reverb_buffer.get((i - time) % self.max_buffer) {
-                        output += amplitude * rev;
-                    }
-                }
-
-                reverb_buffer[i % self.max_buffer] = output;
-                output
-            })
-            .collect()
+        join_left_and_right_channels(run(self, left), run(self, right))
     }
+}
+
+fn run(tap: &MultitapReverb, input: Vec<f64>) -> Vec<f64> {
+    let mut reverb_buffer = vec![0.; tap.max_buffer + 1];
+
+    input
+        .iter()
+        .enumerate()
+        .map(|(i, val)| {
+            let mut output = *val;
+            for (time, amplitude) in &tap.taps {
+                if i < *time {
+                    continue;
+                }
+                if let Some(rev) = reverb_buffer.get((i - time) % tap.max_buffer) {
+                    output += amplitude * rev;
+                }
+            }
+
+            reverb_buffer[i % tap.max_buffer] = output;
+            output
+        })
+        .collect()
 }
 
 // Some tests because I'm not confident that this implementation works correctly

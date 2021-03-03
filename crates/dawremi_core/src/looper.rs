@@ -1,3 +1,4 @@
+use crate::frame::*;
 use crate::helpers::*;
 use crate::player::*;
 use crate::traits::*;
@@ -5,8 +6,8 @@ use anyhow::Result;
 use num::integer::lcm;
 
 pub trait Looper: HasSampleRate + HasSoundHashMap {
-    fn generate(&mut self) -> Vec<f64> {
-        let mut tracks: Vec<(usize, Vec<f64>)> = self
+    fn generate(&mut self) -> Vec<Frame> {
+        let mut tracks: Vec<(usize, Vec<Frame>)> = self
             .tracks()
             .drain(..)
             .map(|track| (track.len(), track))
@@ -26,7 +27,7 @@ pub trait Looper: HasSampleRate + HasSoundHashMap {
             .iter()
             .cloned()
             .fold((-1. / 0., 1. / 0.), |(max, min), a| {
-                (f64::max(max, a), f64::min(min, a))
+                (f64::max(max, a.max()), f64::min(min, a.min()))
             });
         let max = f64::max(max.abs(), min.abs());
         vec.iter().map(|a| a / max).collect()
@@ -51,7 +52,7 @@ pub trait Looper: HasSampleRate + HasSoundHashMap {
         self.seconds(x / bps)
     }
 
-    fn tracks(&mut self) -> Vec<Vec<f64>>;
+    fn tracks(&mut self) -> Vec<Vec<Frame>>;
     fn bpm(&self) -> usize;
     fn name(&self) -> &'static str;
 }
