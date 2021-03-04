@@ -1,7 +1,5 @@
 use crate::frame::*;
-use crate::notes::*;
 use crate::sound_files::io::open_file;
-use dasp::signal::{self, ConstHz};
 use std::collections::HashMap;
 
 pub trait HasSampleRate {
@@ -12,10 +10,6 @@ pub trait HasSampleRate {
 
     // Helper methods
 
-    /// Returns a ConstHz with this song's sample rate
-    fn hz(&self, freq: Frequency) -> ConstHz {
-        signal::rate(self.get_sample_rate()).const_hz(freq.0)
-    }
     /// Returns the number of samples that should be taken to pass x seconds
     fn seconds(&self, x: f64) -> usize {
         (self.get_sample_rate() * x) as usize

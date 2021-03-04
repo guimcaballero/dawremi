@@ -1,7 +1,7 @@
 use super::*;
 use crate::signals::interpolation::interpolate;
 use crate::signals::noise::noise;
-use dasp::{signal, Signal};
+use crate::signals::waves::sine_one_period;
 
 instrument!(Plucked, noise_length: usize, noise: Vec<f64>);
 
@@ -23,11 +23,7 @@ impl InitialBurstType {
                 let top = (length * a) / b;
                 interpolate(vec![(top, 1.), (length, 0.)])
             }
-            InitialBurstType::Sine => signal::rate(length as f64)
-                .const_hz(1.0)
-                .sine()
-                .take(length)
-                .collect(),
+            InitialBurstType::Sine => sine_one_period(length),
             InitialBurstType::Hill => interpolate(vec![
                 (length * 2 / 8, 0.),
                 (length * 3 / 8, 1.),
