@@ -1,7 +1,7 @@
+pub mod delay_line;
 mod extensions;
 mod macros;
-
-pub mod delay_line;
+pub mod resampling;
 
 pub use extensions::*;
 pub use macros::*;

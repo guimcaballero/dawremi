@@ -1,5 +1,5 @@
 use crate::frame::*;
-use dasp::{signal, Signal};
+use crate::helpers::resampling::resample_frames;
 use hound::WavIntoSamples;
 use hound::WavReader;
 use hound::WavWriter;
@@ -93,32 +93,7 @@ fn resample_and_save(
         spec.bits_per_sample,
     );
 
-    let (left, right) = orig.split_sides();
-
-    // Convert the signal's sample rate using `Sinc` interpolation.
-    use dasp::{interpolate::sinc::Sinc, ring_buffer};
-    let left = {
-        let signal = signal::from_interleaved_samples_iter(left);
-        let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
-        let sinc = Sinc::new(ring_buffer);
-        let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
-        new_signal
-            .until_exhausted()
-            .map(|frame| frame[0])
-            .collect::<Vec<f64>>()
-    };
-    let right = {
-        let signal = signal::from_interleaved_samples_iter(right);
-        let ring_buffer = ring_buffer::Fixed::from([[0.0f64]; 100]);
-        let sinc = Sinc::new(ring_buffer);
-        let new_signal = signal.from_hz_to_hz(sinc, spec.sample_rate as f64, sample_rate as f64);
-        new_signal
-            .until_exhausted()
-            .map(|frame| frame[0])
-            .collect::<Vec<f64>>()
-    };
-
-    let vec = join_left_and_right_channels(left, right);
+    let vec = resample_frames(orig, spec.sample_rate as f64, sample_rate as f64);
 
     save_file(vec.clone(), &processed_filename, sample_rate, 24);
 
