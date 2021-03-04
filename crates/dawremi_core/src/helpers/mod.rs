@@ -2,7 +2,6 @@ mod extensions;
 mod macros;
 
 pub mod delay_line;
-pub mod interpolation;
 
 pub use extensions::*;
 pub use macros::*;

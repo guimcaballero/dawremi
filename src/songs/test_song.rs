@@ -28,13 +28,9 @@ impl Test {
 
             L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
         );
-        let right = sequence!(
-            self,
-            len: 1., note: GuitarFretboard,
-            fun: |note| self.bell(note),
-
-            L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
-        );
+        let right = noise::noise(3333, left.len())
+            .into_frames()
+            .effect(&Volume { mult: 0.4 });
 
         join_left_and_right_channels(left.to_mono(), right.to_mono())
     }

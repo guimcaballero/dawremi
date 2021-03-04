@@ -1,11 +1,14 @@
+/// Basic lerp function
 pub fn lerp(a: f64, b: f64, i: f64) -> f64 {
     a + i * (b - a)
 }
 
+/// Returns an n-length vector of values lerping from  a to b
 pub fn equidistant_points(a: f64, b: f64, n: usize) -> Vec<f64> {
     (0..n).map(|i| lerp(a, b, i as f64 / n as f64)).collect()
 }
 
+/// Interpolates between the provided values at the given indexes
 pub fn interpolate(mut vec: Vec<(usize, f64)>) -> Vec<f64> {
     if vec.is_empty() {
         return Vec::new();
