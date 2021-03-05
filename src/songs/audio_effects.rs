@@ -34,7 +34,7 @@ impl AudioEffectsDemo {
                 self.sound("assets/audio.wav")
                     .effect(&Delay {
                         delay_time: self.seconds(0.2),
-                        feedback: 0.5,
+                        feedback: Automation::Const(0.5),
                     })
                     .take_samples(self.seconds(7.)),
             )
@@ -46,10 +46,10 @@ impl AudioEffectsDemo {
             .chain(
                 self.sound("assets/audio.wav")
                     .effect(&BassBoost {
-                        selectivity: 140.,
-                        gain: 1.,
-                        bass_ratio: 0.6,
-                        input_ratio: 0.4,
+                        selectivity: Automation::Const(140.),
+                        gain: Automation::Const(1.),
+                        bass_ratio: Automation::Const(0.6),
+                        input_ratio: Automation::Const(0.4),
                     })
                     .take_samples(self.seconds(7.)),
             )

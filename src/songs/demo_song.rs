@@ -114,6 +114,8 @@ impl DemoSong {
                 self.sound(Reverb::LargeLongEchoHall.into()),
             ))
             // Or volume
-            .effect(&Volume { mult: 0.5 })
+            .effect(&Volume {
+                mult: Automation::Const(0.5),
+            })
     }
 }

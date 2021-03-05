@@ -72,7 +72,9 @@ impl TwinkleTwinkle {
                 (G4 __ G4 __ D4 __ D4 __ E4 __ E4 __ (D4 * 2.) __ __),
                 (C4 __ C4 __ B4 __ B4 __ A4 __ A4 __ (G4 * 2.) __ __),
         )
-        .effect(&Volume { mult: 0.5 })
+        .effect(&Volume {
+            mult: Automation::Const(0.5),
+        })
     }
 
     fn harmonica(&self, frequency: impl Into<Frequency>) -> Synth {

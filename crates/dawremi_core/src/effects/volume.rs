@@ -1,10 +1,14 @@
 use super::*;
 
 pub struct Volume {
-    pub mult: f64,
+    pub mult: Automation<f64>,
 }
 impl Effect for Volume {
     fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
-        input.iter().map(|val| *val * self.mult).collect()
+        input
+            .iter()
+            .enumerate()
+            .map(|(idx, val)| val * self.mult.value(idx))
+            .collect()
     }
 }

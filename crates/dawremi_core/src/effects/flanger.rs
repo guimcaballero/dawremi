@@ -4,7 +4,7 @@ use super::*;
 
 pub struct Flanger {
     /// LFO frequency
-    pub freq: f64,
+    pub freq: Automation<f64>,
     /// How many samples back the flanger goes
     pub sample_amplitude: usize,
 }
@@ -21,8 +21,9 @@ fn run(flanger: &Flanger, input: Vec<f64>) -> Vec<f64> {
         .iter()
         .enumerate()
         .map(|(i, val)| {
-            let offset =
-                flanger.sample_amplitude as f64 * 0.5 * ((flanger.freq * i as f64).sin() - 1.);
+            let offset = flanger.sample_amplitude as f64
+                * 0.5
+                * ((flanger.freq.value(i) * i as f64).sin() - 1.);
 
             if let Some(value) = input.get(i.saturating_sub(offset as usize)) {
                 val * 0.7 + value * 0.3

@@ -30,6 +30,26 @@ impl Effect for EffectBundle {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum Automation<T> {
+    Const(T),
+    Vec(Vec<T>),
+}
+impl<T: Default + Copy> Automation<T> {
+    fn value(&self, idx: usize) -> T {
+        match self {
+            Self::Const(val) => *val,
+            Self::Vec(vec) => {
+                if let Some(val) = vec.get(idx) {
+                    *val
+                } else {
+                    T::default()
+                }
+            }
+        }
+    }
+}
+
 mod volume;
 pub use volume::Volume;
 mod flanger;

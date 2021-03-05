@@ -156,6 +156,22 @@ impl Mul<f64> for Frame {
     }
 }
 
+impl Mul<f64> for &Frame {
+    type Output = Frame;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Frame::new(self.left * rhs, self.right * rhs)
+    }
+}
+
+impl Mul<&f64> for &Frame {
+    type Output = Frame;
+
+    fn mul(self, rhs: &f64) -> Self::Output {
+        Frame::new(self.left * rhs, self.right * rhs)
+    }
+}
+
 impl MulAssign for Frame {
     fn mul_assign(&mut self, rhs: Frame) {
         self.left *= rhs.left;

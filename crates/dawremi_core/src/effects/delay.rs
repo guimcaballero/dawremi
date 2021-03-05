@@ -3,7 +3,7 @@ use crate::helpers::delay_line::DelayLine;
 
 pub struct Delay {
     pub delay_time: usize,
-    pub feedback: f64,
+    pub feedback: Automation<f64>,
 }
 impl Effect for Delay {
     fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
@@ -12,16 +12,18 @@ impl Effect for Delay {
 
         input
             .iter()
-            .map(|frame| {
+            .enumerate()
+            .map(|(idx, frame)| {
+                let feedback = self.feedback.value(idx);
                 frame.map_left_right(
                     |sample| {
                         let ret = sample + delay_left.read();
-                        delay_left.write_and_advance(ret * self.feedback);
+                        delay_left.write_and_advance(ret * feedback);
                         ret
                     },
                     |sample| {
                         let ret = sample + delay_right.read();
-                        delay_right.write_and_advance(ret * self.feedback);
+                        delay_right.write_and_advance(ret * feedback);
                         ret
                     },
                 )

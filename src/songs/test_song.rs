@@ -30,7 +30,9 @@ impl Test {
         );
         let right = noise::noise(3333, left.len())
             .into_frames()
-            .effect(&Volume { mult: 0.4 });
+            .effect(&Volume {
+                mult: Automation::Const(0.4),
+            });
 
         join_left_and_right_channels(left.to_mono(), right.to_mono())
     }
@@ -103,13 +105,17 @@ impl Test {
             .effect(&Convolution::new(
                 self.sound(Reverb::LargeLongEchoHall.into()),
             ))
-            .effect(&Volume { mult: 0.5 })
+            .effect(&Volume {
+                mult: Automation::Const(0.5),
+            })
     }
 
     fn effect_bundle(&mut self) -> EffectBundle {
         EffectBundle(vec![
             box Convolution::new(self.sound(Reverb::LargeLongEchoHall.into())),
-            box Volume { mult: 0.5 },
+            box Volume {
+                mult: Automation::Const(0.5),
+            },
         ])
     }
 
