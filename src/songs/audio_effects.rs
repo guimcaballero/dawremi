@@ -16,7 +16,8 @@ impl Song for AudioEffectsDemo {
     }
     fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![
-            self.delay(),
+            self.stretch(),
+            // self.delay(),
             // self.bass_boost(),
             // self.mt_reverb(),
             // self.conv_reverb(),
@@ -27,6 +28,21 @@ impl Song for AudioEffectsDemo {
 }
 
 impl AudioEffectsDemo {
+    fn stretch(&mut self) -> Vec<Frame> {
+        self.sound("assets/audio.wav")
+            .take_samples(self.seconds(4.))
+            .chain(
+                self.sound("assets/audio.wav")
+                    .effect(&Stretch { factor: 0.5 })
+                    .take_samples(self.seconds(4.)),
+            )
+            .chain(
+                self.sound("assets/audio.wav")
+                    .effect(&Stretch { factor: 2.0 })
+                    .take_samples(self.seconds(4.)),
+            )
+    }
+
     fn delay(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(7.))

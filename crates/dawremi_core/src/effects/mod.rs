@@ -70,6 +70,8 @@ mod filter;
 pub use filter::{Filter, FilterMode};
 mod delay;
 pub use delay::Delay;
+mod stretch;
+pub use stretch::Stretch;
 
 #[cfg(test)]
 mod test {
@@ -77,7 +79,9 @@ mod test {
 
     #[test]
     fn effect_bundle_works() {
-        let effect_bundle = EffectBundle(vec![box Volume { mult: 0.5 }]);
+        let effect_bundle = EffectBundle(vec![box Volume {
+            mult: Automation::Const(0.5),
+        }]);
 
         let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());
