@@ -54,7 +54,7 @@ fn transform_samples_to_frames(
         .map(Result::unwrap)
         .map(|val| i_to_f(val, bits_per_sample))
         .collect::<Vec<f64>>()
-        .windows(num_channels.into())
+        .chunks(num_channels.into())
         .map(|sample| match sample {
             [left, right] => Frame::new(*left, *right),
             [a, ..] => Frame::mono(*a),
