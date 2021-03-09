@@ -43,6 +43,15 @@ impl Frame {
         Self::new(self.left.clamp(min, max), self.right.clamp(min, max))
     }
 
+    pub fn balance(mut self, balance: f64) -> Self {
+        if balance < 0. {
+            self.right *= 1. + balance;
+        } else {
+            self.left *= 1. - balance;
+        }
+        self
+    }
+
     pub fn to_mono(&self) -> f64 {
         (self.left + self.right) / 2.
     }
@@ -327,4 +336,20 @@ pub fn join_left_and_right_channels(left: Vec<f64>, right: Vec<f64>) -> Vec<Fram
         .zip(right.iter())
         .map(|(l, r)| Frame::new(*l, *r))
         .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_balance() {
+        let frame = Frame::mono(1.);
+
+        assert_eq!(Frame::new(1., 0.), frame.balance(-1.));
+        assert_eq!(Frame::new(1., 0.5), frame.balance(-0.5));
+        assert_eq!(Frame::new(1., 1.,), frame.balance(0.));
+        assert_eq!(Frame::new(0.5, 1.), frame.balance(0.5));
+        assert_eq!(Frame::new(0., 1.), frame.balance(1.));
+    }
 }

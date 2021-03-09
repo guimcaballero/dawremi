@@ -16,7 +16,8 @@ impl Song for AudioEffectsDemo {
     }
     fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![
-            self.stretch(),
+            self.balance(),
+            // self.stretch(),
             // self.delay(),
             // self.bass_boost(),
             // self.mt_reverb(),
@@ -28,6 +29,16 @@ impl Song for AudioEffectsDemo {
 }
 
 impl AudioEffectsDemo {
+    fn balance(&mut self) -> Vec<Frame> {
+        let balance = waves::sine(self.seconds(10.), self.frequency(0.5));
+
+        self.sound("assets/audio.wav")
+            .take_samples(self.seconds(10.))
+            .effect(&Balance {
+                balance: Automation::Vec(balance),
+            })
+    }
+
     fn stretch(&mut self) -> Vec<Frame> {
         self.sound("assets/audio.wav")
             .take_samples(self.seconds(4.))

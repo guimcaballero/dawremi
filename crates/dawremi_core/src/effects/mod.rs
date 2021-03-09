@@ -72,6 +72,8 @@ mod delay;
 pub use delay::Delay;
 mod stretch;
 pub use stretch::Stretch;
+mod balance;
+pub use balance::Balance;
 
 #[cfg(test)]
 mod test {

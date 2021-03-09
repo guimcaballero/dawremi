@@ -14,6 +14,10 @@ pub trait HasSampleRate {
     fn seconds(&self, x: f64) -> usize {
         (self.get_sample_rate() * x) as usize
     }
+
+    fn frequency(&self, x: f64) -> f64 {
+        x / self.get_sample_rate()
+    }
 }
 
 pub trait HasSoundHashMap: HasSampleRate {
