@@ -39,7 +39,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             .multiply(self.volume())
             // Add some delay in the front if we enable metronome
             // This way we get like 3 beats of the metronome before we start
-            .delay(if cfg!(feature = "metronome") {
+            .delay(if self.enable_metronome() {
                 self.beats(3.)
             } else {
                 0
@@ -64,7 +64,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     }
 
     fn metronome(&mut self) -> Vec<Frame> {
-        if cfg!(feature = "metronome") {
+        if self.enable_metronome() {
             self.sound(Metronome.into())
                 .take_samples(self.beats(0.2))
                 .chain(silence().take_samples(self.beats(0.8)))
@@ -105,6 +105,11 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     /// Toggles normalization of frames
     fn enable_normalization(&self) -> bool {
         true
+    }
+
+    /// Toggles metronome
+    fn enable_metronome(&self) -> bool {
+        false
     }
 }
 

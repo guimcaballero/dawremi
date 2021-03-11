@@ -14,21 +14,27 @@ cargo run --release
 
 This will let you choose a song, which will then play and be saved to the `output` directory.
 
-You can also use `cargo run --features metronome` to run with the metronome active.
-
 ## Making songs
 
-Create a new Rust file in the `src/songs/` directory. You have to create a new struct using the `song!()` macro, and then implement the `Song` trait. The following is a demo song:
+Making a new song is easy! You have to create a new struct using the `song!()` macro, and then implement the `Song` trait for that struct. The following is a demo song, copied from `examples/demo_song.rs`:
 
 ```rust
-use dawremi_core::prelude::*;
+#[macro_use]
+extern crate dawremi;
+
+use dawremi::prelude::*;
+
+fn main() {
+    let mut song = DemoSong::default();
+    song.play().expect("Unable to play song");
+}
 
 song!(DemoSong,);
 
 impl Song for DemoSong {
     /// Display name for the song
     fn name(&self) -> &'static str {
-        "test"
+        "Demo song"
     }
 
     /// Song's beats per minute
@@ -42,17 +48,17 @@ impl Song for DemoSong {
         self.beats(16.)
     }
 
-    /// list of tracks on this song. Each track is just a list of samples (Vec<f64>)
+    /// List of tracks on this song. Each track is just a list of samples (Vec<Frame>)
     /// All of the tracks will be mixed equally
-    fn tracks(&mut self) -> Vec<Vec<f64>> {
+    fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![self.plucked_track(), self.other_track()]
     }
 }
 
 impl DemoSong {
     /// This is a track
-    fn plucked_track(&self) -> Vec<f64> {
-        // We ue a macro to play a sequence of notes. Returns a Vec<f64>
+    fn plucked_track(&self) -> Vec<Frame> {
+        // We ue a macro to play a sequence of notes. Returns a Vec<Frame>
         sequence!(
             self,
             // The lenght of one note in beats
@@ -80,12 +86,16 @@ impl DemoSong {
     /// This is a helper function
     fn plucked(&self, frequency: impl Into<Frequency>, burst: InitialBurstType) -> Synth {
         Synth::new(
-            box Plucked::new(burst, frequency.into(), self.get_sample_rate()),
+            Box::new(Plucked::new(
+                burst,
+                frequency.into(),
+                self.get_sample_rate(),
+            )),
             self.get_sample_rate(),
         )
     }
 
-    fn other_track(&mut self) -> Vec<f64> {
+    fn other_track(&mut self) -> Vec<Frame> {
         // We can also make a list of notes and manipulate it.
         let notes1: Vec<Vec<Note>> = {
             use Note::*;
@@ -137,7 +147,9 @@ impl DemoSong {
                 self.sound(Reverb::LargeLongEchoHall.into()),
             ))
             // Or volume
-            .effect(&Volume { mult: 0.5 })
+            .effect(&Volume {
+                mult: Automation::Const(0.5),
+            })
     }
 }
 ```

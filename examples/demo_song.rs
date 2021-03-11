@@ -1,4 +1,12 @@
-use dawremi_core::prelude::*;
+#[macro_use]
+extern crate dawremi;
+
+use dawremi::prelude::*;
+
+fn main() {
+    let mut song = DemoSong::default();
+    song.play().expect("Unable to play song");
+}
 
 song!(DemoSong,);
 
@@ -19,7 +27,7 @@ impl Song for DemoSong {
         self.beats(16.)
     }
 
-    /// list of tracks on this song. Each track is just a list of samples (Vec<Frame>)
+    /// List of tracks on this song. Each track is just a list of samples (Vec<Frame>)
     /// All of the tracks will be mixed equally
     fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![self.plucked_track(), self.other_track()]
@@ -57,7 +65,11 @@ impl DemoSong {
     /// This is a helper function
     fn plucked(&self, frequency: impl Into<Frequency>, burst: InitialBurstType) -> Synth {
         Synth::new(
-            box Plucked::new(burst, frequency.into(), self.get_sample_rate()),
+            Box::new(Plucked::new(
+                burst,
+                frequency.into(),
+                self.get_sample_rate(),
+            )),
             self.get_sample_rate(),
         )
     }
