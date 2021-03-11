@@ -66,5 +66,11 @@ macro_rules! song {
                 &mut self.sound_hashmap
             }
         }
+
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{}", self.name())
+            }
+        }
     };
 }
