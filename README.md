@@ -16,6 +16,12 @@ Then add this repo as a dependency in your `Cargo.toml`:
 dawremi = { git = "https://github.com/guimcaballero/dawremi" }
 ```
 
+Copy the `assets` folder into your project's root folder, so you can access preadded samples and other needed assets. You can get it easily with `svn` with:
+
+```
+svn checkout https://github.com/guimcaballero/dawremi/trunk/assets
+```
+
 Then, making a new song is easy! You have to create a new struct using the `song!()` macro, and then implement the `Song` trait for that struct. The following is a demo song, copied from `examples/demo_song.rs`:
 
 ```rust
