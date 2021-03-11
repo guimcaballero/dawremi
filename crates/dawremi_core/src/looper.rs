@@ -22,15 +22,19 @@ pub trait Looper: HasSampleRate + HasSoundHashMap {
 
         let vec = join_tracks(tracks);
 
-        // Normalize
-        let (max, min) = vec
-            .iter()
-            .cloned()
-            .fold((-1. / 0., 1. / 0.), |(max, min), a| {
-                (f64::max(max, a.max()), f64::min(min, a.min()))
-            });
-        let max = f64::max(max.abs(), min.abs());
-        vec.iter().map(|a| a / max).collect()
+        if self.enable_normalization() {
+            // Normalize
+            let (max, min) = vec
+                .iter()
+                .cloned()
+                .fold((-1. / 0., 1. / 0.), |(max, min), a| {
+                    (f64::max(max, a.max()), f64::min(min, a.min()))
+                });
+            let max = f64::max(max.abs(), min.abs());
+            vec.iter().map(|a| a / max).collect()
+        } else {
+            vec
+        }
     }
 
     fn play(&mut self) -> Result<()> {
@@ -53,6 +57,17 @@ pub trait Looper: HasSampleRate + HasSoundHashMap {
     }
 
     fn tracks(&mut self) -> Vec<Vec<Frame>>;
-    fn bpm(&self) -> usize;
+
+    // Settings
+
+    /// Display name for the Looper
     fn name(&self) -> &'static str;
+
+    /// Beats per minute for the Looper
+    fn bpm(&self) -> usize;
+
+    /// Toggles normalization of frames
+    fn enable_normalization(&self) -> bool {
+        true
+    }
 }

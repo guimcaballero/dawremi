@@ -7,8 +7,8 @@ use crate::traits::*;
 use anyhow::Result;
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
+    /// Saves the song to the output folder
     fn save_to_file(&mut self, bits_per_sample: u16) {
-        // Save to a file
         save_file(
             self.generate(),
             &format!("output/{}.wav", self.name()),
@@ -17,6 +17,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         );
     }
 
+    /// Generate and start playing the song
     fn play(&mut self) -> Result<()> {
         let config = get_player_config();
 
@@ -30,6 +31,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         run_player(player, config)
     }
 
+    /// Generates the song and returns the vector of frames
     fn generate(&mut self) -> Vec<Frame> {
         let tracks = join_tracks(self.tracks());
 
@@ -46,15 +48,19 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
             .add(self.metronome())
             .take_samples(self.duration());
 
-        // Normalize
-        let (max, min) = vec
-            .iter()
-            .cloned()
-            .fold((-1. / 0., 1. / 0.), |(max, min), a| {
-                (f64::max(max, a.max()), f64::min(min, a.min()))
-            });
-        let max = f64::max(max.abs(), min.abs());
-        vec.iter().map(|a| a / max).collect()
+        if self.enable_normalization() {
+            // Normalize
+            let (max, min) = vec
+                .iter()
+                .cloned()
+                .fold((-1. / 0., 1. / 0.), |(max, min), a| {
+                    (f64::max(max, a.max()), f64::min(min, a.min()))
+                });
+            let max = f64::max(max.abs(), min.abs());
+            vec.iter().map(|a| a / max).collect()
+        } else {
+            vec
+        }
     }
 
     fn metronome(&mut self) -> Vec<Frame> {
@@ -69,25 +75,37 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
         }
     }
 
+    // Helper methods to use on tracks
+
     /// Returns the number of samples that should be taken to pass x beats
     fn beats(&self, x: f64) -> usize {
         let bps = self.bpm() as f64 / 60.;
         self.seconds(x / bps)
     }
 
-    // Helper methods to use on tracks
-
-    // Methods to overload for song customization
-
     /// General volume for all tracks
     fn volume(&self) -> Vec<Frame> {
         vec![Frame::mono(1.0); self.duration()]
     }
 
+    /// Contains the list of tracks that should be mixed into a song
     fn tracks(&mut self) -> Vec<Vec<Frame>>;
+
+    // Settings
+
+    /// Display name for the song
     fn name(&self) -> &'static str;
+
+    /// Duration in samples the song should have
     fn duration(&self) -> usize;
+
+    /// Beats per minute for the song
     fn bpm(&self) -> usize;
+
+    /// Toggles normalization of frames
+    fn enable_normalization(&self) -> bool {
+        true
+    }
 }
 
 // Tests
