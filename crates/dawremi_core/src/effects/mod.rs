@@ -81,9 +81,9 @@ mod test {
 
     #[test]
     fn effect_bundle_works() {
-        let effect_bundle = EffectBundle(vec![box Volume {
+        let effect_bundle = EffectBundle(vec![Box::new(Volume {
             mult: Automation::Const(0.5),
-        }]);
+        })]);
 
         let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());

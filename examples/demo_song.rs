@@ -1,3 +1,5 @@
+/// Song to demo Dawremi's features. Sounds horrible, listening is not recommended
+
 #[macro_use]
 extern crate dawremi;
 

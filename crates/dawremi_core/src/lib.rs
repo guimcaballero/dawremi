@@ -1,4 +1,4 @@
-#![feature(box_syntax, min_const_generics, arbitrary_enum_discriminant)]
+#![feature(min_const_generics)]
 
 pub mod effects;
 pub mod frame;
