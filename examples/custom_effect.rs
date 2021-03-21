@@ -34,7 +34,7 @@ impl CustomEffectSong {
     fn noise(&self) -> Vec<Frame> {
         // We'll be making a noise track, and we'll apply our effect twice
         // First time will be with a constant value as multiplier
-        // Second time will be with a sine wave
+        // Second time will be with a sine wave of constant frequency
 
         noise::noise(3333, self.duration())
             .into_frames()
@@ -42,7 +42,12 @@ impl CustomEffectSong {
                 mult: Automation::Const(0.5),
             })
             .effect(&MyCustomEffect {
-                mult: Automation::Vec(waves::sine(self.duration(), self.frequency(0.5))),
+                mult: Automation::Vec(waves::sine(
+                    self.duration(),
+                    // This second parameter is also an automation, so we could modify it
+                    // with an `Automation::Vec`
+                    Automation::Const(self.frequency(0.5)),
+                )),
             })
     }
 }
