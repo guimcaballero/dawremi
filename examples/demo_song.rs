@@ -2,7 +2,6 @@
 
 #[macro_use]
 extern crate dawremi;
-
 use dawremi::prelude::*;
 
 fn main() {

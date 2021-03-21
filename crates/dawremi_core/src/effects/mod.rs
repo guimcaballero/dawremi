@@ -35,13 +35,13 @@ pub enum Automation<T> {
     Const(T),
     Vec(Vec<T>),
 }
-impl<T: Default + Copy> Automation<T> {
-    fn value(&self, idx: usize) -> T {
+impl<T: Default + Clone> Automation<T> {
+    pub fn value(&self, idx: usize) -> T {
         match self {
-            Self::Const(val) => *val,
+            Self::Const(val) => val.clone(),
             Self::Vec(vec) => {
                 if let Some(val) = vec.get(idx) {
-                    *val
+                    val.clone()
                 } else {
                     T::default()
                 }

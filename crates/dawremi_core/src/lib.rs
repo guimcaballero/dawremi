@@ -1,5 +1,3 @@
-#![feature(min_const_generics)]
-
 pub mod effects;
 pub mod frame;
 pub mod helpers;
