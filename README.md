@@ -1,3 +1,5 @@
+<img src="/images/logo.png" width="320px">
+
 # Dawremi
 
 Dawremi (pronounced do-re-mi) is a toy code-based Digital Audio Workstation.
@@ -12,7 +14,7 @@ Dawremi uses Nightly for min_const_generics, which is planned for 1.51, so we sh
 
 Then add this repo as a dependency in your `Cargo.toml`:
 
-```bash
+```toml
 dawremi = { git = "https://github.com/guimcaballero/dawremi" }
 ```
 
