@@ -1,3 +1,5 @@
+//! `Frame` keeps a sample for both the left and the right channel, and provides some helper functions
+
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };

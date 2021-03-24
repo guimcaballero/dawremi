@@ -1,3 +1,5 @@
+//! Different types that can be turned into `Frequency`
+
 use std::convert::TryFrom;
 
 #[derive(Clone, Copy, Debug)]

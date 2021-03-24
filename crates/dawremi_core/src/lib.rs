@@ -12,6 +12,8 @@ pub mod synth;
 pub mod traits;
 
 pub mod prelude {
+    //! The prelude exports almost everything, so it can be imported easily
+
     pub use std::collections::HashMap;
 
     pub use super::effects::*;

@@ -1,7 +1,10 @@
+//! Looper is similar to Song, but it _loops_
+
 use crate::frame::*;
 use crate::helpers::*;
 use crate::player::*;
 use crate::traits::*;
+
 use anyhow::Result;
 use num::integer::lcm;
 

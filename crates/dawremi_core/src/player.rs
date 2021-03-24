@@ -1,3 +1,5 @@
+//! The player uses cpal under the hood to play audio
+
 use crate::frame::Frame;
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};

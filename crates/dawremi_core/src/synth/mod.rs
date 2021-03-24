@@ -1,3 +1,5 @@
+//! `Synth` implements a simple ASDR envelope for `SynthInstruments`
+
 use crate::frame::*;
 use crate::helpers::*;
 use crate::notes::*;

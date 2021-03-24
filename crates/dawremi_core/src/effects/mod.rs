@@ -1,3 +1,5 @@
+//! Contains various effects to modify a list of samples
+
 use crate::frame::*;
 use crate::helpers::*;
 

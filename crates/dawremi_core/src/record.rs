@@ -1,3 +1,5 @@
+//! Record uses cpal under the hood to record audio
+
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use std::fs::File;
 use std::io::stdin;

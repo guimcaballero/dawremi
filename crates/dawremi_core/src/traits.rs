@@ -1,3 +1,5 @@
+//! Contains the `song!()` macro and some inner traits
+
 use crate::frame::*;
 use crate::sound_files::io::open_file;
 use std::collections::HashMap;

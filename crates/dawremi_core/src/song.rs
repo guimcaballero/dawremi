@@ -1,3 +1,5 @@
+//! Use the `Song` trait to make your songs!
+
 use crate::helpers::*;
 use crate::player::*;
 use crate::prelude::Frame;
