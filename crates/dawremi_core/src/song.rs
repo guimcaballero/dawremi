@@ -8,7 +8,8 @@ use anyhow::Result;
 
 pub trait Song: HasSampleRate + HasSoundHashMap {
     /// Saves the song to the output folder
-    fn save_to_file(&mut self, bits_per_sample: u16) {
+    fn save_to_file(&mut self, bits_per_sample: u16, sample_rate: usize) {
+        self.set_sample_rate(sample_rate as f64);
         save_file(
             self.generate(),
             &format!("output/{}.wav", self.name()),
@@ -18,6 +19,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     }
 
     /// Generate and start playing the song
+    /// The sample rate will be chosen according to the output config from cpal
     fn play(&mut self) -> Result<()> {
         let config = get_player_config();
 
