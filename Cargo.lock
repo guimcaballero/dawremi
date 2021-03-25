@@ -349,18 +349,6 @@ dependencies = [
 [[package]]
 name = "dasp_envelope"
 version = "0.11.0"
-source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
-dependencies = [
- "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_peak 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_rms 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
-]
-
-[[package]]
-name = "dasp_envelope"
-version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ec617ce7016f101a87fe85ed44180839744265fae73bb4aa43e7ece1b7668b6"
 dependencies = [
@@ -372,10 +360,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_frame"
+name = "dasp_envelope"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
 dependencies = [
+ "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_peak 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_rms 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
  "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
 ]
 
@@ -386,6 +378,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2a3937f5fe2135702897535c8d4a5553f8b116f76c1529088797f2eee7c5cd6"
 dependencies = [
  "dasp_sample 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "dasp_frame"
+version = "0.11.0"
+source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
+dependencies = [
+ "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
 ]
 
 [[package]]
@@ -403,16 +403,6 @@ dependencies = [
 [[package]]
 name = "dasp_interpolate"
 version = "0.11.0"
-source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
-dependencies = [
- "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
-]
-
-[[package]]
-name = "dasp_interpolate"
-version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fc975a6563bb7ca7ec0a6c784ead49983a21c24835b0bc96eea11ee407c7486"
 dependencies = [
@@ -422,11 +412,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_peak"
+name = "dasp_interpolate"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
 dependencies = [
  "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
  "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
 ]
 
@@ -441,9 +432,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_ring_buffer"
+name = "dasp_peak"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
+dependencies = [
+ "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+]
 
 [[package]]
 name = "dasp_ring_buffer"
@@ -452,14 +447,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07d79e19b89618a543c4adec9c5a347fe378a19041699b3278e616e387511ea1"
 
 [[package]]
-name = "dasp_rms"
+name = "dasp_ring_buffer"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
-dependencies = [
- "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
-]
 
 [[package]]
 name = "dasp_rms"
@@ -473,9 +463,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_sample"
+name = "dasp_rms"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
+dependencies = [
+ "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+]
 
 [[package]]
 name = "dasp_sample"
@@ -484,19 +479,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c87e182de0887fd5361989c677c4e8f5000cd9491d6d563161a8f3a5519fc7f"
 
 [[package]]
-name = "dasp_signal"
+name = "dasp_sample"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
-dependencies = [
- "dasp_envelope 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_interpolate 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_peak 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_rms 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
- "dasp_window 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
-]
 
 [[package]]
 name = "dasp_signal"
@@ -515,12 +500,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_slice"
+name = "dasp_signal"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
 dependencies = [
+ "dasp_envelope 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
  "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_interpolate 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_peak 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_ring_buffer 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_rms 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
  "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
+ "dasp_window 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
 ]
 
 [[package]]
@@ -534,10 +525,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "dasp_window"
+name = "dasp_slice"
 version = "0.11.0"
 source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
 dependencies = [
+ "dasp_frame 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
  "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
 ]
 
@@ -548,6 +540,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "66bcb90ea007ba45fc48d426e28af3e8a653634f9a7174d768dcfe90fa6211f4"
 dependencies = [
  "dasp_sample 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "dasp_window"
+version = "0.11.0"
+source = "git+https://github.com/RustAudio/dasp/?branch=master#f05a703d247bb504d7e812b51e95f3765d9c5e94"
+dependencies = [
+ "dasp_sample 0.11.0 (git+https://github.com/RustAudio/dasp/?branch=master)",
 ]
 
 [[package]]
