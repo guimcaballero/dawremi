@@ -60,12 +60,12 @@ impl Synth {
 
 #[derive(Clone, Copy)]
 pub struct SynthParams {
-    attack: usize,
-    decay: usize,
-    release: usize,
+    pub attack: usize,
+    pub decay: usize,
+    pub release: usize,
 
-    attack_amplitude: f64,
-    sustain_amplitude: f64,
+    pub attack_amplitude: f64,
+    pub sustain_amplitude: f64,
 }
 
 pub struct SynthGroup(pub Vec<Synth>);
@@ -82,24 +82,31 @@ impl SynthGroup {
 
 pub trait SynthInstrument: HasSample {
     fn get_params(&self) -> SynthParams;
-    fn note(&mut self) -> Frame;
+    fn frame(&mut self) -> Frame;
 
     fn time(&self) -> f64 {
         TAU * self.sample() / self.sample_rate()
     }
     fn take_samples(&mut self, samples: usize) -> Vec<Frame> {
-        (0..samples).map(|_| self.note()).collect()
+        (0..samples)
+            .map(|_| {
+                self.increase_sample();
+                self.frame()
+            })
+            .collect()
     }
 }
 pub trait HasSample {
     fn sample(&self) -> f64;
     fn sample_rate(&self) -> f64;
+    fn increase_sample(&mut self);
 
     fn seconds(&self, x: f64) -> usize {
         (self.sample_rate() * x) as usize
     }
 }
 
+#[macro_export]
 macro_rules! simple_instrument {
     ($name:ident) => {
         #[derive(Clone, Copy)]
@@ -127,10 +134,14 @@ macro_rules! simple_instrument {
             fn sample_rate(&self) -> f64 {
                 self.sample_rate
             }
+            fn increase_sample(&mut self) {
+                self.sample += 1;
+            }
         }
     };
 }
 
+#[macro_export]
 macro_rules! instrument {
     ($name:ident $(, $id:ident : $type:ty )* $(,)?) => {
         #[derive(Clone)]
@@ -147,6 +158,9 @@ macro_rules! instrument {
             }
             fn sample_rate(&self) -> f64 {
                 self.sample_rate
+            }
+            fn increase_sample(&mut self) {
+                self.sample += 1;
             }
         }
     };

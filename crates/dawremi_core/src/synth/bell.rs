@@ -13,8 +13,7 @@ impl SynthInstrument for Bell {
         }
     }
 
-    fn note(&mut self) -> Frame {
-        self.sample += 1;
+    fn frame(&mut self) -> Frame {
         let a_lfo = 0.001;
         let f_lfo = 5.0;
 

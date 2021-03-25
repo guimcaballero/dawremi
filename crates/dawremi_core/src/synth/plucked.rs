@@ -64,9 +64,7 @@ impl SynthInstrument for Plucked {
         }
     }
 
-    fn note(&mut self) -> Frame {
-        self.sample += 1;
-
+    fn frame(&mut self) -> Frame {
         let prev = self.noise[(self.sample - 1) % self.noise_length];
         let result = self.noise[self.sample % self.noise_length];
         let next = self.noise[(self.sample + 1) % self.noise_length];

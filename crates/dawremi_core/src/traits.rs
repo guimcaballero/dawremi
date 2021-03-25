@@ -46,7 +46,7 @@ pub trait HasSoundHashMap: HasSampleRate {
 
 #[macro_export]
 macro_rules! song {
-    ($name:ident, $( $id:ident : $type:ty ),*) => {
+    ($name:ident $(, $id:ident : $type:ty )* $(,)?) => {
         #[derive(Default)]
         pub struct $name {
             sample_rate: Option<f64>,

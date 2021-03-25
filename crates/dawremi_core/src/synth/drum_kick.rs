@@ -13,8 +13,7 @@ impl SynthInstrument for DrumKick {
         }
     }
 
-    fn note(&mut self) -> Frame {
-        self.sample += 1;
+    fn frame(&mut self) -> Frame {
         let a_lfo = 1.;
         let f_lfo = 1.;
 
