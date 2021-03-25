@@ -3,8 +3,8 @@
 use crate::frame::*;
 use crate::helpers::*;
 use crate::notes::*;
-use core::f64::consts::TAU;
 use rand::prelude::*;
+use std::f64::consts::TAU;
 
 pub struct Synth {
     pub instrument: Box<dyn SynthInstrument>,
@@ -80,12 +80,16 @@ impl SynthGroup {
     }
 }
 
+// Okay, this is a bit weird, but I want to auto implement a couple functions, so I'm splitting the
+// trait into 2, and one of them gets implemented in the macro. There's probably a better way to do this,
+// but I can't really think of any right now
+
 pub trait SynthInstrument: HasSample {
     fn get_params(&self) -> SynthParams;
     fn frame(&mut self) -> Frame;
 
     fn time(&self) -> f64 {
-        TAU * self.sample() / self.sample_rate()
+        self.sample() / self.sample_rate()
     }
     fn take_samples(&mut self, samples: usize) -> Vec<Frame> {
         (0..samples)

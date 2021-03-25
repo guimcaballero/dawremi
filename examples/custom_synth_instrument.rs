@@ -4,6 +4,7 @@
 #[macro_use]
 extern crate dawremi;
 use dawremi::prelude::*;
+use std::f64::consts::TAU;
 
 fn main() {
     let mut song = MySong::default();
@@ -62,7 +63,14 @@ impl SynthInstrument for Sine {
     }
 
     fn frame(&mut self) -> Frame {
-        let result = (self.frequency.0 * self.time()).sin();
+        // You have access to:
+        // self.frequency, which is the Frequency from the notes
+        // self.sample(), which is the current number
+        // self.sample_rate(), which is the sample rate
+        // self.time(), which is sample / sample_rate
+        // self.seconds(x), which will return the number of samples needed to pass x seconds
+
+        let result = (TAU * self.frequency.0 * self.time()).sin();
         Frame::mono(result)
     }
 }

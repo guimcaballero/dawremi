@@ -17,9 +17,10 @@ impl SynthInstrument for DrumHiHat {
         let a_lfo = 1.;
         let f_lfo = 1.;
 
-        let square = if (self.frequency.0 * self.time()
-            + a_lfo * self.frequency.0 * (f_lfo * self.time()).sin())
-        .sin()
+        let time = TAU * self.time();
+
+        let square = if (self.frequency.0 * time + a_lfo * self.frequency.0 * (f_lfo * time).sin())
+            .sin()
             > 0.
         {
             1.

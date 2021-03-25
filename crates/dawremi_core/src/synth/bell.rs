@@ -25,23 +25,21 @@ impl SynthInstrument for Bell {
             1.
         };
 
+        let time = TAU * self.time();
+
         let mut result = base_note_vol_multiplier
-            * (self.frequency.0 * self.time()
-                + a_lfo * self.frequency.0 * (f_lfo * self.time()).sin())
-            .sin();
+            * (self.frequency.0 * time + a_lfo * self.frequency.0 * (f_lfo * time).sin()).sin();
 
         // Add higher notes
         let freq = self.frequency.up_an_octave();
-        result += 0.5 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+        result += 0.5 * (freq.0 * time + a_lfo * freq.0 * (f_lfo * time).sin()).sin();
 
         let freq = self.frequency.up_an_octave();
-        result +=
-            0.125 * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+        result += 0.125 * (freq.0 * time + a_lfo * freq.0 * (f_lfo * time).sin()).sin();
 
         let freq = self.frequency.up_an_octave();
         if self.sample > attack {
-            result += 0.0125
-                * (freq.0 * self.time() + a_lfo * freq.0 * (f_lfo * self.time()).sin()).sin();
+            result += 0.0125 * (freq.0 * time + a_lfo * freq.0 * (f_lfo * time).sin()).sin();
         }
 
         Frame::mono(result)

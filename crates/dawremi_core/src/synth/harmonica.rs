@@ -17,21 +17,22 @@ impl SynthInstrument for Harmonica {
         let a_lfo = 0.001;
         let f_lfo = 7.0;
 
-        let square_1 = if (self.frequency.0 * self.time()
-            + a_lfo * self.frequency.0 * (f_lfo * self.time()).sin())
-        .sin()
-            > 0.
-        {
+        let time = TAU * self.time();
+
+        let square_1 =
+            if (self.frequency.0 * time + a_lfo * self.frequency.0 * (f_lfo * time).sin()).sin()
+                > 0.
+            {
+                1.
+            } else {
+                -1.
+            };
+        let square_2 = if (self.frequency.0 * 1.5 * time).sin() > 0. {
             1.
         } else {
             -1.
         };
-        let square_2 = if (self.frequency.0 * 1.5 * self.time()).sin() > 0. {
-            1.
-        } else {
-            -1.
-        };
-        let square_3 = if (self.frequency.0 * 2.0 * self.time()).sin() > 0. {
+        let square_3 = if (self.frequency.0 * 2.0 * time).sin() > 0. {
             1.
         } else {
             -1.
