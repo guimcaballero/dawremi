@@ -22,10 +22,6 @@ impl Song for MySong {
         120
     }
 
-    fn duration(&self) -> usize {
-        self.seconds(3.)
-    }
-
     fn tracks(&mut self) -> Vec<Vec<Frame>> {
         vec![self.track()]
     }

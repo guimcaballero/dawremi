@@ -1,8 +1,9 @@
 //! Use the `Song` trait to make your songs!
 
+use crate::effects::{Automation, EffectExtension, Volume};
+use crate::frame::Frame;
 use crate::helpers::*;
 use crate::player::*;
-use crate::prelude::Frame;
 use crate::sound_files::enums::Metronome;
 use crate::sound_files::io::save_file;
 use crate::traits::*;
@@ -39,18 +40,32 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     fn generate(&mut self) -> Vec<Frame> {
         let tracks = join_tracks(self.tracks());
 
-        let vec = tracks
-            .multiply(self.volume())
+        let mut vec = tracks
+            .effect(&Volume {
+                mult: self.volume(),
+            })
             // Add some delay in the front if we enable metronome
             // This way we get like 3 beats of the metronome before we start
             .delay(if self.enable_metronome() {
                 self.beats(3.)
             } else {
                 0
-            })
-            // We add the metronome after the volume
-            .add(self.metronome())
-            .take_samples(self.duration());
+            });
+
+        if self.enable_metronome() {
+            let metronome = self
+                .sound(Metronome.into())
+                .take_samples(self.beats(0.2))
+                .chain(silence().take_samples(self.beats(0.8)))
+                .cycle_until_samples(vec.len())
+                .collect();
+            vec = vec.add(metronome);
+        }
+
+        // If a duration was specified, take that number of samples
+        if let Some(duration) = self.duration() {
+            vec = vec.take_samples(duration)
+        }
 
         if self.enable_normalization() {
             // Normalize
@@ -61,22 +76,10 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
                     (f64::max(max, a.max()), f64::min(min, a.min()))
                 });
             let max = f64::max(max.abs(), min.abs());
-            vec.iter().map(|a| a / max).collect()
-        } else {
-            vec
+            vec = vec.iter().map(|a| a / max).collect();
         }
-    }
 
-    fn metronome(&mut self) -> Vec<Frame> {
-        if self.enable_metronome() {
-            self.sound(Metronome.into())
-                .take_samples(self.beats(0.2))
-                .chain(silence().take_samples(self.beats(0.8)))
-                .cycle_until_samples(self.duration())
-                .collect()
-        } else {
-            silence().take_samples(self.duration())
-        }
+        vec
     }
 
     // Helper methods to use on tracks
@@ -88,8 +91,8 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     }
 
     /// General volume for all tracks
-    fn volume(&self) -> Vec<Frame> {
-        vec![Frame::mono(1.0); self.duration()]
+    fn volume(&self) -> Automation<f64> {
+        Automation::Const(1.)
     }
 
     /// Contains the list of tracks that should be mixed into a song
@@ -101,7 +104,10 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
     fn name(&self) -> &'static str;
 
     /// Duration in samples the song should have
-    fn duration(&self) -> usize;
+    /// If None, the whole song will be used
+    fn duration(&self) -> Option<usize> {
+        None
+    }
 
     /// Beats per minute for the song
     fn bpm(&self) -> usize;
@@ -136,10 +142,6 @@ mod test {
         fn bpm(&self) -> usize {
             120
         }
-        fn duration(&self) -> usize {
-            self.beats(12.)
-        }
-
         fn tracks(&mut self) -> Vec<Vec<Frame>> {
             vec![]
         }
@@ -207,8 +209,9 @@ mod test {
         fn bpm(&self) -> usize {
             120
         }
-        fn duration(&self) -> usize {
-            self.beats(12.)
+
+        fn duration(&self) -> Option<usize> {
+            Some(23)
         }
 
         fn tracks(&mut self) -> Vec<Vec<Frame>> {
@@ -234,5 +237,13 @@ mod test {
         let mut song = SongWithTrack::default();
         song.set_sample_rate(400.0);
         let _ = song.generate();
+    }
+
+    #[test]
+    fn duration_takes_just_the_correct_ammount_of_samples() {
+        let mut song = SongWithTrack::default();
+        song.set_sample_rate(400.0);
+        let audio = song.generate();
+        assert_eq!(23, audio.len());
     }
 }

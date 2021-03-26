@@ -21,8 +21,8 @@ impl Song for CustomEffectSong {
         120
     }
 
-    fn duration(&self) -> usize {
-        self.seconds(10.)
+    fn duration(&self) -> Option<usize> {
+        Some(self.seconds(10.))
     }
 
     fn tracks(&mut self) -> Vec<Vec<Frame>> {
@@ -36,14 +36,14 @@ impl CustomEffectSong {
         // First time will be with a constant value as multiplier
         // Second time will be with a sine wave of constant frequency
 
-        noise::noise(3333, self.duration())
+        noise::noise(3333, self.duration().unwrap())
             .into_frames()
             .effect(&MyCustomEffect {
                 mult: Automation::Const(0.5),
             })
             .effect(&MyCustomEffect {
                 mult: Automation::Vec(waves::sine(
-                    self.duration(),
+                    self.duration().unwrap(),
                     // This second parameter is also an automation, so we could modify it
                     // with an `Automation::Vec`
                     Automation::Const(self.frequency(0.5)),
