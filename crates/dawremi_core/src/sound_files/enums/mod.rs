@@ -23,6 +23,17 @@ macro_rules! enum_to_str {
                 }
             }
         }
+
+        impl From<$name> for crate::sound_files::Sound {
+            fn from(f: $name) -> Self {
+                let path: &str = f.into();
+                Self {
+                    path: path.to_string(),
+                    begin: 0,
+                    end: None,
+                }
+            }
+        }
     }
 }
 
@@ -53,10 +64,22 @@ mod reverb;
 pub use reverb::*;
 pub mod princess_girlfriend;
 
+use super::Sound;
+
 pub struct Metronome;
 impl From<Metronome> for &'static str {
     fn from(_: Metronome) -> &'static str {
         "assets/internal/metronome.wav"
+    }
+}
+impl From<Metronome> for Sound {
+    fn from(_: Metronome) -> Self {
+        let path: &str = Metronome.into();
+        Self {
+            path: path.to_string(),
+            begin: 0,
+            end: None,
+        }
     }
 }
 
@@ -67,11 +90,11 @@ mod test {
 
     #[test]
     fn check_metronome_file() {
-        let path: &str = Metronome.into();
+        let path: Sound = Metronome.into();
 
         let dir = Path::new(env!("CARGO_MANIFEST_DIR"));
         let parent = dir.parent().unwrap().parent().unwrap();
-        let p = parent.join(path);
+        let p = parent.join(path.path);
 
         assert!(p.as_path().exists());
     }

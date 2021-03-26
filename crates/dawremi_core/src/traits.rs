@@ -2,6 +2,7 @@
 
 use crate::frame::*;
 use crate::sound_files::io::open_file;
+use crate::sound_files::Sound;
 use std::collections::HashMap;
 
 pub trait HasSampleRate {
@@ -26,20 +27,26 @@ pub trait HasSoundHashMap: HasSampleRate {
     /// Should only be called after setting sample_rate
     fn get_sound_hashmap(&mut self) -> &mut HashMap<String, Vec<Frame>>;
 
-    fn sound(&mut self, path: &str) -> Vec<Frame> {
+    fn sound(&mut self, sound: Sound) -> Vec<Frame> {
         let sample_rate = self.get_sample_rate();
 
         let hashmap = self.get_sound_hashmap();
 
+        // If hashmap does not contain this audio, load it and insert it
+        if !hashmap.contains_key(&sound.path) {
+            let vec = open_file(&sound.path, sample_rate as u32);
+            hashmap.insert(sound.path.clone(), vec);
+        }
+
         // If the audio is in the hashmap, return that
         // Else, load it and insert it in the hashmap
-        if let Some(vec) = hashmap.get(path) {
-            vec.to_vec()
-        } else {
-            let vec = open_file(path, sample_rate as u32);
-            hashmap.insert(path.to_string(), vec.clone());
+        let vec = hashmap.get(&sound.path).unwrap();
 
-            vec
+        // Return only from begin to end
+        if let Some(end) = sound.end {
+            vec[sound.begin..end].to_vec()
+        } else {
+            vec[sound.begin..].to_vec()
         }
     }
 }

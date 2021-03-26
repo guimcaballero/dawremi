@@ -12,7 +12,8 @@
 //!
 //! fn main() {
 //!    let mut song = DemoSong::default();
-//!    song.play().expect("Unable to play song");
+//!    // Uncomment the following line to play the song through your speakers
+//!    // song.play().expect("Unable to play song");
 //! }
 //!
 //! song!(DemoSong,);
@@ -37,7 +38,7 @@
 //!     /// All of the tracks will be mixed equally
 //!     fn tracks(&mut self) -> Vec<Vec<Frame>> {
 //!         // Just one track, full of noise
-//!         vec![noise::noise(3333, self.duration())]
+//!         vec![noise::noise(3333, self.duration()).into_frames()]
 //!     }
 //! }
 //! ```

@@ -123,6 +123,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
 mod test {
     use super::*;
     use crate::notes::*;
+    use crate::sound_files::Sound;
     use crate::{sequence, song};
     use std::collections::HashMap;
 
@@ -159,9 +160,33 @@ mod test {
         song.set_sample_rate(44_100.);
 
         let path = "../../assets/beep.wav";
-        let _ = song.sound(path);
+        let _ = song.sound(path.into());
 
         assert!(song.sound_hashmap.contains_key(path));
+    }
+
+    #[test]
+    /// When loading a sound, it should get added to the hashmap so we don't load it twice
+    fn can_get_sound_from_begin_to_end() {
+        let mut song = EmptySong::default();
+        song.set_sample_rate(44_100.);
+
+        let path = "../../assets/beep.wav";
+        let audio = song.sound(Sound {
+            path: path.to_string(),
+            begin: 13,
+            end: Some(23),
+        });
+
+        // Returned audio is the correct slice
+        assert_eq!(10, audio.len());
+
+        // Vec gets still added to hashmap
+        assert!(song.sound_hashmap.contains_key(path));
+        let hashmap_vec = song.sound_hashmap.get(path).unwrap();
+        // Vec in hashmap has the full length of the audio
+        assert_eq!(441000, hashmap_vec.len());
+        // Length of the beep.wav audio is 441000
     }
 
     #[test]
@@ -170,7 +195,7 @@ mod test {
         let mut song = EmptySong::default();
 
         let path = "assets/filethatdoesntexist.aaaaaaaaaaaaaa";
-        let _ = song.sound(path);
+        let _ = song.sound(path.into());
     }
 
     song!(SongWithTrack,);

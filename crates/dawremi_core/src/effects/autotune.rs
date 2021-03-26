@@ -5,7 +5,11 @@ use pvoc::{Bin, PhaseVocoder};
 
 pub struct Autotune {
     pub sample_rate: f64,
+
+    // TODO Change Note for Frequency
     pub notes: Vec<Option<Note>>,
+
+    // TODO Change for Automation
     pub beat_length: usize,
 }
 
@@ -17,6 +21,9 @@ impl Effect for Autotune {
         chunks
             .zip(notes)
             .map(|(chunk, note)| {
+                // TODO Currently there's no pitch detection, it just scales it assuming it's a C4
+                // TODO Implement pitch detection to check the actual pitch
+
                 let freq: Frequency = if let Some(note) = note {
                     note.into()
                 } else {
