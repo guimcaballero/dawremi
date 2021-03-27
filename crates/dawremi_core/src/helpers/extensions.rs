@@ -168,17 +168,17 @@ impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Option<T>> {
     }
 }
 
-pub trait IntoFreqList {
+pub trait IntoVecVecFreqList {
     fn into_freqs(&self) -> Vec<Vec<Frequency>>;
 }
-impl<T: Clone + Into<Frequency>> IntoFreqList for Vec<Vec<T>> {
+impl<T: Clone + Into<Frequency>> IntoVecVecFreqList for Vec<Vec<T>> {
     fn into_freqs(&self) -> Vec<Vec<Frequency>> {
         self.iter()
             .map(|a| a.iter().map(|b| b.clone().into()).collect())
             .collect()
     }
 }
-impl<T: Clone + Into<Frequency>> IntoFreqList for Vec<Option<T>> {
+impl<T: Clone + Into<Frequency>> IntoVecVecFreqList for Vec<Option<T>> {
     fn into_freqs(&self) -> Vec<Vec<Frequency>> {
         self.iter()
             .map(|a| {

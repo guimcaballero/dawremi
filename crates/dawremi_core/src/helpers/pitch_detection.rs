@@ -17,7 +17,7 @@ pub fn detect(signal: Vec<f64>, sample_rate: f64) -> f64 {
             POWER_THRESHOLD,
             CLARITY_THRESHOLD,
         )
-        .unwrap()
+        .expect("Couldn't get pitch from audio")
         .frequency
 }
 
