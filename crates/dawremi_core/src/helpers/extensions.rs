@@ -32,6 +32,9 @@ pub trait VecFrameExtension {
     /// Joins two lists together
     fn chain(self, new: Vec<Frame>) -> Vec<Frame>;
 
+    /// Joins two lists by mixing the last n elements of self and the beginning n elements of other
+    fn overlap(self, other: Vec<Frame>, n: usize) -> Vec<Frame>;
+
     /// Repeats the list until `samples` number of samples are taken
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame>;
 
@@ -70,6 +73,27 @@ impl VecFrameExtension for Vec<Frame> {
     fn chain(mut self, mut new: Vec<Frame>) -> Vec<Frame> {
         self.append(&mut new);
         self
+    }
+
+    fn overlap(self, other: Vec<Frame>, n: usize) -> Vec<Frame> {
+        let len = self.len() + other.len() - n;
+        let mut output = Vec::with_capacity(len + 1);
+
+        let self_len = self.len();
+        let self_len_minus_n = self.len() - n;
+
+        for i in 0..len {
+            if i < self_len_minus_n {
+                output.push(self[i]);
+            } else if i >= self_len {
+                output.push(other[i - self_len_minus_n]);
+            } else {
+                // TODO We can change this for (1-p)*a + p*b, where p is an automation
+                output.push((self[i] + other[i - self_len_minus_n]) * 0.5);
+            }
+        }
+
+        output
     }
 
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame> {
@@ -195,5 +219,20 @@ mod test {
         let expected = vec![1., 2., 3., 0., 0.].into_frames();
 
         assert_eq!(expected, vec.take_samples(5));
+    }
+
+    #[test]
+    fn overlap_two_vectors() {
+        let vec = vec![1., 1., 0.].into_frames();
+        let vec2 = vec![0.5, 1., 1.].into_frames();
+
+        assert_eq!(
+            vec![1., 0.75, 0.5, 1.].into_frames(),
+            vec.clone().overlap(vec2.clone(), 2)
+        );
+        assert_eq!(
+            vec![1., 1., 0.25, 1., 1.].into_frames(),
+            vec.overlap(vec2, 1)
+        );
     }
 }
