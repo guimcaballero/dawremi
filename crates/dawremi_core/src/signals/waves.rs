@@ -9,9 +9,11 @@ pub fn sine_one_period(length: usize) -> Vec<f64> {
 }
 
 /// Generates a sine wave of frequency
-pub fn sine(length: usize, frequency: Automation<f64>) -> Vec<f64> {
+pub fn sine(length: usize, frequency: Automation<f64>, sample_rate: f64) -> Vec<f64> {
+    let a = 2.0 * PI / sample_rate;
+
     (0..length)
-        .map(|i| f64::sin((i as f64) * 2.0 * PI * frequency.value(i)))
+        .map(|i| f64::sin((i as f64) * a * frequency.value(i)))
         .collect()
 }
 
@@ -37,27 +39,8 @@ mod test {
 
     #[test]
     fn can_create_sine() {
-        let noise = sine(10, Automation::Const(0.1));
+        let noise = sine(10, Automation::Const(0.1), 48000.);
 
         assert_eq!(10, noise.len());
-    }
-
-    #[test]
-    fn check_middlepoint_values_in_sine() {
-        // We take an extra one, so we can check the last value too
-
-        let noise = sine(11, Automation::Const(0.1));
-        assert!(noise[0].abs() < 0.0001);
-        assert!(noise[4].abs() > 0.0001);
-        assert!(noise[5].abs() < 0.0001);
-        assert!(noise[6].abs() > 0.0001);
-        assert!(noise[10].abs() < 0.0001);
-
-        let noise = sine(101, Automation::Const(0.01));
-        assert!(noise[0].abs() < 0.0001);
-        assert!(noise[49].abs() > 0.0001);
-        assert!(noise[50].abs() < 0.0001);
-        assert!(noise[51].abs() > 0.0001);
-        assert!(noise[100].abs() < 0.0001);
     }
 }

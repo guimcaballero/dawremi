@@ -47,6 +47,7 @@ impl CustomEffectSong {
                     // This second parameter is also an automation, so we could modify it
                     // with an `Automation::Vec`
                     Automation::Const(self.frequency(0.5)),
+                    self.get_sample_rate(),
                 )),
             })
     }
