@@ -568,10 +568,11 @@ dependencies = [
  "hound",
  "num",
  "num-integer",
+ "pitch-detection",
  "pvoc",
  "rand",
  "realfft",
- "rustfft",
+ "rustfft 5.0.1",
 ]
 
 [[package]]
@@ -1133,6 +1134,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c917123afa01924fc84bb20c4c03f004d9c38e5127e3c039bbf7f4b9c76a2f6b"
 
 [[package]]
+name = "pitch-detection"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0fcfccf1697fccf7fa5d409574bcc16c00a7eefe87025c659a0466c7cbca002f"
+dependencies = [
+ "num-complex",
+ "num-traits",
+ "rustfft 4.1.0",
+]
+
+[[package]]
 name = "pkg-config"
 version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1178,7 +1190,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "325790fa54aad9622a82dc57832226df71d1775352fd718bf0a7d1ff4f57c597"
 dependencies = [
  "apodize",
- "rustfft",
+ "rustfft 5.0.1",
 ]
 
 [[package]]
@@ -1246,7 +1258,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78570e3808e54d89bbeeabe064a61923a023d3822023344a9257989316cb107e"
 dependencies = [
- "rustfft",
+ "rustfft 5.0.1",
 ]
 
 [[package]]
@@ -1302,6 +1314,19 @@ name = "rustc-hash"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
+
+[[package]]
+name = "rustfft"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f107ffb2ec15915d932b7b1537fe4d6efb36955ee2b06f8f759c80a0725f80b1"
+dependencies = [
+ "num-complex",
+ "num-integer",
+ "num-traits",
+ "strength_reduce",
+ "transpose",
+]
 
 [[package]]
 name = "rustfft"

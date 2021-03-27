@@ -3,6 +3,7 @@
 pub mod delay_line;
 mod extensions;
 mod macros;
+pub mod pitch_detection;
 pub mod resampling;
 
 pub use extensions::*;
