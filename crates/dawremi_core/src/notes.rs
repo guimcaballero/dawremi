@@ -252,25 +252,26 @@ impl Note {
     // All of this functions can panic, this way we know at compile time if our note will exist or not
     // And if it doesn't we can add it to the enum
 
-    #[allow(dead_code)]
     pub fn up_an_octave(self) -> Note {
         let n = self as i16;
         Note::try_from(n + 12).expect("Raise note an octave")
     }
-    #[allow(dead_code)]
     pub fn down_an_octave(self) -> Note {
         let n = self as i16;
         Note::try_from(n - 12).expect("Lower note an octave")
     }
-    #[allow(dead_code)]
     pub fn up_a_note(self) -> Note {
         let n = self as i16;
         Note::try_from(n + 1).expect("Raise one note")
     }
-    #[allow(dead_code)]
     pub fn down_a_note(self) -> Note {
         let n = self as i16;
         Note::try_from(n - 1).expect("Lower one note")
+    }
+
+    pub fn closest_to_frequency(freq: f64) -> Note {
+        let n = (12. * (freq / 440.).log2()).round() as i16;
+        Note::try_from(n).expect("Couldn't find closest note")
     }
 }
 
@@ -502,5 +503,29 @@ mod test {
 
         let a3 = Note::A4.down_an_octave();
         assert_eq!(a3, Note::A3);
+    }
+
+    #[test]
+    fn closest_frequency() {
+        let note = Note::closest_to_frequency(21.);
+        assert_eq!(note, Note::E0);
+
+        let note = Note::closest_to_frequency(21.3);
+        assert_eq!(note, Note::F0);
+
+        let note = Note::closest_to_frequency(90.);
+        assert_eq!(note, Note::Fs2);
+
+        let note = Note::closest_to_frequency(442.);
+        assert_eq!(note, Note::A4);
+
+        let note = Note::closest_to_frequency(486.);
+        assert_eq!(note, Note::B4);
+
+        let note = Note::closest_to_frequency(870.);
+        assert_eq!(note, Note::A5);
+
+        let note = Note::closest_to_frequency(1100.);
+        assert_eq!(note, Note::Cs6);
     }
 }
