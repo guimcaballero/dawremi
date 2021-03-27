@@ -25,7 +25,6 @@ Then, making a new song is easy! You have to create a new struct using the `song
 ```rust
 #[macro_use]
 extern crate dawremi;
-
 use dawremi::prelude::*;
 
 fn main() {
@@ -47,9 +46,9 @@ impl Song for DemoSong {
     }
 
     /// Song's duration (in samples)
-    fn duration(&self) -> usize {
+    fn duration(&self) -> Option<usize> {
         // We're using the beats helper function that converts 16 beats to the number of samples to take
-        self.beats(16.)
+        Some(self.beats(16.))
     }
 
     /// List of tracks on this song. Each track is just a list of samples (Vec<Frame>)
