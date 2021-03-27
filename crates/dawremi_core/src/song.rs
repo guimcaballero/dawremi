@@ -57,8 +57,7 @@ pub trait Song: HasSampleRate + HasSoundHashMap {
                 .sound(Metronome.into())
                 .take_samples(self.beats(0.2))
                 .chain(silence().take_samples(self.beats(0.8)))
-                .cycle_until_samples(vec.len())
-                .collect();
+                .cycle_until_samples(vec.len());
             vec = vec.add(metronome);
         }
 

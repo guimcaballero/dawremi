@@ -14,9 +14,6 @@ impl TakeSamplesExtension for Vec<f64> {
 }
 
 pub trait VecFrameExtension {
-    // TODO Can we remove this? Here for legacy reasons I think
-    fn collect(self) -> Self;
-
     // take_samples is here again so cause there's a conflicting implementation if
     // we try to impl TakeSamplesExtension for Vec<f64>
 
@@ -49,10 +46,6 @@ pub trait VecFrameExtension {
 }
 
 impl VecFrameExtension for Vec<Frame> {
-    fn collect(self) -> Self {
-        self
-    }
-
     fn take_samples(mut self, samples: usize) -> Vec<Frame> {
         self.resize(samples, Frame::default());
         self
