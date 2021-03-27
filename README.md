@@ -16,7 +16,7 @@ dawremi = { git = "https://github.com/guimcaballero/dawremi" }
 
 Copy the `assets` folder into your project's root folder, so you can access preadded samples and other needed assets. You can get it easily with `svn` with:
 
-```
+```bash
 svn checkout https://github.com/guimcaballero/dawremi/trunk/assets
 ```
 
@@ -29,7 +29,8 @@ use dawremi::prelude::*;
 
 fn main() {
     let mut song = DemoSong::default();
-    song.play().expect("Unable to play song");
+    // Uncomment the following line to play the song through your speakers
+    // song.play().expect("Unable to play song");
 }
 
 song!(DemoSong,);

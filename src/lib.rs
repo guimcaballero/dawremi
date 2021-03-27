@@ -60,3 +60,18 @@ examples to get an idea of how to use the crate.
 #![warn(clippy::wrong_pub_self_convention, clippy::unseparated_literal_suffix)]
 
 pub use dawremi_core::*;
+
+// The following makes it so `cargo test --all` also tests the Readme code
+// From https://github.com/rust-lang/cargo/issues/383#issuecomment-720873790
+
+#[cfg(doctest)]
+mod test_readme {
+    macro_rules! external_doc_test {
+        ($x:expr) => {
+            #[doc = $x]
+            extern "C" {}
+        };
+    }
+
+    external_doc_test!(include_str!("../README.md"));
+}
