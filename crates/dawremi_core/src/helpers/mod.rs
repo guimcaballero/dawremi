@@ -15,6 +15,7 @@ pub fn silence() -> Vec<Frame> {
     vec![Frame::default()]
 }
 
+/// Joins all of the tracks into a single one by mixing them equally
 pub fn join_tracks(tracks: Vec<Vec<Frame>>) -> Vec<Frame> {
     // Get the max length of the tracks
     let len = &tracks
@@ -36,6 +37,16 @@ pub fn join_tracks(tracks: Vec<Vec<Frame>>) -> Vec<Frame> {
             val / count as f64
         })
         .collect()
+}
+
+/// Concatenates tracks by trimming and overlapping the audios
+pub fn concat_by_trim_overlap(vec: Vec<Vec<Frame>>, overlap: usize) -> Vec<Frame> {
+    let mut result = vec![Frame::default(); overlap + 1];
+    for part in vec {
+        result = result.overlap(part.trim(), overlap);
+    }
+
+    result
 }
 
 #[cfg(test)]

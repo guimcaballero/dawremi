@@ -1,4 +1,5 @@
 use super::*;
+use crate::helpers::concat_by_trim_overlap;
 use crate::helpers::pitch_detection::detect;
 use crate::notes::*;
 
@@ -65,18 +66,8 @@ impl Effect for Autotune {
             })
             .collect::<Vec<Vec<Frame>>>();
 
-        mix(parts)
+        concat_by_trim_overlap(parts, 400)
     }
-}
-
-/// Mixes by trimming and overlapping the audios
-fn mix(vec: Vec<Vec<Frame>>) -> Vec<Frame> {
-    let mut result = vec![Frame::default(); 410];
-    for part in vec {
-        result = result.overlap(part.trim(), 400);
-    }
-
-    result
 }
 
 fn pad_notes<T>(mut notes: Vec<Option<T>>, len: usize) -> Vec<Option<T>> {
