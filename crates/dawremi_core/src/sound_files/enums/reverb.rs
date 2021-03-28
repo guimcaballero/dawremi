@@ -1,3 +1,5 @@
+use super::Sound;
+
 enum_to_str! {
     prefix: "assets/internal/reverbs/",
     pub enum Reverb {

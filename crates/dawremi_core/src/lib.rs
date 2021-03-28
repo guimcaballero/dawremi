@@ -23,7 +23,7 @@ pub mod prelude {
     pub use super::notes::{n_tet::*, *};
     pub use super::signals::*;
     pub use super::song::*;
-    pub use super::sound_files::{enums::*, io::*};
+    pub use super::sound_files::{enums::*, io::*, Sound};
     pub use super::synth::*;
     pub use super::traits::*;
 }

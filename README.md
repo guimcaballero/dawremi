@@ -158,12 +158,69 @@ impl DemoSong {
 }
 ```
 
+## Importing assets
+
+If you would like to use external sounds with Dawremi, but don't like to use paths as a string, you can add build script to autogenerate enums for files inside folders. Create a file called `build.rs`:
+
+```no_run
+fn main() {
+    dawremi::prelude::generate_sound_enums(vec!["path/to/assets"]);
+}
+```
+
+and add `dawremi` to your `build-dependencies` section in `Cargo.toml`. You can pass as many different folders as you want to `generate_sound_enums`.
+
+For example, if you have a folder like the following:
+
+```ignore
+assets/internal/reverbs
+├── block_inside.wav
+├── bottle_hall.wav
+├── cement_block2.wav
+├── cement_blocks1.wav
+├── chateau_de_logne.wav
+├── conic_long_echo_hall.wav
+├── deep_space.wav
+└── vocal_duo.wav
+```
+
+The following enum will be generated:
+
+```rust
+pub enum Reverb {
+    BlockInside,
+    BottleHall,
+    CementBlock2,
+    CementBlocks1,
+    ChateauDeLogne,
+    ConicLongEchoHall,
+    DeepSpace,
+    VocalDuo,
+}
+```
+
+Which will implement `Into<Sound>`, so you can do `self.sound(Rever::VocalDuo.into())` in a song.
+
+Finally, call `include_sound_enums!()` from somewhere in you crate:
+
+```ignore
+#[macro_use]
+extern crate dawremi;
+
+dawremi::include_sound_enums!();
+
+fn main() {
+    // Something here
+}
+```
+
+## Minimum Supported Rust Version
+
+This crate requires a Rust version equal or superior to `1.51`. ~~const generics go brrrrrr~~
+
 ## Contributing
 
 If you are using the library and find any bug/problem, please open an issue! I'm focusing most of my time on developing the library instead of using it, so there's probably a lot of stuff I haven't caught yet.
 
 Contributions are welcome, but please do open an issue before starting to code anything, as I might not accept your PR for whatever reason, and I don't want anyone wasting work.
 
-## Minimum Supported Rust Version
-
-This crate requires a Rust version equal or superior to `1.51`. ~~const generics go brrrrrr~~
