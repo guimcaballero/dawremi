@@ -170,6 +170,8 @@ fn main() {
 
 and add `dawremi` to your `build-dependencies` section in `Cargo.toml`. You can pass as many different folders as you want to `generate_sound_enums`.
 
+This is implemented very naively currently, so there's a high probability of it breaking if you do anything complex (Contributions are welcome!). Specifically, if you have two folders named the same, it'll fail to compile.
+
 For example, if you have a folder like the following:
 
 ```ignore
