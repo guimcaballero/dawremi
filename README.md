@@ -164,3 +164,6 @@ If you are using the library and find any bug/problem, please open an issue! I'm
 
 Contributions are welcome, but please do open an issue before starting to code anything, as I might not accept your PR for whatever reason, and I don't want anyone wasting work.
 
+## Minimum Supported Rust Version
+
+This crate requires a Rust version equal or superior to `1.51`. ~~const generics go brrrrrr~~

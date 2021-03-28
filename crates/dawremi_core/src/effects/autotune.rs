@@ -12,6 +12,7 @@ pub enum AutotuneConfig {
 
 pub struct Autotune {
     pub sample_rate: f64,
+    // TODO This can be changed for a list of numbers, to split in different sizes
     pub beat_length: usize,
     pub config: AutotuneConfig,
 }
