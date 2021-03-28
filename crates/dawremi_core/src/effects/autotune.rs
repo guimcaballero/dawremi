@@ -28,13 +28,13 @@ impl Effect for Autotune {
             }
         };
 
-        chunks
+        let parts = chunks
             .zip(frequencies)
             .map(|(chunk, freq)| {
                 let shift = Frame::new(
                     {
                         // Get actual pitch
-                        let current_pitch = detect(chunk.left(), self.sample_rate);
+                        let current_pitch = detect(chunk.left(), self.sample_rate).unwrap_or(440.);
                         // Find pitch to change to
                         // If a frequency was provided, change to that
                         // Else, snap to closest note
@@ -48,7 +48,7 @@ impl Effect for Autotune {
                         change_to.0 / current_pitch
                     },
                     {
-                        let current_pitch = detect(chunk.right(), self.sample_rate);
+                        let current_pitch = detect(chunk.right(), self.sample_rate).unwrap_or(440.);
                         let change_to: Frequency = if let Some(change_to) = freq {
                             change_to
                         } else {
@@ -63,9 +63,20 @@ impl Effect for Autotune {
                     shift,
                 })
             })
-            .flatten()
-            .collect::<Vec<Frame>>()
+            .collect::<Vec<Vec<Frame>>>();
+
+        mix(parts)
     }
+}
+
+/// Mixes by trimming and overlapping the audios
+fn mix(vec: Vec<Vec<Frame>>) -> Vec<Frame> {
+    let mut result = vec![Frame::default(); 410];
+    for part in vec {
+        result = result.overlap(part.trim(), 400);
+    }
+
+    result
 }
 
 fn pad_notes<T>(mut notes: Vec<Option<T>>, len: usize) -> Vec<Option<T>> {
