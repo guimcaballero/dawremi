@@ -62,7 +62,6 @@ macro_rules! test_enum {
 
 mod reverb;
 pub use reverb::*;
-pub mod princess_girlfriend;
 
 use super::Sound;
 
