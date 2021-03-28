@@ -72,6 +72,9 @@ impl VecFrameExtension for Vec<Frame> {
     }
 
     fn overlap(self, other: Vec<Frame>, n: usize) -> Vec<Frame> {
+        assert!(self.len() > n);
+        assert!(other.len() > n);
+
         let len = self.len() + other.len() - n;
         let mut output = Vec::with_capacity(len + 1);
 
@@ -245,5 +248,14 @@ mod test {
             vec.clone().overlap(vec2.clone(), 2)
         );
         assert_eq!(vec![1., 1., 0., 1., 1.].into_frames(), vec.overlap(vec2, 1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn overlap_vectors_with_n_over_len() {
+        let vec = vec![1., 1., 0.].into_frames();
+        let vec2 = vec![0.5, 1., 1.].into_frames();
+
+        vec.overlap(vec2, 4);
     }
 }
