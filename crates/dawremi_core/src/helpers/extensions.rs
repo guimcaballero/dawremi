@@ -32,6 +32,9 @@ pub trait VecFrameExtension {
     /// Joins two lists by mixing the last n elements of self and the beginning n elements of other
     fn overlap(self, other: Vec<Frame>, n: usize) -> Vec<Frame>;
 
+    /// Removes leading and trailing 0s
+    fn trim(self) -> Vec<Frame>;
+
     /// Repeats the list until `samples` number of samples are taken
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame>;
 
@@ -81,12 +84,30 @@ impl VecFrameExtension for Vec<Frame> {
             } else if i >= self_len {
                 output.push(other[i - self_len_minus_n]);
             } else {
-                // TODO We can change this for (1-p)*a + p*b, where p is an automation
-                output.push((self[i] + other[i - self_len_minus_n]) * 0.5);
+                let a = (i - self_len_minus_n) as f64 / n as f64;
+                let val = self[i] * (1. - a) + other[i - self_len_minus_n] * a;
+                output.push(val);
             }
         }
 
         output
+    }
+
+    fn trim(self) -> Vec<Frame> {
+        fn is_not_0(x: &Frame) -> bool {
+            x.left.abs() > 0.000001 && x.right.abs() > 0.000001
+        }
+
+        let vec = if let Some(first) = self.iter().position(is_not_0) {
+            if let Some(last) = self.iter().rposition(is_not_0) {
+                &self[first..last + 1]
+            } else {
+                unreachable!();
+            }
+        } else {
+            &[]
+        };
+        vec.to_vec()
     }
 
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame> {
@@ -220,12 +241,9 @@ mod test {
         let vec2 = vec![0.5, 1., 1.].into_frames();
 
         assert_eq!(
-            vec![1., 0.75, 0.5, 1.].into_frames(),
+            vec![1., 1.0, 0.5, 1.].into_frames(),
             vec.clone().overlap(vec2.clone(), 2)
         );
-        assert_eq!(
-            vec![1., 1., 0.25, 1., 1.].into_frames(),
-            vec.overlap(vec2, 1)
-        );
+        assert_eq!(vec![1., 1., 0., 1., 1.].into_frames(), vec.overlap(vec2, 1));
     }
 }
