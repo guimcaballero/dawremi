@@ -54,64 +54,78 @@ pub fn record_input() -> Result<Vec<Frame>, anyhow::Error> {
         .default_input_config()
         .expect("Failed to get default input config");
 
-    println!("Press q to start recording");
     loop {
-        let mut s = String::new();
-        stdin()
-            .read_line(&mut s)
-            .expect("Did not enter a correct string");
-        if s.trim() == "q" {
-            break;
+        let config = config.clone();
+        println!("Press q to start recording");
+        loop {
+            let mut s = String::new();
+            stdin()
+                .read_line(&mut s)
+                .expect("Did not enter a correct string");
+            if s.trim() == "q" {
+                break;
+            }
+        }
+        println!("Begin recording...");
+
+        let vec: Vec<Frame> = vec![];
+        let vec = Arc::new(Mutex::new(vec));
+        let vec2 = Arc::clone(&vec);
+
+        let err_fn = move |err| {
+            println!("an error occurred on stream: {}", err);
+        };
+
+        let channels = config.channels();
+
+        let stream = match config.sample_format() {
+            cpal::SampleFormat::F32 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| write_input_data::<f32>(data, &vec, channels),
+                err_fn,
+            )?,
+            cpal::SampleFormat::I16 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| write_input_data::<i16>(data, &vec, channels),
+                err_fn,
+            )?,
+            cpal::SampleFormat::U16 => device.build_input_stream(
+                &config.into(),
+                move |data, _: &_| write_input_data::<u16>(data, &vec, channels),
+                err_fn,
+            )?,
+        };
+
+        stream.play()?;
+
+        // Let recording go until we finish it
+        println!("Press q to finish recording");
+        loop {
+            let mut s = String::new();
+            stdin()
+                .read_line(&mut s)
+                .expect("Did not enter a correct string");
+            if s.trim() == "q" {
+                break;
+            }
+        }
+
+        drop(stream);
+        println!("Recording complete!");
+        println!("Keep recording? y/n");
+        loop {
+            let mut s = String::new();
+            stdin()
+                .read_line(&mut s)
+                .expect("Did not enter a correct string");
+            if s.trim() == "y" {
+                return Ok(Arc::try_unwrap(vec2).unwrap().into_inner().unwrap());
+            }
+            if s.trim() == "n" {
+                break;
+            }
         }
     }
-    println!("Begin recording...");
-
-    let vec: Vec<Frame> = vec![];
-    let vec = Arc::new(Mutex::new(vec));
-    let vec2 = Arc::clone(&vec);
-
-    let err_fn = move |err| {
-        println!("an error occurred on stream: {}", err);
-    };
-
-    let channels = config.channels();
-
-    let stream = match config.sample_format() {
-        cpal::SampleFormat::F32 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<f32>(data, &vec, channels),
-            err_fn,
-        )?,
-        cpal::SampleFormat::I16 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<i16>(data, &vec, channels),
-            err_fn,
-        )?,
-        cpal::SampleFormat::U16 => device.build_input_stream(
-            &config.into(),
-            move |data, _: &_| write_input_data::<u16>(data, &vec, channels),
-            err_fn,
-        )?,
-    };
-
-    stream.play()?;
-
-    // Let recording go until we finish it
-    println!("Press q to finish recording");
-    loop {
-        let mut s = String::new();
-        stdin()
-            .read_line(&mut s)
-            .expect("Did not enter a correct string");
-        if s.trim() == "q" {
-            break;
-        }
-    }
-
-    drop(stream);
-    println!("Recording complete!");
-
-    Ok(Arc::try_unwrap(vec2).unwrap().into_inner().unwrap())
 }
 
 fn write_input_data<T>(input: &[T], vec: &Arc<Mutex<Vec<Frame>>>, channels: u16)
