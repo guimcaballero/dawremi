@@ -5,6 +5,7 @@ pub mod looper;
 pub mod notes;
 pub mod player;
 pub mod record;
+pub mod select;
 pub mod signals;
 pub mod song;
 pub mod sound_files;
