@@ -148,7 +148,7 @@ impl<'a> NoteList<'a> for Vec<Vec<Note>> {
 
 fn generate_frequency_list(
     list: &[Vec<Frequency>],
-    fun: &dyn Fn(Frequency, usize) -> Vec<Frame>,
+    fun: &mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
     length: usize,
 ) -> Vec<Frame> {
     let mut vec: Vec<Frame> = Vec::new();
@@ -167,14 +167,14 @@ fn generate_frequency_list(
 pub trait IntoFrequencyList<'a> {
     fn generate(
         &self,
-        fun: &'a dyn Fn(Frequency, usize) -> Vec<Frame>,
+        fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
         length: usize,
     ) -> Vec<Frame>;
 }
 impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Vec<T>> {
     fn generate(
         &self,
-        fun: &'a dyn Fn(Frequency, usize) -> Vec<Frame>,
+        fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
         length: usize,
     ) -> Vec<Frame> {
         let freqs = self.into_freqs();
@@ -184,7 +184,7 @@ impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Vec<T>> {
 impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Option<T>> {
     fn generate(
         &self,
-        fun: &'a dyn Fn(Frequency, usize) -> Vec<Frame>,
+        fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
         length: usize,
     ) -> Vec<Frame> {
         let freqs = self.into_freqs();
