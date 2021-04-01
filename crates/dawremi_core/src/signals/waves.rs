@@ -17,6 +17,13 @@ pub fn sine(length: usize, frequency: Automation<f64>, sample_rate: f64) -> Vec<
         .collect()
 }
 
+pub fn square(length: usize, frequency: Automation<f64>, sample_rate: f64) -> Vec<f64> {
+    sine(length, frequency, sample_rate)
+        .iter()
+        .map(|val| val.signum())
+        .collect()
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
