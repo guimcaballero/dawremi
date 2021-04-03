@@ -26,7 +26,6 @@ impl TrackGenerator {
             Self::Song(other) => {
                 let mut other = other.lock().unwrap();
                 other.generate(song.sample_rate.expect("Sample rate should have been set"));
-                // TODO Change this to return a reference?
                 other.generated.clone().unwrap()
             }
         }
@@ -147,8 +146,6 @@ impl Song {
     /// The file will only be opened the first time this method is called.
     /// Subsequent calls with the same sound will result in the vector being cloned from the hashmap
     pub fn sound(&self, sound: Sound) -> Vec<Frame> {
-        // TODO Change this to return a reference and not a clone
-
         assert!(self.sample_rate.is_some(), "Sample rate has not been set");
 
         let mut sounds = self.sounds.lock().unwrap();
@@ -194,8 +191,7 @@ impl Song {
     pub fn save_to_file(&mut self, bits_per_sample: u16, sample_rate: u32) {
         self.generate(sample_rate);
         save_file(
-            // TODO Remove this clone, pass by reference
-            self.generated.clone().unwrap(),
+            self.generated().unwrap(),
             &format!("output/{}.wav", self.config.name),
             self.sample_rate.unwrap(),
             bits_per_sample,
@@ -210,8 +206,7 @@ impl Song {
         self.generate(config.sample_rate);
 
         let player = Player {
-            // TODO Remove this clone, pass by reference
-            audio: self.generated.clone().unwrap().into(),
+            audio: self.generated().unwrap().into(),
             cycle: self.config.loop_on_play,
         };
 

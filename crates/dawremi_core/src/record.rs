@@ -38,7 +38,7 @@ pub fn record_and_save() {
     let bits_per_sample = 24;
 
     println!("File saved: {}", &path);
-    save_file(audio, &path, sample_rate, bits_per_sample);
+    save_file(&audio, &path, sample_rate, bits_per_sample);
 }
 
 pub fn record_input() -> Result<Vec<Frame>, anyhow::Error> {

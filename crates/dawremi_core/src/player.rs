@@ -4,8 +4,8 @@ use crate::frame::Frame;
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, SampleFormat, StreamConfig};
-use std::collections::VecDeque;
 use std::sync::mpsc;
+use std::sync::{Arc, Mutex};
 
 pub(crate) struct PlayerConfig {
     pub sample_rate: u32,
@@ -37,7 +37,7 @@ pub(crate) fn get_player_config() -> PlayerConfig {
 }
 
 pub(crate) struct Player {
-    pub audio: VecDeque<Frame>,
+    pub audio: Arc<[Frame]>,
     pub cycle: bool,
 }
 
@@ -57,11 +57,7 @@ pub(crate) fn run_player(
     }
 }
 
-fn run<T>(
-    device: &cpal::Device,
-    config: &cpal::StreamConfig,
-    mut player: Player,
-) -> Result<(), anyhow::Error>
+fn run<'a, T>(device: &cpal::Device, config: &cpal::StreamConfig, player: Player) -> Result<()>
 where
     T: cpal::Sample,
 {
@@ -70,22 +66,16 @@ where
 
     // Create and run the stream.
     let channels = config.channels as usize;
+    let index = Arc::new(Mutex::new(0));
+    let total_len = player.audio.len();
+
     let stream = device.build_output_stream(
         config,
         move |output: &mut [T], _: &cpal::OutputCallbackInfo| {
+            let mut index = index.lock().unwrap();
+
             for frame in output.chunks_mut(channels) {
-                let sample = match player.audio.pop_front() {
-                    None => {
-                        complete_tx.try_send(()).ok();
-                        Frame::mono(0.0)
-                    }
-                    Some(sample) => {
-                        if player.cycle {
-                            player.audio.push_back(sample);
-                        }
-                        sample
-                    }
-                };
+                let sample = player.audio[*index];
 
                 if frame.len() == 2 {
                     frame[0] = cpal::Sample::from::<f32>(&(sample.left as f32));
@@ -94,6 +84,16 @@ where
                     let value: T = cpal::Sample::from::<f32>(&(sample.to_mono() as f32));
                     for sample in frame.iter_mut() {
                         *sample = value;
+                    }
+                }
+
+                *index += 1;
+                if *index >= total_len {
+                    if player.cycle {
+                        *index = 0;
+                    } else {
+                        complete_tx.try_send(()).ok();
+                        return;
                     }
                 }
             }
@@ -106,6 +106,7 @@ where
     // Wait for playback to complete.
     complete_rx.recv().unwrap();
     stream.pause()?;
+    drop(stream);
 
     Ok(())
 }

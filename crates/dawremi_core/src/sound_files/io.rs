@@ -95,12 +95,12 @@ fn resample_and_save(
 
     let vec = resample_frames(orig, spec.sample_rate as f64, sample_rate as f64);
 
-    save_file(vec.clone(), &processed_filename, sample_rate, 24);
+    save_file(&vec, &processed_filename, sample_rate, 24);
 
     vec
 }
 
-pub fn save_file(audio: Vec<Frame>, path: &str, sample_rate: u32, bits_per_sample: u16) {
+pub fn save_file(audio: &[Frame], path: &str, sample_rate: u32, bits_per_sample: u16) {
     let spec = hound::WavSpec {
         channels: 2,
         sample_rate,
