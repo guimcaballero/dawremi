@@ -263,12 +263,9 @@ impl Song {
 
         if self.config.normalize {
             // Normalize
-            let (max, min) = vec
-                .iter()
-                .cloned()
-                .fold((-1. / 0., 1. / 0.), |(max, min), a| {
-                    (f64::max(max, a.max()), f64::min(min, a.min()))
-                });
+            let (max, min) = vec.iter().fold((-1. / 0., 1. / 0.), |(max, min), a| {
+                (f64::max(max, a.max()), f64::min(min, a.min()))
+            });
             let max = f64::max(max.abs(), min.abs());
             vec = vec.iter().map(|a| a / max).collect();
         }

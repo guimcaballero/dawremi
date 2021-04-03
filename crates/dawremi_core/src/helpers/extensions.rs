@@ -59,11 +59,8 @@ impl VecFrameExtension for Vec<Frame> {
     }
 
     fn repeat(self, times: usize) -> Vec<Frame> {
-        self.iter()
-            .cloned()
-            .cycle()
-            .take(self.len() * times)
-            .collect()
+        let len = self.len() * times;
+        self.into_iter().cycle().take(len).collect()
     }
 
     fn chain(mut self, mut new: Vec<Frame>) -> Vec<Frame> {
@@ -114,7 +111,7 @@ impl VecFrameExtension for Vec<Frame> {
     }
 
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame> {
-        self.iter().cloned().cycle().take(samples).collect()
+        self.into_iter().cycle().take(samples).collect()
     }
 
     fn add(self, other: Vec<Frame>) -> Vec<Frame> {
@@ -257,5 +254,21 @@ mod test {
         let vec2 = vec![0.5, 1., 1.].into_frames();
 
         vec.overlap(vec2, 4);
+    }
+
+    #[test]
+    fn repeat_vec() {
+        let vec = vec![1., 1., 0.].into_frames();
+        let result = vec![1., 1., 0., 1., 1., 0., 1., 1., 0.].into_frames();
+
+        assert_eq!(result, vec.repeat(3));
+    }
+
+    #[test]
+    fn cycle_until_samples() {
+        let vec = vec![1., 1., 0.].into_frames();
+        let result = vec![1., 1., 0., 1., 1., 0., 1., 1.].into_frames();
+
+        assert_eq!(result, vec.cycle_until_samples(8));
     }
 }
