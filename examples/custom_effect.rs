@@ -10,7 +10,7 @@ fn main() {
         duration: Duration::Seconds(10.),
         ..Default::default()
     };
-    let mut song = Song::new(vec![noise], config);
+    let mut song = Song::new(vec![noise.into()], config);
     song.play().expect("Unable to play song");
 }
 

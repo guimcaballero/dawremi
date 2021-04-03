@@ -1,6 +1,8 @@
+#[macro_use]
+pub mod helpers;
+
 pub mod effects;
 pub mod frame;
-pub mod helpers;
 pub mod notes;
 pub mod player;
 pub mod record;

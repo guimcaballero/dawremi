@@ -14,7 +14,7 @@ fn main() {
         duration: Duration::GeneratedTrack,
         ..Default::default()
     };
-    let mut song = Song::new(vec![track], config);
+    let mut song = Song::new(vec![track.into()], config);
     song.play().expect("Unable to play song");
 }
 

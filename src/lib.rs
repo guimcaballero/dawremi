@@ -18,7 +18,7 @@ fn main() {
         ..Default::default()
     };
     let mut song = Song::new(
-        vec![|song| noise::noise(3333, song.duration().unwrap()).into_frames()],
+        vec_into![|song: &Song| noise::noise(3333, song.duration().unwrap()).into_frames()],
         config
     );
     // Uncomment the following line to play the song

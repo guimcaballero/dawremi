@@ -86,6 +86,19 @@ macro_rules! note_option {
 }
 
 #[macro_export]
+macro_rules! vec_into {
+    ( $( $x:expr ),* $(,)?) => {
+        {
+            let mut temp_vec: Vec<TrackGenerator> = Vec::new();
+            $(
+                temp_vec.push($x.into());
+            )*
+                temp_vec
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! pattern {
     // With a function that takes a note
     ($self:ident, note: $note:ident, repetitions: $rep:expr, $( beat: $beat:expr, $(note: $subnote:ident,)? fun: $fun:expr, pat: ( $($x:tt)* ), )* ) => {

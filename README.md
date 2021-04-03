@@ -34,7 +34,7 @@ fn main() {
         duration: Duration::Beats(16.),
         ..Default::default()
     };
-    let mut song = Song::new(vec![plucked_track, other_track], config);
+    let mut song = Song::new(vec_into![plucked_track, other_track], config);
     // Uncomment the following line to play the song
     // song.play().expect("Unable to play song");
 }

@@ -10,8 +10,38 @@ use anyhow::Result;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-// TODO Replace with something that accepts closures
-type TrackGenerator = fn(&Song) -> Vec<Frame>;
+pub enum TrackGenerator {
+    Fn(Box<dyn Fn(&Song) -> Vec<Frame>>),
+    FnMut(Box<Mutex<dyn Fn(&Song) -> Vec<Frame>>>),
+    Song(Mutex<Song>),
+}
+impl TrackGenerator {
+    fn call(&self, song: &Song) -> Vec<Frame> {
+        match self {
+            Self::Fn(f) => f(song),
+            Self::FnMut(f) => {
+                let f = f.lock().unwrap();
+                f(song)
+            }
+            Self::Song(other) => {
+                let mut other = other.lock().unwrap();
+                other.generate(song.sample_rate.expect("Sample rate should have been set"));
+                // TODO Change this to return a reference?
+                other.generated.clone().unwrap()
+            }
+        }
+    }
+}
+impl<F: 'static + (Fn(&Song) -> Vec<Frame>)> From<F> for TrackGenerator {
+    fn from(f: F) -> Self {
+        Self::Fn(Box::new(f))
+    }
+}
+impl From<Song> for TrackGenerator {
+    fn from(song: Song) -> Self {
+        Self::Song(Mutex::from(song))
+    }
+}
 
 pub struct SongConfig {
     pub name: String,
@@ -204,7 +234,7 @@ impl Song {
         let mut tracks = vec![];
         let generators = &self.tracks;
         for track in generators {
-            tracks.push(track(&self));
+            tracks.push(track.call(&self));
         }
 
         let tracks = join_tracks(tracks);
@@ -271,22 +301,26 @@ mod test {
 
     #[test]
     fn can_create_track_generators() {
-        let _track_gen: TrackGenerator = |song| {
+        let _track_gen: TrackGenerator = (|song: &Song| {
             // Can use some functions
-            let _beat = song.beats(1.);
+            let beat = song.beats(1.);
             let _sound = song.sound("ehllo".into());
 
-            vec![Frame::mono(1.)]
-        };
-        let _track_gen: TrackGenerator = test_generator;
+            vec![Frame::mono(beat as f64)]
+        })
+        .into();
+        let _track_gen: TrackGenerator = test_generator.into();
+
+        let vec = vec![Frame::default(); 100];
+        let _track_gen: TrackGenerator = (move |_song: &Song| vec.clone()).into();
 
         assert!(true);
     }
 
     #[test]
     fn can_generate_song() {
-        let track_gen: TrackGenerator = |_song| vec![Frame::mono(1.); 100];
-        let mut song = Song::new(vec![track_gen, test_generator], SongConfig::default());
+        let track_gen: TrackGenerator = (|_song: &Song| vec![Frame::mono(1.); 100]).into();
+        let mut song = Song::new(vec_into![track_gen, test_generator], SongConfig::default());
 
         song.generate(44_100);
 
@@ -355,27 +389,26 @@ mod test {
             duration: Duration::Samples(23),
             ..Default::default()
         };
-        let mut song = Song::new(vec![|_song| vec![Frame::default(); 100]], config);
+        let mut song = Song::new(
+            vec_into![|_song: &Song| vec![Frame::default(); 100]],
+            config,
+        );
         song.generate(44_100);
 
         let audio = song.generated().unwrap();
         assert_eq!(23, audio.len());
     }
 
-    // TODO Fix this test
-    // #[test]
-    // fn can_compose_songs() {
-    //     let inner_song = Song::new(
-    //         vec![|_song| vec![Frame::default(); 100]],
-    //         SongConfig::default(),
-    //     );
+    #[test]
+    fn can_compose_songs() {
+        let inner_song = Song::new(
+            vec_into![|_song: &Song| vec![Frame::default(); 100]],
+            SongConfig::default(),
+        );
 
-    //     let song = Song::new(
-    //         vec![|_song| vec![Frame::default(); 100], |song: &Song| {
-    //             inner_song.generate(song.sample_rate.expect("Sample rate should have been set"));
-    //             inner_song.generated.unwrap()
-    //         }],
-    //         SongConfig::default(),
-    //     );
-    // }
+        let _song = Song::new(
+            vec_into![|_song: &Song| vec![Frame::default(); 100], inner_song,],
+            SongConfig::default(),
+        );
+    }
 }
