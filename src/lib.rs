@@ -8,39 +8,21 @@ To use Dawremi, declare a struct using the `song!()` macro, and implement the `S
 ```
 #[macro_use]
 extern crate dawremi;
-
 use dawremi::prelude::*;
 
 fn main() {
-let mut song = DemoSong::default();
-// Uncomment the following line to play the song through your speakers
-// song.play().expect("Unable to play song");
-}
-
-song!(DemoSong,);
-
-impl Song for DemoSong {
-    /// Display name for the song
-    fn name(&self) -> &'static str {
-        "Your song's title"
-    }
-
-    /// Song's beats per minute
-    fn bpm(&self) -> usize {
-        120
-    }
-
-    /// Song's duration (in samples)
-    fn duration(&self) -> Option<usize> {
-        Some(self.beats(16.))
-    }
-
-    /// List of tracks on this song. Each track is just a list of samples (Vec<Frame>)
-    /// All of the tracks will be mixed equally
-    fn tracks(&mut self) -> Vec<Vec<Frame>> {
-        // Just one track, full of noise
-        vec![noise::noise(3333, self.duration().unwrap()).into_frames()]
-    }
+    let config = SongConfig {
+        name: "Demo song".to_string(),
+        bpm: 120.,
+        duration: Duration::Beats(16.),
+        ..Default::default()
+    };
+    let mut song = Song::new(
+        vec![|song| noise::noise(3333, song.duration().unwrap()).into_frames()],
+        config
+    );
+    // Uncomment the following line to play the song
+    // song.play().expect("Unable to play song");
 }
 ```
 

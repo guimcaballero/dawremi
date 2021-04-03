@@ -1,56 +1,38 @@
-/// This example demonstrates how to create a simple effect
-/// We'll be making a copy of the builtin `Volume` effect
+//! This example demonstrates how to create a simple effect
+//! We'll be making a copy of the builtin `Volume` effect
 
-#[macro_use]
-extern crate dawremi;
 use dawremi::prelude::*;
 
 fn main() {
-    let mut song = CustomEffectSong::default();
+    let config = SongConfig {
+        name: "Custom effects".to_string(),
+        bpm: 120.,
+        duration: Duration::Seconds(10.),
+        ..Default::default()
+    };
+    let mut song = Song::new(vec![noise], config);
     song.play().expect("Unable to play song");
 }
 
-song!(CustomEffectSong,);
+fn noise(song: &Song) -> Vec<Frame> {
+    // We'll be making a noise track, and we'll apply our effect twice
+    // First time will be with a constant value as multiplier
+    // Second time will be with a sine wave of constant frequency
 
-impl Song for CustomEffectSong {
-    fn name(&self) -> &'static str {
-        "Custom effect"
-    }
-
-    fn bpm(&self) -> usize {
-        120
-    }
-
-    fn duration(&self) -> Option<usize> {
-        Some(self.seconds(10.))
-    }
-
-    fn tracks(&mut self) -> Vec<Vec<Frame>> {
-        vec![self.noise()]
-    }
-}
-
-impl CustomEffectSong {
-    fn noise(&self) -> Vec<Frame> {
-        // We'll be making a noise track, and we'll apply our effect twice
-        // First time will be with a constant value as multiplier
-        // Second time will be with a sine wave of constant frequency
-
-        noise::noise(3333, self.duration().unwrap())
-            .into_frames()
-            .effect(&MyCustomEffect {
-                mult: Automation::Const(0.5),
-            })
-            .effect(&MyCustomEffect {
-                mult: Automation::Vec(waves::sine(
-                    self.duration().unwrap(),
-                    // This second parameter is also an automation, so we could modify it
-                    // with an `Automation::Vec`
-                    Automation::Const(self.frequency(0.5)),
-                    self.get_sample_rate(),
-                )),
-            })
-    }
+    noise::noise(3333, song.duration().unwrap())
+        .into_frames()
+        .effect(&MyCustomEffect {
+            mult: Automation::Const(0.5),
+        })
+        .effect(&MyCustomEffect {
+            mult: Automation::Vec(waves::sine(
+                song.duration().unwrap(),
+                // This second parameter is also an automation, so we could modify it
+                // with an `Automation::Vec`
+                Automation::Const(1.),
+                song.sample_rate() as f64,
+            )),
+        })
 }
 
 /// My amazing custom effect

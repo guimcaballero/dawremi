@@ -1,7 +1,7 @@
 use crate::song::Song;
 use std::io::stdin;
 
-pub fn select_song(mut songs: Vec<Box<dyn Song>>) -> Box<dyn Song> {
+pub fn select_song(mut songs: Vec<Song>) -> Song {
     println!("Select a song:");
 
     for (idx, song) in songs.iter().enumerate() {

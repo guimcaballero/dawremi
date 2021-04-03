@@ -33,7 +33,7 @@ impl Effect for EffectBundle {
 }
 
 #[derive(Debug, Clone)]
-pub enum Automation<T> {
+pub enum Automation<T: Default + Clone> {
     Const(T),
     Vec(Vec<T>),
 }
@@ -49,6 +49,11 @@ impl<T: Default + Clone> Automation<T> {
                 }
             }
         }
+    }
+}
+impl<T: Default + Clone> Default for Automation<T> {
+    fn default() -> Self {
+        Automation::Const(T::default())
     }
 }
 
