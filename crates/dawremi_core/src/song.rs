@@ -12,7 +12,7 @@ use std::sync::Mutex;
 
 pub enum TrackGenerator {
     Fn(Box<dyn Fn(&Song) -> Vec<Frame>>),
-    FnMut(Box<Mutex<dyn Fn(&Song) -> Vec<Frame>>>),
+    FnMut(Box<Mutex<dyn FnMut(&Song) -> Vec<Frame>>>),
     Song(Mutex<Song>),
 }
 impl TrackGenerator {
@@ -20,7 +20,7 @@ impl TrackGenerator {
         match self {
             Self::Fn(f) => f(song),
             Self::FnMut(f) => {
-                let f = f.lock().unwrap();
+                let mut f = f.lock().unwrap();
                 f(song)
             }
             Self::Song(other) => {
@@ -32,9 +32,10 @@ impl TrackGenerator {
         }
     }
 }
-impl<F: 'static + (Fn(&Song) -> Vec<Frame>)> From<F> for TrackGenerator {
+
+impl<F: 'static + (FnMut(&Song) -> Vec<Frame>)> From<F> for TrackGenerator {
     fn from(f: F) -> Self {
-        Self::Fn(Box::new(f))
+        Self::FnMut(Box::new(Mutex::from(f)))
     }
 }
 impl From<Song> for TrackGenerator {
@@ -407,8 +408,29 @@ mod test {
         );
 
         let _song = Song::new(
-            vec_into![|_song: &Song| vec![Frame::default(); 100], inner_song,],
+            vec_into![|_song: &Song| vec![Frame::default(); 100], inner_song],
             SongConfig::default(),
         );
+    }
+
+    #[test]
+    fn can_use_song_as_part_of_track() {
+        let mut inner_song = Song::new(
+            vec_into![|_song: &Song| vec![Frame::default(); 100]],
+            SongConfig::default(),
+        );
+
+        let mut song = Song::new(
+            vec_into![move |song: &Song| {
+                let vec = vec![Frame::mono(1.); 100];
+
+                inner_song.generate(song.sample_rate());
+                vec.chain(inner_song.generated.clone().unwrap())
+            }],
+            SongConfig::default(),
+        );
+        song.generate(44_100);
+
+        assert_eq!(200, song.generated().as_ref().unwrap().len());
     }
 }
