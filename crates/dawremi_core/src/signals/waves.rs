@@ -9,15 +9,15 @@ pub fn sine_one_period(length: usize) -> Vec<f64> {
 }
 
 /// Generates a sine wave of frequency
-pub fn sine(length: usize, frequency: Automation<f64>, sample_rate: f64) -> Vec<f64> {
-    let a = 2.0 * PI / sample_rate;
+pub fn sine(length: usize, frequency: Automation<f64>, sample_rate: u32) -> Vec<f64> {
+    let a = 2.0 * PI / sample_rate as f64;
 
     (0..length)
         .map(|i| f64::sin((i as f64) * a * frequency.value(i)))
         .collect()
 }
 
-pub fn square(length: usize, frequency: Automation<f64>, sample_rate: f64) -> Vec<f64> {
+pub fn square(length: usize, frequency: Automation<f64>, sample_rate: u32) -> Vec<f64> {
     sine(length, frequency, sample_rate)
         .iter()
         .map(|val| val.signum())
@@ -46,7 +46,7 @@ mod test {
 
     #[test]
     fn can_create_sine() {
-        let noise = sine(10, Automation::Const(0.1), 48000.);
+        let noise = sine(10, Automation::Const(0.1), 48000);
 
         assert_eq!(10, noise.len());
     }

@@ -30,7 +30,7 @@ fn noise(song: &Song) -> Vec<Frame> {
                 // This second parameter is also an automation, so we could modify it
                 // with an `Automation::Vec`
                 Automation::Const(1.),
-                song.sample_rate() as f64,
+                song.sample_rate(),
             )),
         })
 }

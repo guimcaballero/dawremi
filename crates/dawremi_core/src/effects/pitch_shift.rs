@@ -5,7 +5,7 @@ use super::*;
 use pvoc::{Bin, PhaseVocoder};
 
 pub struct PitchShift {
-    pub sample_rate: f64,
+    pub sample_rate: u32,
     pub shift: Frame,
 }
 
@@ -21,7 +21,7 @@ impl Effect for PitchShift {
 }
 
 fn run(pitch: &PitchShift, input: Vec<f64>, shift: f64) -> Vec<f64> {
-    let mut pvoc = PhaseVocoder::new(1, pitch.sample_rate, 256, 4);
+    let mut pvoc = PhaseVocoder::new(1, pitch.sample_rate as f64, 256, 4);
     let mut output = vec![0.0; input.len()];
 
     pvoc.process(

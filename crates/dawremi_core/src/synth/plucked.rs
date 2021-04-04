@@ -37,8 +37,8 @@ impl InitialBurstType {
 
 impl Plucked {
     #[allow(dead_code)]
-    pub fn new(burst: InitialBurstType, frequency: Frequency, sample_rate: f64) -> Self {
-        let noise_length = (sample_rate / frequency.0) as usize;
+    pub fn new(burst: InitialBurstType, frequency: Frequency, sample_rate: u32) -> Self {
+        let noise_length = (sample_rate as f64 / frequency.0) as usize;
         let noise = burst.noise(noise_length);
         Self {
             frequency,

@@ -8,10 +8,10 @@ use std::f64::consts::TAU;
 
 pub struct Synth {
     pub instrument: Box<dyn SynthInstrument>,
-    pub sample_rate: f64,
+    pub sample_rate: u32,
 }
 impl Synth {
-    pub fn new(instrument: Box<dyn SynthInstrument>, sample_rate: f64) -> Self {
+    pub fn new(instrument: Box<dyn SynthInstrument>, sample_rate: u32) -> Self {
         Self {
             instrument,
             sample_rate,
@@ -116,13 +116,13 @@ macro_rules! simple_instrument {
         #[derive(Clone, Copy)]
         pub struct $name {
             frequency: Frequency,
-            sample_rate: f64,
+            sample_rate: u32,
             sample: usize,
         }
 
         impl $name {
             #[allow(dead_code)]
-            pub fn new(frequency: Frequency, sample_rate: f64) -> Self {
+            pub fn new(frequency: Frequency, sample_rate: u32) -> Self {
                 Self {
                     frequency,
                     sample_rate,
@@ -136,7 +136,7 @@ macro_rules! simple_instrument {
                 self.sample as f64
             }
             fn sample_rate(&self) -> f64 {
-                self.sample_rate
+                self.sample_rate as f64
             }
             fn increase_sample(&mut self) {
                 self.sample += 1;
@@ -151,7 +151,7 @@ macro_rules! instrument {
         #[derive(Clone)]
         pub struct $name {
             frequency: Frequency,
-            sample_rate: f64,
+            sample_rate: u32,
             sample: usize,
             $( $id: $type, )*
         }
@@ -161,7 +161,7 @@ macro_rules! instrument {
                 self.sample as f64
             }
             fn sample_rate(&self) -> f64 {
-                self.sample_rate
+                self.sample_rate as f64
             }
             fn increase_sample(&mut self) {
                 self.sample += 1;

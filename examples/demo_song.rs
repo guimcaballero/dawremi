@@ -45,12 +45,8 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
 /// This is a helper function
 fn plucked(song: &Song, frequency: impl Into<Frequency>, burst: InitialBurstType) -> Synth {
     Synth::new(
-        Box::new(Plucked::new(
-            burst,
-            frequency.into(),
-            song.sample_rate() as f64,
-        )),
-        song.sample_rate() as f64,
+        Box::new(Plucked::new(burst, frequency.into(), song.sample_rate())),
+        song.sample_rate(),
     )
 }
 

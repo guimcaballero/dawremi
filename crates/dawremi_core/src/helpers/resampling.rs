@@ -30,14 +30,14 @@ pub fn stretch_frames(frames: Vec<Frame>, factor: f64) -> Vec<Frame> {
     join_left_and_right_channels(left, right)
 }
 
-pub fn resample(frames: Vec<f64>, old_sample_rate: f64, new_sample_rate: f64) -> Vec<f64> {
-    stretch(frames, new_sample_rate / old_sample_rate)
+pub fn resample(frames: Vec<f64>, old_sample_rate: u32, new_sample_rate: u32) -> Vec<f64> {
+    stretch(frames, new_sample_rate as f64 / old_sample_rate as f64)
 }
 
 pub fn resample_frames(
     frames: Vec<Frame>,
-    old_sample_rate: f64,
-    new_sample_rate: f64,
+    old_sample_rate: u32,
+    new_sample_rate: u32,
 ) -> Vec<Frame> {
     // Get each side
     let (left, right) = frames.split_sides();
@@ -57,7 +57,7 @@ mod test {
     #[test]
     fn can_resample_vector() {
         let smth = vec![0., 1., 1., 0.5, 0.];
-        let result = resample(smth, 1., 2.);
+        let result = resample(smth, 1, 2);
 
         assert_eq!(vec![0., 0.5, 1., 1., 1., 0.75, 0.5, 0.25, 0., 0.], result);
     }

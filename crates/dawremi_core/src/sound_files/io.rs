@@ -93,7 +93,7 @@ fn resample_and_save(
         spec.bits_per_sample,
     );
 
-    let vec = resample_frames(orig, spec.sample_rate as f64, sample_rate as f64);
+    let vec = resample_frames(orig, spec.sample_rate, sample_rate);
 
     save_file(&vec, &processed_filename, sample_rate, 24);
 

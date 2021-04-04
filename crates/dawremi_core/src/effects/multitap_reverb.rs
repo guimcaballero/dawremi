@@ -7,9 +7,9 @@ pub struct MultitapReverb {
     max_buffer: usize,
 }
 impl MultitapReverb {
-    pub fn new(sample_rate: f64) -> Self {
-        fn seconds(x: f64, sample_rate: f64) -> usize {
-            (sample_rate * x) as usize
+    pub fn new(sample_rate: u32) -> Self {
+        fn seconds(x: f64, sample_rate: u32) -> usize {
+            (sample_rate as f64 * x) as usize
         }
 
         let taps = vec![
@@ -76,7 +76,7 @@ mod test {
 
     #[test]
     fn it_works_with_0s() {
-        let smth = vec![Frame::default(); 100].effect(&MultitapReverb::new(10.));
+        let smth = vec![Frame::default(); 100].effect(&MultitapReverb::new(10));
 
         assert_eq!(smth, vec![Frame::default(); 100])
     }

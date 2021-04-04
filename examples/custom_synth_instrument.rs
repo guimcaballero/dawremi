@@ -29,8 +29,8 @@ fn track(song: &Song) -> Vec<Frame> {
 
 fn instrument(song: &Song, frequency: impl Into<Frequency>) -> Synth {
     Synth::new(
-        Box::new(Sine::new(frequency.into(), song.sample_rate() as f64)),
-        song.sample_rate() as f64,
+        Box::new(Sine::new(frequency.into(), song.sample_rate())),
+        song.sample_rate(),
     )
 }
 

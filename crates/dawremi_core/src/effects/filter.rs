@@ -7,7 +7,7 @@ use core::f64::consts::PI;
 pub struct Filter {
     pub mode: FilterMode,
 
-    pub sample_rate: f64,
+    pub sample_rate: u32,
 
     /// The cutoff frequency of the filter (in hertz).
     pub cutoff: Automation<f64>,
@@ -46,7 +46,7 @@ fn run(filter: &Filter, input: Vec<f64>) -> Vec<f64> {
         .iter()
         .enumerate()
         .map(|(idx, val)| {
-            let g = (PI * (filter.cutoff.value(idx) / filter.sample_rate)).tan();
+            let g = (PI * (filter.cutoff.value(idx) / filter.sample_rate as f64)).tan();
             let k = 2.0 - (1.9 * filter.resonance.value(idx).min(1.0).max(0.0));
 
             let a1 = 1.0 / (1.0 + (g * (g + k)));
