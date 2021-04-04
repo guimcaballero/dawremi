@@ -1,4 +1,6 @@
-use dawremi_core::prelude::Frame;
+//! This module contains methods to help with understanding what goes on in your songs
+
+use crate::frame::Frame;
 
 use open;
 use std::fs::File;

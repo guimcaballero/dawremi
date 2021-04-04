@@ -562,7 +562,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "dawremi_core",
- "dawremi_debug",
 ]
 
 [[package]]
@@ -576,20 +575,13 @@ dependencies = [
  "hound",
  "num",
  "num-integer",
+ "open",
  "pitch-detection",
  "pvoc",
  "rand",
  "realfft",
  "rustfft 5.0.1",
  "walkdir",
-]
-
-[[package]]
-name = "dawremi_debug"
-version = "0.1.0"
-dependencies = [
- "dawremi_core",
- "open",
 ]
 
 [[package]]

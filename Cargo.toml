@@ -13,4 +13,3 @@ members = [
 anyhow = "1.0.34"
 
 dawremi_core = { path = "./crates/dawremi_core" }
-dawremi_debug = { path = "./crates/dawremi_debug" }

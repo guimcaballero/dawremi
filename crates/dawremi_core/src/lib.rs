@@ -1,6 +1,7 @@
 #[macro_use]
 pub mod helpers;
 
+pub mod debug;
 pub mod effects;
 pub mod frame;
 pub mod notes;

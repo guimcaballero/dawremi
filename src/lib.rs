@@ -42,11 +42,6 @@ examples to get an idea of how to use the crate.
 #![warn(clippy::wrong_pub_self_convention, clippy::unseparated_literal_suffix)]
 
 pub use dawremi_core::*;
-pub mod debug {
-    //! This module contains methods to help with understanding what goes on in your songs
-
-    pub use dawremi_debug::*;
-}
 
 // The following makes it so `cargo test --all` also tests the Readme code
 // From https://github.com/rust-lang/cargo/issues/383#issuecomment-720873790
