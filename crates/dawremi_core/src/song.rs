@@ -253,7 +253,7 @@ impl Song {
                 .take_samples(self.beats(0.2))
                 .chain(silence().take_samples(self.beats(0.8)))
                 .cycle_until_samples(vec.len());
-            vec = vec.add(metronome);
+            vec = vec.add(&metronome);
         }
 
         // If a duration was specified, take that number of samples

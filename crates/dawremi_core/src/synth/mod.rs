@@ -54,7 +54,7 @@ impl Synth {
 
         assert_eq!(vec.len(), volume_without_release.len());
 
-        vec.multiply(volume_without_release)
+        vec.multiply(&volume_without_release)
     }
 }
 

@@ -39,10 +39,10 @@ pub trait VecFrameExtension {
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame>;
 
     // Adds the samples in each side
-    fn add(self, other: Vec<Frame>) -> Vec<Frame>;
+    fn add(self, other: &[Frame]) -> Vec<Frame>;
 
     // Multiplies the samples in each side
-    fn multiply(self, other: Vec<Frame>) -> Vec<Frame>;
+    fn multiply(self, other: &[Frame]) -> Vec<Frame>;
 
     // Multiplies the samples in each side
     fn to_mono(self) -> Vec<f64>;
@@ -114,11 +114,11 @@ impl VecFrameExtension for Vec<Frame> {
         self.into_iter().cycle().take(samples).collect()
     }
 
-    fn add(self, other: Vec<Frame>) -> Vec<Frame> {
+    fn add(self, other: &[Frame]) -> Vec<Frame> {
         self.iter().zip(other.iter()).map(|(a, b)| a + b).collect()
     }
 
-    fn multiply(self, other: Vec<Frame>) -> Vec<Frame> {
+    fn multiply(self, other: &[Frame]) -> Vec<Frame> {
         self.iter().zip(other.iter()).map(|(a, b)| a * b).collect()
     }
 
