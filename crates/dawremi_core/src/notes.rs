@@ -2,21 +2,7 @@
 
 use std::convert::TryFrom;
 
-#[derive(Clone, Copy, Debug)]
-pub struct Frequency(pub f64);
-impl Frequency {
-    pub fn up_an_octave(&self) -> Self {
-        Self(self.0 * 2.)
-    }
-    pub fn down_an_octave(&self) -> Self {
-        Self(self.0 / 2.)
-    }
-}
-impl From<f64> for Frequency {
-    fn from(freq: f64) -> Self {
-        Self(freq)
-    }
-}
+pub type Frequency = f64;
 
 pub mod n_tet {
     // Some microtonal stuff
@@ -57,7 +43,7 @@ pub mod n_tet {
             let initial = 2.0_f64.powf(note.0 as f64 / N as f64);
 
             let c4f: Frequency = Note::C4.into();
-            Self(c4f.0 * initial)
+            c4f * initial
         }
     }
 
@@ -69,7 +55,7 @@ pub mod n_tet {
             ($freq:expr, $note:tt) => {
                 let note: Frequency = Note::$note.into();
                 let freq: Frequency = $freq.into();
-                assert_eq!(format!("{:.4}", note.0), format!("{:.4}", freq.0));
+                assert_eq!(format!("{:.4}", note), format!("{:.4}", freq));
             };
         }
 
@@ -107,7 +93,7 @@ impl From<Note> for Frequency {
     fn from(note: Note) -> Self {
         let n = note as i16;
         let a: f64 = 2.0_f64.powf(n as f64 / 12.);
-        Self(440.0 * a)
+        440. * a
     }
 }
 
@@ -473,7 +459,7 @@ mod test {
     macro_rules! check_freq_note {
         ( $freq:expr, $note:tt) => {
             let note: Frequency = Note::$note.into();
-            assert_eq!(format!("{:.2}", note.0), format!("{:.2}", $freq));
+            assert_eq!(format!("{:.2}", note), format!("{:.2}", $freq));
         };
     }
 

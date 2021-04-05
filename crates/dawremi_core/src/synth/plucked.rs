@@ -1,4 +1,5 @@
 use super::*;
+use crate::notes::Frequency;
 use crate::signals::interpolation::interpolate;
 use crate::signals::noise::noise;
 use crate::signals::waves::sine_one_period;
@@ -38,7 +39,7 @@ impl InitialBurstType {
 impl Plucked {
     #[allow(dead_code)]
     pub fn new(burst: InitialBurstType, frequency: Frequency, sample_rate: u32) -> Self {
-        let noise_length = (sample_rate as f64 / frequency.0) as usize;
+        let noise_length = (sample_rate as f64 / frequency) as usize;
         let noise = burst.noise(noise_length);
         Self {
             frequency,

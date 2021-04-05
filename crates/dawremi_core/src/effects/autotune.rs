@@ -46,7 +46,7 @@ impl Effect for Autotune {
                         };
 
                         // Return the shifting needed to bring current_pitch to change_to
-                        change_to.0 / current_pitch
+                        change_to / current_pitch
                     },
                     {
                         let current_pitch = detect(chunk.right(), self.sample_rate).unwrap_or(440.);
@@ -55,7 +55,7 @@ impl Effect for Autotune {
                         } else {
                             Note::closest_to_frequency(current_pitch).into()
                         };
-                        change_to.0 / current_pitch
+                        change_to / current_pitch
                     },
                 );
 

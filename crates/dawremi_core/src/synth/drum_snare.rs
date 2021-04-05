@@ -20,7 +20,7 @@ impl SynthInstrument for DrumSnare {
         let time = TAU * self.time();
 
         let result = 0.5
-            * (self.frequency.0 * time + a_lfo * self.frequency.0 * (f_lfo * time).sin()).sin()
+            * (self.frequency * time + a_lfo * self.frequency * (f_lfo * time).sin()).sin()
             + 0.5 * rand::thread_rng().gen_range(-0.8, 0.8);
 
         Frame::mono(result)

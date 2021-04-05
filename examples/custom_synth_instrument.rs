@@ -55,7 +55,7 @@ impl SynthInstrument for Sine {
         // self.time(), which is sample / sample_rate
         // self.seconds(x), which will return the number of samples needed to pass x seconds
 
-        let result = (TAU * self.frequency.0 * self.time()).sin();
+        let result = (TAU * self.frequency * self.time()).sin();
         Frame::mono(result)
     }
 }

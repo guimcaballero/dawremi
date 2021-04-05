@@ -20,7 +20,7 @@ impl SynthInstrument for DrumKick {
         let time = TAU * self.time();
 
         let result = 0.99
-            * (self.frequency.0 * time + a_lfo * self.frequency.0 * (f_lfo * time).sin()).sin()
+            * (self.frequency * time + a_lfo * self.frequency * (f_lfo * time).sin()).sin()
             + 0.01 * rand::thread_rng().gen_range(-1., 1.);
 
         Frame::mono(result)

@@ -19,14 +19,12 @@ impl SynthInstrument for DrumHiHat {
 
         let time = TAU * self.time();
 
-        let square = if (self.frequency.0 * time + a_lfo * self.frequency.0 * (f_lfo * time).sin())
-            .sin()
-            > 0.
-        {
-            1.
-        } else {
-            -1.
-        };
+        let square =
+            if (self.frequency * time + a_lfo * self.frequency * (f_lfo * time).sin()).sin() > 0. {
+                1.
+            } else {
+                -1.
+            };
 
         let result = 0.1 * square + 0.9 * rand::thread_rng().gen_range(-1., 1.);
 
