@@ -34,9 +34,12 @@ impl Effect for EffectBundle {
 
 #[derive(Debug, Clone)]
 pub enum Automation<T: Default + Clone> {
+    /// Always returns the same value
     Const(T),
+    /// Will return each value of the vec in order, and after that will return T::default()
     Vec(Vec<T>),
-    // TODO Add Looping(Vec<T>) which does mod
+    /// Will return each value of the vec in order, looping back to the beginning once it's done
+    Loop(Vec<T>),
 }
 impl<T: Default + Clone> Automation<T> {
     pub fn value(&self, idx: usize) -> T {
@@ -49,6 +52,7 @@ impl<T: Default + Clone> Automation<T> {
                     T::default()
                 }
             }
+            Self::Loop(vec) => vec[idx % vec.len()].clone(),
         }
     }
 }
@@ -103,5 +107,29 @@ mod test {
 
         let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());
+    }
+
+    #[test]
+    fn const_automation() {
+        let a = Automation::Const(4.);
+
+        let vec: Vec<f64> = (0..10).map(|idx| a.value(idx)).collect();
+        assert_eq!(vec![4.; 10], vec);
+    }
+
+    #[test]
+    fn vec_automation() {
+        let a = Automation::Vec(vec![0., 1., 2., 3., 4.]);
+
+        let vec: Vec<f64> = (0..10).map(|idx| a.value(idx)).collect();
+        assert_eq!(vec![0., 1., 2., 3., 4., 0., 0., 0., 0., 0.], vec);
+    }
+
+    #[test]
+    fn loop_automation() {
+        let a = Automation::Loop(vec![0., 1., 2., 3., 4.]);
+
+        let vec: Vec<f64> = (0..10).map(|idx| a.value(idx)).collect();
+        assert_eq!(vec![0., 1., 2., 3., 4., 0., 1., 2., 3., 4.,], vec);
     }
 }
