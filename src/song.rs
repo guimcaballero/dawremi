@@ -185,6 +185,12 @@ impl Song {
         self.generated.as_deref()
     }
 
+    pub fn debug(&self, filename: &str, open_in_browser: bool) {
+        if let Some(vec) = self.generated() {
+            crate::debug::debug_frames_vec_web(vec, filename, open_in_browser)
+        }
+    }
+
     // Mutable methods
 
     /// Saves this song to a file
