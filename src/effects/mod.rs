@@ -36,6 +36,7 @@ impl Effect for EffectBundle {
 pub enum Automation<T: Default + Clone> {
     Const(T),
     Vec(Vec<T>),
+    // TODO Add Looping(Vec<T>) which does mod
 }
 impl<T: Default + Clone> Automation<T> {
     pub fn value(&self, idx: usize) -> T {

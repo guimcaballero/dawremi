@@ -52,8 +52,7 @@ macro_rules! test_enum {
                 let path: &str = item.into();
 
                 let dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-                let parent = dir.parent().unwrap().parent().unwrap();
-                let p = parent.join(path);
+                let p = dir.join(path);
 
                 assert!(p.as_path().exists());
             }
@@ -236,8 +235,7 @@ mod test {
         let path: Sound = Metronome.into();
 
         let dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-        let parent = dir.parent().unwrap().parent().unwrap();
-        let p = parent.join(path.path);
+        let p = dir.join(path.path);
 
         assert!(p.as_path().exists());
     }

@@ -41,8 +41,6 @@ examples to get an idea of how to use the crate.
 #![allow(clippy::wildcard_imports, clippy::enum_glob_use)]
 #![warn(clippy::wrong_pub_self_convention, clippy::unseparated_literal_suffix)]
 
-pub use dawremi_core::*;
-
 // The following makes it so `cargo test --all` also tests the Readme code
 // From https://github.com/rust-lang/cargo/issues/383#issuecomment-720873790
 
@@ -56,4 +54,38 @@ mod test_readme {
     }
 
     external_doc_test!(include_str!("../README.md"));
+}
+
+// Modules
+
+#[macro_use]
+pub mod helpers;
+
+pub mod debug;
+pub mod effects;
+pub mod frame;
+pub mod notes;
+pub mod player;
+pub mod record;
+pub mod select;
+pub mod signals;
+pub mod song;
+pub mod sound_files;
+pub mod synth;
+
+// Prelude
+
+pub mod prelude {
+    //! The prelude exports almost everything, so it can be imported easily
+
+    pub use std::collections::HashMap;
+
+    pub use super::effects::*;
+    pub use super::frame::*;
+    pub use super::helpers::*;
+    pub use super::notes::{n_tet::*, *};
+    pub use super::signals::{asdr::Asdr, *};
+    pub use super::song::*;
+    pub use super::sound_files::{enums::*, io::*, Sound};
+    pub use super::synth::*;
 }
