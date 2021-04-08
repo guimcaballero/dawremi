@@ -1,3 +1,4 @@
+use crate::effects::Automation;
 use crate::frame::*;
 use crate::helpers::join_tracks;
 use crate::helpers::silence;
@@ -146,15 +147,18 @@ impl<'a> NoteList<'a> for Vec<Vec<Note>> {
 fn generate_frequency_list(
     list: &[Vec<Frequency>],
     fun: &mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
-    length: usize,
+    length: Automation<usize>,
 ) -> Vec<Frame> {
     let mut vec: Vec<Frame> = Vec::new();
-    for note_list in list {
+    for (idx, note_list) in list.iter().enumerate() {
         if note_list.is_empty() {
-            silence().take_samples(length);
+            silence().take_samples(length.value(idx));
         } else {
             vec.append(&mut join_tracks(
-                note_list.iter().map(|note| fun(*note, length)).collect(),
+                note_list
+                    .iter()
+                    .map(|note| fun(*note, length.value(idx)))
+                    .collect(),
             ));
         }
     }
@@ -165,14 +169,14 @@ pub trait IntoFrequencyList<'a> {
     fn generate(
         &self,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
-        length: usize,
+        length: Automation<usize>,
     ) -> Vec<Frame>;
 }
 impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Vec<T>> {
     fn generate(
         &self,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
-        length: usize,
+        length: Automation<usize>,
     ) -> Vec<Frame> {
         let freqs = self.into_freqs();
         generate_frequency_list(&freqs, fun, length)
@@ -182,7 +186,7 @@ impl<'a, T: Clone + Into<Frequency>> IntoFrequencyList<'a> for Vec<Option<T>> {
     fn generate(
         &self,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
-        length: usize,
+        length: Automation<usize>,
     ) -> Vec<Frame> {
         let freqs = self.into_freqs();
         generate_frequency_list(&freqs, fun, length)

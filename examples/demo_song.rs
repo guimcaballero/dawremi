@@ -40,7 +40,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
         // Function to use to generate the audio
         &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
         // Length of each note
-        song.beats(1.),
+        Automation::Const(song.beats(1.)),
     );
 
     // Generate sounds one octave higher
@@ -49,7 +49,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
         .map_notes(Note::up_an_octave)
         .generate(
             &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
-            song.beats(1.),
+            Automation::Const(song.beats(1.)),
         );
 
     // We can use other types of notes too
@@ -59,7 +59,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
     }
     .generate(
         &mut |note, length| guitar(song, note, length, InitialBurstType::Sine),
-        song.beats(1.),
+        Automation::Const(song.beats(1.)),
     );
 
     // We then joing the subtracks into one

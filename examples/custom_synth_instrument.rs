@@ -25,7 +25,7 @@ fn track(song: &Song) -> Vec<Frame> {
     }
     .generate(
         &mut |note, length| instrument(song, note.into(), length),
-        song.beats(1.),
+        Automation::Const(song.beats(1.)),
     )
 }
 
