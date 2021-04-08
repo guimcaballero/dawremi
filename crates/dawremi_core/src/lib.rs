@@ -22,7 +22,7 @@ pub mod prelude {
     pub use super::frame::*;
     pub use super::helpers::*;
     pub use super::notes::{n_tet::*, *};
-    pub use super::signals::*;
+    pub use super::signals::{asdr::Asdr, *};
     pub use super::song::*;
     pub use super::sound_files::{enums::*, io::*, Sound};
     pub use super::synth::*;

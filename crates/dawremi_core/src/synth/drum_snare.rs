@@ -1,11 +1,13 @@
 use super::*;
 
-simple_instrument!(DrumSnare);
-impl SynthInstrument for DrumSnare {
-    fn get_params(&self) -> SynthParams {
-        SynthParams {
+pub struct DrumSnare;
+
+impl Instrument for DrumSnare {
+    fn default_asdr(sample_rate: u32) -> Asdr {
+        let sr = sample_rate as f64;
+        Asdr {
             attack: 0,
-            decay: self.seconds(0.2),
+            decay: (sr * 0.2) as usize,
             release: 0,
 
             attack_amplitude: 0.5,
@@ -13,16 +15,47 @@ impl SynthInstrument for DrumSnare {
         }
     }
 
-    fn frame(&mut self) -> Frame {
-        let a_lfo = 1.;
-        let f_lfo = 0.5;
+    fn generate(
+        &self,
+        length: usize,
+        frequency: Frequency,
+        sample_rate: u32,
+        asdr: Asdr,
+    ) -> Vec<Frame> {
+        let vec: Vec<Frame> = (0..length)
+            .map(|sample| {
+                let a_lfo = 1.;
+                let f_lfo = 0.5;
 
-        let time = TAU * self.time();
+                let time = TAU * (sample as f64 / sample_rate as f64);
 
-        let result = 0.5
-            * (self.frequency * time + a_lfo * self.frequency * (f_lfo * time).sin()).sin()
-            + 0.5 * rand::thread_rng().gen_range(-0.8, 0.8);
+                let result = 0.5
+                    * (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin()
+                    + 0.5 * rand::thread_rng().gen_range(-0.8, 0.8);
 
-        Frame::mono(result)
+                Frame::mono(result)
+            })
+            .collect();
+        vec.multiply(&asdr.generate(length).into_frames())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn can_generate_from_snare() {
+        let sample_rate = 44_100;
+        let vec = DrumSnare.generate(
+            1000,
+            100.,
+            sample_rate,
+            Asdr {
+                attack: 100,
+                ..DrumSnare::default_asdr(sample_rate)
+            },
+        );
+        assert_eq!(1000, vec.len());
     }
 }

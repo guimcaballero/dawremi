@@ -1,11 +1,13 @@
 use super::*;
 
-simple_instrument!(DrumHiHat);
-impl SynthInstrument for DrumHiHat {
-    fn get_params(&self) -> SynthParams {
-        SynthParams {
-            attack: self.seconds(0.01),
-            decay: self.seconds(0.05),
+pub struct DrumHiHat;
+
+impl Instrument for DrumHiHat {
+    fn default_asdr(sample_rate: u32) -> Asdr {
+        let sr = sample_rate as f64;
+        Asdr {
+            attack: (sr * 0.01) as usize,
+            decay: (sr * 0.05) as usize,
             release: 0,
 
             attack_amplitude: 1.,
@@ -13,21 +15,52 @@ impl SynthInstrument for DrumHiHat {
         }
     }
 
-    fn frame(&mut self) -> Frame {
-        let a_lfo = 1.;
-        let f_lfo = 1.;
+    fn generate(
+        &self,
+        length: usize,
+        frequency: Frequency,
+        sample_rate: u32,
+        asdr: Asdr,
+    ) -> Vec<Frame> {
+        let vec: Vec<Frame> = (0..length)
+            .map(|sample| {
+                let a_lfo = 1.;
+                let f_lfo = 1.;
 
-        let time = TAU * self.time();
+                let time = TAU * (sample as f64 / sample_rate as f64);
 
-        let square =
-            if (self.frequency * time + a_lfo * self.frequency * (f_lfo * time).sin()).sin() > 0. {
-                1.
-            } else {
-                -1.
-            };
+                let square =
+                    if (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin() > 0. {
+                        1.
+                    } else {
+                        -1.
+                    };
 
-        let result = 0.1 * square + 0.9 * rand::thread_rng().gen_range(-1., 1.);
+                let result = 0.1 * square + 0.9 * rand::thread_rng().gen_range(-1., 1.);
 
-        Frame::mono(result)
+                Frame::mono(result)
+            })
+            .collect();
+        vec.multiply(&asdr.generate(length).into_frames())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn can_generate_from_snare() {
+        let sample_rate = 44_100;
+        let vec = DrumHiHat.generate(
+            1000,
+            100.,
+            sample_rate,
+            Asdr {
+                attack: 100,
+                ..DrumHiHat::default_asdr(sample_rate)
+            },
+        );
+        assert_eq!(1000, vec.len());
     }
 }

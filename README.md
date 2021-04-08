@@ -23,6 +23,8 @@ svn checkout https://github.com/guimcaballero/dawremi/trunk/assets
 Then, making a new song is easy! You have to create a new struct using the `song!()` macro, and then implement the `Song` trait for that struct. The following is a demo song, copied from `examples/demo_song.rs`:
 
 ```rust
+//! Song to demo Dawremi's features. Sounds horrible, listening is not recommended
+
 #[macro_use]
 extern crate dawremi;
 use dawremi::prelude::*;
@@ -34,52 +36,25 @@ fn main() {
         duration: Duration::Beats(16.),
         ..Default::default()
     };
-    let mut song = Song::new(vec_into![plucked_track, other_track], config);
-    // Uncomment the following line to play the song
+    let mut song = Song::new(vec![plucked_track.into()], config);
+
+    // Uncomment the line below to play the song through your speakers
     // song.play().expect("Unable to play song");
 }
 
-/// This is a track
-fn plucked_track(song: &Song) -> Vec<Frame> {
-    // We ue a macro to play a sequence of notes. Returns a Vec<Frame>
-    sequence!(
-        song,
-        // The lenght of one note in beats
-        len: 1.,
-        // The note representation we want to use. GuitarFretboard simulates a guitar tab,
-        // using the first letter as the string, and the number as the finger position
-        // L is the low e string
-        note: GuitarFretboard,
-        // The function we want to use to generate the sound
-        fun: |note| plucked(song, note, InitialBurstType::Triangle(2, 3)),
-
-        // List of notes. Underscores signal silences
-        L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
-    )
-    // We can chain another sequence
-    .chain(sequence!(
-        song,
-        len: 1., note: GuitarFretboard,
-        fun: |note| plucked(song, note, InitialBurstType::DoubleTriangle),
-
-        L5 L5 _ L8 L8 _ L1 L1 _ L4 L4
-    ))
-}
-
 /// This is a helper function
-fn plucked(song: &Song, frequency: impl Into<Frequency>, burst: InitialBurstType) -> Synth {
-    Synth::new(
-        Box::new(Plucked::new(
-            burst,
-            frequency.into(),
-            song.sample_rate(),
-        )),
+fn guitar(song: &Song, frequency: Frequency, length: usize, burst: InitialBurstType) -> Vec<Frame> {
+    Plucked(burst).generate(
+        length,
+        frequency,
         song.sample_rate(),
+        Plucked::default_asdr(song.sample_rate()),
     )
 }
 
-fn other_track(song: &Song) -> Vec<Frame> {
-    // We can also make a list of notes and manipulate it.
+// This is a track
+fn plucked_track(song: &Song) -> Vec<Frame> {
+    // We can make a list of notes and manipulate it.
     let notes1: Vec<Vec<Note>> = {
         use Note::*;
         // This is equivalent to vec![vec!(A4, C4), vec!(A5), vec!(A6), vec!(), vec!(A6)]
@@ -90,9 +65,7 @@ fn other_track(song: &Song) -> Vec<Frame> {
     // `generate` will transform the notes into sounds
     let sound1 = notes1.generate(
         // Function to use to generate the audio
-        &mut |note, length| {
-            plucked(song, note, InitialBurstType::Triangle(2, 3)).take_samples(length)
-        },
+        &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
         // Length of each note
         song.beats(1.),
     );
@@ -102,9 +75,7 @@ fn other_track(song: &Song) -> Vec<Frame> {
         // We can map over the notes
         .map_notes(Note::up_an_octave)
         .generate(
-            &mut |note, length| {
-                plucked(song, note, InitialBurstType::Triangle(2, 3)).take_samples(length)
-            },
+            &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
             song.beats(1.),
         );
 
@@ -114,19 +85,32 @@ fn other_track(song: &Song) -> Vec<Frame> {
         note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
     }
     .generate(
-        &mut |note, length| plucked(song, note, InitialBurstType::Sine).take_samples(length),
+        &mut |note, length| guitar(song, note, length, InitialBurstType::Sine),
         song.beats(1.),
     );
 
     // We then joing the subtracks into one
-    join_tracks(vec![sound1, sound2, bass])
+    let track = join_tracks(vec![sound1, sound2, bass])
         // We can also add effects to the whole track, like Reverb (using convolution)
         .effect(&Convolution::new(
             song.sound(Reverb::LargeLongEchoHall.into()),
-        ))
-        // Or volume
+        ));
+
+    let track_len = track.len();
+
+    // Effects usually take automations
+    track
         .effect(&Volume {
-            mult: Automation::Const(0.5),
+            // To an automation we can pass a constant value
+            mult: Automation::Const(0.8),
+        })
+        .effect(&Volume {
+            // Or we can pass a vector. In this case, we pass a sine wave
+            mult: Automation::Vec(waves::sine(
+                track_len,
+                Automation::Const(1.),
+                song.sample_rate(),
+            )),
         })
 }
 ```

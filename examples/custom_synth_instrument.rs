@@ -19,27 +19,32 @@ fn main() {
 }
 
 fn track(song: &Song) -> Vec<Frame> {
-    sequence!(
-        song,
-        len: 1., note: Note,
-        fun: |note| instrument(song, note),
-        A1 A2 A3 A4 A5 A6
+    {
+        use Note::*;
+        note_list![[A4, C4], A5, A6, _, A6]
+    }
+    .generate(
+        &mut |note, length| instrument(song, note.into(), length),
+        song.beats(1.),
     )
 }
 
-fn instrument(song: &Song, frequency: impl Into<Frequency>) -> Synth {
-    Synth::new(
-        Box::new(Sine::new(frequency.into(), song.sample_rate())),
+fn instrument(song: &Song, frequency: Frequency, length: usize) -> Vec<Frame> {
+    Sine.generate(
+        length,
+        frequency,
         song.sample_rate(),
+        Sine::default_asdr(song.sample_rate()),
     )
 }
 
-simple_instrument!(Sine);
-impl SynthInstrument for Sine {
-    fn get_params(&self) -> SynthParams {
-        SynthParams {
-            attack: self.seconds(0.01),
-            decay: self.seconds(0.15),
+pub struct Sine;
+impl Instrument for Sine {
+    fn default_asdr(sample_rate: u32) -> Asdr {
+        let sr = sample_rate as f64;
+        Asdr {
+            attack: (sr * 0.01) as usize,
+            decay: (sr * 0.15) as usize,
             release: 0,
 
             attack_amplitude: 1.,
@@ -47,15 +52,21 @@ impl SynthInstrument for Sine {
         }
     }
 
-    fn frame(&mut self) -> Frame {
-        // You have access to:
-        // self.frequency, which is the Frequency from the notes
-        // self.sample(), which is the current number
-        // self.sample_rate(), which is the sample rate
-        // self.time(), which is sample / sample_rate
-        // self.seconds(x), which will return the number of samples needed to pass x seconds
+    fn generate(
+        &self,
+        length: usize,
+        frequency: Frequency,
+        sample_rate: u32,
+        asdr: Asdr,
+    ) -> Vec<Frame> {
+        let vec: Vec<Frame> = (0..length)
+            .map(|sample| {
+                let time = TAU * (sample as f64 / sample_rate as f64);
 
-        let result = (TAU * self.frequency * self.time()).sin();
-        Frame::mono(result)
+                let result = (frequency * time).sin();
+                Frame::mono(result)
+            })
+            .collect();
+        vec.multiply(&asdr.generate(length).into_frames())
     }
 }
