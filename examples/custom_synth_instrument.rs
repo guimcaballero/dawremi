@@ -38,8 +38,10 @@ fn instrument(song: &Song, frequency: Frequency, length: usize) -> Vec<Frame> {
     )
 }
 
+// `Sine` will be our custom Instrument
 pub struct Sine;
 impl Instrument for Sine {
+    /// The default asdr values for your instrument. You can skip implementing this method
     fn default_asdr(sample_rate: u32) -> Asdr {
         let sr = sample_rate as f64;
         Asdr {
@@ -52,6 +54,7 @@ impl Instrument for Sine {
         }
     }
 
+    /// This method has to return a Vec<Frame> with the audio generated
     fn generate(
         &self,
         length: usize,
