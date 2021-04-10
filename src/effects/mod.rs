@@ -55,10 +55,30 @@ impl<T: Default + Clone> Automation<T> {
             Self::Loop(vec) => vec[idx % vec.len()].clone(),
         }
     }
+
+    pub fn into_iter(self) -> AutomationIter<T> {
+        AutomationIter(self, 0)
+    }
 }
 impl<T: Default + Clone> Default for Automation<T> {
     fn default() -> Self {
         Automation::Const(T::default())
+    }
+}
+
+/// Infinite Iterator for the provided automation
+pub struct AutomationIter<T: Default + Clone>(Automation<T>, usize);
+impl<T: Default + Clone> Iterator for AutomationIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let value = self.0.value(self.1);
+        self.1 += 1;
+        Some(value)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (usize::MAX, None)
     }
 }
 
@@ -133,5 +153,14 @@ mod test {
 
         let vec: Vec<f64> = (0..10).map(|idx| a.value(idx)).collect();
         assert_eq!(vec![0., 1., 2., 3., 4., 0., 1., 2., 3., 4.,], vec);
+    }
+
+    #[test]
+    fn automation_into_iter() {
+        let a = Automation::Loop(vec![0.0f64, 1., 2., 3., 4.]);
+        let iter = a.into_iter();
+
+        let vec: Vec<f64> = iter.take(20).collect();
+        assert_eq!(20, vec.len());
     }
 }
