@@ -86,6 +86,8 @@ mod stretch;
 pub use stretch::Stretch;
 mod balance;
 pub use balance::Balance;
+mod bit_crusher;
+pub use bit_crusher::{BitCrusher, BitCrusherMode};
 
 #[cfg(test)]
 mod test {
