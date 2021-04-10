@@ -55,14 +55,20 @@ impl<T: Default + Clone> Automation<T> {
             Self::Loop(vec) => vec[idx % vec.len()].clone(),
         }
     }
-
-    pub fn into_iter(self) -> AutomationIter<T> {
-        AutomationIter(self, 0)
-    }
 }
+
 impl<T: Default + Clone> Default for Automation<T> {
     fn default() -> Self {
         Automation::Const(T::default())
+    }
+}
+
+impl<T: Default + Clone> IntoIterator for Automation<T> {
+    type Item = T;
+    type IntoIter = AutomationIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        AutomationIter(self, 0)
     }
 }
 
@@ -162,5 +168,21 @@ mod test {
 
         let vec: Vec<f64> = iter.take(20).collect();
         assert_eq!(20, vec.len());
+    }
+
+    #[test]
+    fn automation_for_loop() {
+        let a = Automation::Loop(vec![0.0f64, 1., 2., 3., 4.]);
+
+        let mut i = 0.;
+        for val in a {
+            i += val;
+
+            if i > 10. {
+                break;
+            }
+        }
+
+        assert!(i > 10.);
     }
 }
