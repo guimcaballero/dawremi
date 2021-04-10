@@ -114,6 +114,8 @@ mod balance;
 pub use balance::Balance;
 mod bit_crusher;
 pub use bit_crusher::{BitCrusher, BitCrusherMode};
+mod ring_modulator;
+pub use ring_modulator::RingModulator;
 
 #[cfg(test)]
 mod test {
