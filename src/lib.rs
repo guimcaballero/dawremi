@@ -72,6 +72,7 @@ pub mod signals;
 pub mod song;
 pub mod sound_files;
 pub mod synth;
+pub mod vst;
 
 // Prelude
 
