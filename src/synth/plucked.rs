@@ -46,7 +46,7 @@ impl Instrument for Plucked {
 }
 use crate::signals::interpolation::interpolate;
 use crate::signals::noise::noise;
-use crate::signals::waves::sine_one_period;
+use crate::signals::waves::sine_one_period_of_length;
 
 pub enum InitialBurstType {
     Random,
@@ -66,7 +66,7 @@ impl InitialBurstType {
                 let top = (length * a) / b;
                 interpolate(vec![(top, 1.), (length, 0.)])
             }
-            InitialBurstType::Sine => sine_one_period(length),
+            InitialBurstType::Sine => sine_one_period_of_length(length),
             InitialBurstType::Hill => interpolate(vec![
                 (length * 2 / 8, 0.),
                 (length * 3 / 8, 1.),
