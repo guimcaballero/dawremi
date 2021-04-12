@@ -1,14 +1,21 @@
-use crate::effects::{Automation, EffectExtension, Volume};
-use crate::frame::Frame;
-use crate::helpers::*;
-use crate::player::*;
-use crate::sound_files::enums::Metronome;
-use crate::sound_files::io::*;
-use crate::sound_files::Sound;
+use crate::{
+    effects::{Automation, EffectExtension, Volume},
+    frame::Frame,
+    helpers::*,
+    player::*,
+    sound_files::{enums::Metronome, io::*, Sound},
+    vst::*,
+};
 
 use anyhow::Result;
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use vst::{
+    host::{PluginInstance, PluginLoader},
+    plugin::Plugin,
+};
 
 pub enum TrackGenerator {
     Fn(Box<dyn Fn(&Song) -> Vec<Frame>>),
@@ -92,6 +99,10 @@ pub struct Song {
     sounds: Mutex<HashMap<String, Vec<Frame>>>,
     generated: Option<Vec<Frame>>,
 
+    /// Shared VST host
+    vst_host: Arc<Mutex<SimpleHost>>,
+    vst_instances: Mutex<HashMap<PathBuf, Mutex<PluginLoader<SimpleHost>>>>,
+
     tracks: Vec<TrackGenerator>,
     config: SongConfig,
 }
@@ -102,6 +113,8 @@ impl Song {
             sample_rate: None,
             sounds: Default::default(),
             generated: None,
+            vst_host: new_host(),
+            vst_instances: Default::default(),
 
             tracks,
             config,
@@ -166,6 +179,28 @@ impl Song {
         } else {
             vec[sound.begin..].to_vec()
         }
+    }
+
+    /// Returns a new instance of the plugin
+    ///
+    /// It reuses the loader, but returns a new instance
+    pub fn get_new_plugin_instance<P: AsRef<Path>>(&self, path: P) -> PluginInstance {
+        let mut loaders = self.vst_instances.lock().unwrap();
+
+        let path = path.as_ref().to_path_buf();
+
+        if !loaders.contains_key(&path) {
+            let loader = load_plugin(&path, &self.vst_host);
+            loaders.insert(path.clone(), Mutex::from(loader));
+        }
+
+        let mut loader = loaders.get(&path).unwrap().lock().unwrap();
+
+        let mut instance = loader.instance().unwrap();
+        instance.init();
+        instance.set_sample_rate(self.sample_rate.unwrap() as f32);
+
+        instance
     }
 
     /// Returns the set sample rate
@@ -430,5 +465,32 @@ mod test {
         song.generate(44_100);
 
         assert_eq!(200, song.generated().as_ref().unwrap().len());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn can_load_vst_plugin() {
+        let mut song = Song::new(vec![], SongConfig::default());
+        song.sample_rate = Some(44_100);
+
+        let mut plugin =
+            song.get_new_plugin_instance("assets/vsts/TestPlugin.vst/Contents/MacOS/TestPlugin");
+
+        let audio = process_samples(&mut plugin, vec![Frame::mono(0.); 1000]);
+
+        assert_eq!(1000, audio.len());
+
+        // TestPlugin returns a sine wave at a specific frequency
+        // Here we check that we get a predefined set of values
+        assert!(audio[0].left < 0.0000001);
+        assert!(audio[0].right < 0.0000001);
+
+        assert!(audio[1].left > 0.000001);
+        assert!(audio[1].right > 0.000001);
+
+        assert!(audio[999].left < -0.0201566071);
+        assert!(audio[999].left > -0.0201566072);
+        assert!(audio[999].right < -0.0201566071);
+        assert!(audio[999].right > -0.0201566072);
     }
 }

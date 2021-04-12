@@ -1,6 +1,7 @@
 //! Methods to interact with VST2 plugins
 
 use crate::frame::Frame;
+use crate::helpers::*;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use vst::host::HostBuffer;
@@ -31,29 +32,41 @@ pub fn new_instance(loader: &mut PluginLoader<SimpleHost>) -> PluginInstance {
     instance
 }
 
-/// Get `length` samples out of `instance`
+/// Get `input.len()` samples out of `instance`
 /// Uses the default number of channels provided by the plugin
 ///
 /// Internally calls the plugins `process_f64` method
-pub fn get_samples(instance: &mut PluginInstance, length: usize) -> Vec<Frame> {
+pub fn process_samples(instance: &mut PluginInstance, input: Vec<Frame>) -> Vec<Frame> {
     let input_channels = instance.get_info().inputs as usize;
     let output_channels = instance.get_info().outputs as usize;
 
-    get_samples_with_channels(instance, length, input_channels, output_channels)
+    process_samples_with_channels(instance, input, input_channels, output_channels)
 }
 
-/// Get `length` samples out of `instance`
+/// Get `input.len()` samples out of `instance`
 /// Uses the specified number of channels for input and output
 ///
 /// Internally calls the plugins `process_f64` method
-pub fn get_samples_with_channels(
+pub fn process_samples_with_channels(
     instance: &mut PluginInstance,
-    length: usize,
+    input: Vec<Frame>,
     input_channels: usize,
     output_channels: usize,
 ) -> Vec<Frame> {
     let mut host_buffer: HostBuffer<f64> = HostBuffer::new(input_channels, output_channels);
-    let inputs = vec![vec![0.0; length]; input_channels];
+
+    let length = input.len();
+
+    let inputs = match input_channels {
+        0 => vec![],
+        1 => vec![input.to_mono()],
+        _ => {
+            let (left, right) = input.split();
+            let mut vec = vec![left, right];
+            vec.append(&mut vec![vec![0.0; length]; input_channels - 2]);
+            vec
+        }
+    };
     let mut outputs = vec![vec![0.0; length]; output_channels];
     let mut audio_buffer = host_buffer.bind(&inputs, &mut outputs);
     instance.process_f64(&mut audio_buffer);
@@ -71,22 +84,37 @@ pub fn get_samples_with_channels(
 }
 
 /// Same as it's non-f32 alternative, but calls `process` instead of calling `process_f64`
-pub fn get_samples_f32(instance: &mut PluginInstance, length: usize) -> Vec<Frame> {
+pub fn process_samples_f32(instance: &mut PluginInstance, input: Vec<Frame>) -> Vec<Frame> {
     let input_channels = instance.get_info().inputs as usize;
     let output_channels = instance.get_info().outputs as usize;
 
-    get_samples_with_channels_f32(instance, length, input_channels, output_channels)
+    process_samples_with_channels_f32(instance, input, input_channels, output_channels)
 }
 
 /// Same as it's non-f32 alternative, but calls `process` instead of calling `process_f64`
-pub fn get_samples_with_channels_f32(
+pub fn process_samples_with_channels_f32(
     instance: &mut PluginInstance,
-    length: usize,
+    input: Vec<Frame>,
     input_channels: usize,
     output_channels: usize,
 ) -> Vec<Frame> {
     let mut host_buffer: HostBuffer<f32> = HostBuffer::new(input_channels, output_channels);
-    let inputs = vec![vec![0.0; length]; input_channels];
+
+    let length = input.len();
+
+    let inputs = match input_channels {
+        0 => vec![],
+        1 => vec![input.to_mono().iter().map(|a| *a as f32).collect()],
+        _ => {
+            let (left, right) = input.split();
+            let mut vec = vec![
+                left.iter().map(|a| *a as f32).collect(),
+                right.iter().map(|a| *a as f32).collect(),
+            ];
+            vec.append(&mut vec![vec![0.0; length]; input_channels - 2]);
+            vec
+        }
+    };
     let mut outputs = vec![vec![0.0; length]; output_channels];
     let mut audio_buffer = host_buffer.bind(&inputs, &mut outputs);
     instance.process(&mut audio_buffer);
@@ -97,12 +125,12 @@ pub fn get_samples_with_channels_f32(
             .get(0)
             .iter()
             .zip(output.get(1).iter())
-            .map(|(a, b)| Frame::new((*a).into(), (*b).into()))
+            .map(|(a, b)| Frame::new(*a as f64, *b as f64))
             .collect(),
         _ => output
             .get(0)
             .iter()
-            .map(|a| Frame::mono((*a).into()))
+            .map(|a| Frame::mono(*a as f64))
             .collect(),
     }
 }
@@ -139,7 +167,7 @@ mod test {
         );
         let mut instance = new_instance(&mut loader);
 
-        let audio = get_samples(&mut instance, 1000);
+        let audio = process_samples(&mut instance, vec![Frame::mono(0.); 1000]);
 
         assert_eq!(1000, audio.len());
 
