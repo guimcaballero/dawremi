@@ -1,6 +1,17 @@
 use super::*;
 
-pub struct Bell;
+pub struct Bell {
+    lfo_amplitude: Automation<f64>,
+    lfo_frequency: Automation<f64>,
+}
+impl Default for Bell {
+    fn default() -> Self {
+        Self {
+            lfo_amplitude: Automation::Const(0.001),
+            lfo_frequency: Automation::Const(7.0),
+        }
+    }
+}
 
 impl Instrument for Bell {
     fn default_asdr(sample_rate: u32) -> Asdr {
@@ -23,9 +34,10 @@ impl Instrument for Bell {
         asdr: Asdr,
     ) -> Vec<Frame> {
         let vec: Vec<Frame> = (0..length)
-            .map(|sample| {
-                let a_lfo = 0.001;
-                let f_lfo = 5.0;
+            .enumerate()
+            .map(|(idx, sample)| {
+                let a_lfo = self.lfo_amplitude.value(idx);
+                let f_lfo = self.lfo_frequency.value(idx);
 
                 // Make the base note disappear faster than the rest
                 let attack = asdr.attack;
@@ -67,7 +79,7 @@ mod test {
     #[test]
     fn can_generate_from_bell() {
         let sample_rate = 44_100;
-        let vec = Bell.generate(
+        let vec = Bell::default().generate(
             1000,
             100.,
             sample_rate,
