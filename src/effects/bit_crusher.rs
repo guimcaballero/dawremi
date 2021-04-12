@@ -21,11 +21,8 @@ impl Effect for BitCrusher {
                 .map(|(idx, val)| {
                     let mult = self.multiplier.value(idx);
 
-                    let mut left = val.left * mult;
-                    let mut right = val.right * mult;
-
-                    left = left.round() / mult;
-                    right = right.round() / mult;
+                    let left = (((val.left + 1.) * mult).round() / mult) - 1.;
+                    let right = (((val.right + 1.) * mult).round() / mult) - 1.;
 
                     Frame::new(left, right)
                 })
@@ -36,11 +33,8 @@ impl Effect for BitCrusher {
                 .map(|(idx, val)| {
                     let mult = self.multiplier.value(idx);
 
-                    let mut left = val.left * mult;
-                    let mut right = val.right * mult;
-
-                    left = left.ceil() / mult;
-                    right = right.ceil() / mult;
+                    let left = (((val.left + 1.) * mult).ceil() / mult) - 1.;
+                    let right = (((val.right + 1.) * mult).ceil() / mult) - 1.;
 
                     Frame::new(left, right)
                 })
@@ -51,11 +45,8 @@ impl Effect for BitCrusher {
                 .map(|(idx, val)| {
                     let mult = self.multiplier.value(idx);
 
-                    let mut left = val.left * mult;
-                    let mut right = val.right * mult;
-
-                    left = left.floor() / mult;
-                    right = right.floor() / mult;
+                    let left = (((val.left + 1.) * mult).floor() / mult) - 1.;
+                    let right = (((val.right + 1.) * mult).floor() / mult) - 1.;
 
                     Frame::new(left, right)
                 })
@@ -66,11 +57,8 @@ impl Effect for BitCrusher {
                 .map(|(idx, val)| {
                     let mult = self.multiplier.value(idx);
 
-                    let mut left = val.left * mult;
-                    let mut right = val.right * mult;
-
-                    left = left.trunc() / mult;
-                    right = right.trunc() / mult;
+                    let left = (((val.left + 1.) * mult).trunc() / mult) - 1.;
+                    let right = (((val.right + 1.) * mult).trunc() / mult) - 1.;
 
                     Frame::new(left, right)
                 })
