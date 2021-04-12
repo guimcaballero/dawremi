@@ -45,8 +45,12 @@ pub trait VecFrameExtension {
     // Multiplies the samples in each side
     fn multiply(self, other: &[Frame]) -> Vec<Frame>;
 
-    // Multiplies the samples in each side
+    // Joins both channels into one
     fn to_mono(self) -> Vec<f64>;
+
+    // Split the two channels into two vectors
+    // Returns first Left and then Right
+    fn split(self) -> (Vec<f64>, Vec<f64>);
 }
 
 impl VecFrameExtension for Vec<Frame> {
@@ -125,6 +129,17 @@ impl VecFrameExtension for Vec<Frame> {
 
     fn to_mono(self) -> Vec<f64> {
         self.iter().map(Frame::to_mono).collect()
+    }
+
+    fn split(self) -> (Vec<f64>, Vec<f64>) {
+        let mut left = Vec::with_capacity(self.len());
+        let mut right = Vec::with_capacity(self.len());
+
+        for frame in self {
+            left.push(frame.left);
+            right.push(frame.right);
+        }
+        (left, right)
     }
 }
 
