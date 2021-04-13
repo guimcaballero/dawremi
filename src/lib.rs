@@ -89,4 +89,5 @@ pub mod prelude {
     pub use super::song::*;
     pub use super::sound_files::{enums::*, io::*, Sound};
     pub use super::synth::*;
+    pub use super::vst::*;
 }

@@ -12,10 +12,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use vst::{
-    host::{PluginInstance, PluginLoader},
-    plugin::Plugin,
-};
+use vst::host::PluginLoader;
 
 pub enum TrackGenerator {
     Fn(Box<dyn Fn(&Song) -> Vec<Frame>>),
@@ -184,7 +181,7 @@ impl Song {
     /// Returns a new instance of the plugin
     ///
     /// It reuses the loader, but returns a new instance
-    pub fn get_new_plugin_instance<P: AsRef<Path>>(&self, path: P) -> PluginInstance {
+    pub fn get_new_plugin_instance<P: AsRef<Path>>(&self, path: P) -> VstPlugin {
         let mut loaders = self.vst_instances.lock().unwrap();
 
         let path = path.as_ref().to_path_buf();
@@ -195,12 +192,7 @@ impl Song {
         }
 
         let mut loader = loaders.get(&path).unwrap().lock().unwrap();
-
-        let mut instance = loader.instance().unwrap();
-        instance.init();
-        instance.set_sample_rate(self.sample_rate.unwrap() as f32);
-
-        instance
+        VstPlugin::new(&mut loader, self.sample_rate())
     }
 
     /// Returns the set sample rate
@@ -473,10 +465,10 @@ mod test {
         let mut song = Song::new(vec![], SongConfig::default());
         song.sample_rate = Some(44_100);
 
-        let mut plugin =
+        let plugin =
             song.get_new_plugin_instance("assets/vsts/TestPlugin.vst/Contents/MacOS/TestPlugin");
 
-        let audio = process_samples(&mut plugin, vec![Frame::mono(0.); 1000]);
+        let audio = plugin.process_samples(vec![Frame::mono(0.); 1000]);
 
         assert_eq!(1000, audio.len());
 
