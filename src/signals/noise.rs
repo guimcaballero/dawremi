@@ -31,6 +31,17 @@ pub fn noise(length: usize, mut seed: u64) -> Vec<f64> {
         .collect()
 }
 
+use crate::notes::Frequency;
+use noise::{Fbm, NoiseFn, Seedable};
+pub fn fbm(length: usize, frequency: Frequency, seed: u32) -> Vec<f64> {
+    let mut fbm = Fbm::new().set_seed(seed);
+    fbm.frequency = frequency;
+
+    (0..length)
+        .map(|idx| (&fbm).get([idx as f64, 0.]))
+        .collect()
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -52,5 +63,25 @@ mod test {
 
         assert_eq!(noise1, noise2);
         assert_eq!(noise3, noise4);
+    }
+
+    #[test]
+    fn can_create_fbm() {
+        let noise = fbm(10, 33., 1234);
+
+        assert_eq!(10, noise.len());
+    }
+
+    #[test]
+    fn fbm_is_reproducible() {
+        let noise1 = fbm(33, 10., 123);
+        let noise2 = fbm(33, 10., 123);
+
+        assert_eq!(noise1, noise2);
+
+        let noise1 = fbm(300, 100., 123);
+        let noise2 = fbm(300, 100., 123);
+
+        assert_eq!(noise1, noise2);
     }
 }
