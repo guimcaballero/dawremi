@@ -58,7 +58,7 @@ pub enum InitialBurstType {
 impl InitialBurstType {
     fn noise(&self, length: usize) -> Vec<f64> {
         match self {
-            InitialBurstType::Random => noise(3333, length),
+            InitialBurstType::Random => noise(length, 3333),
             InitialBurstType::DoubleTriangle => {
                 interpolate(vec![(length / 4, 1.), (length * 3 / 4, -1.), (length, 0.)])
             }

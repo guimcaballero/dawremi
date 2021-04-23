@@ -15,9 +15,6 @@ impl TakeSamplesExtension for Vec<f64> {
 }
 
 pub trait VecFrameExtension {
-    // take_samples is here again so cause there's a conflicting implementation if
-    // we try to impl TakeSamplesExtension for Vec<f64>
-
     /// Makes a new Vec with `samples` number of samples. Fills with `Frame::default` if `samples > self.len()`
     fn take_samples(self, samples: usize) -> Vec<Frame>;
 
@@ -39,18 +36,25 @@ pub trait VecFrameExtension {
     /// Repeats the list until `samples` number of samples are taken
     fn cycle_until_samples(self, samples: usize) -> Vec<Frame>;
 
-    // Adds the samples in each side
+    /// Adds the samples in each side
     fn add(self, other: &[Frame]) -> Vec<Frame>;
 
-    // Multiplies the samples in each side
+    /// Multiplies the samples in each side
     fn multiply(self, other: &[Frame]) -> Vec<Frame>;
 
-    // Joins both channels into one
+    /// Joins both channels into one
     fn to_mono(self) -> Vec<f64>;
 
-    // Split the two channels into two vectors
-    // Returns first Left and then Right
+    /// Split the two channels into two vectors
+    /// Returns first Left and then Right
     fn split(self) -> (Vec<f64>, Vec<f64>);
+
+    /// Mix both of the tracks
+    ///
+    /// If val is 0.0, only self will play
+    /// If val is 1.0, only other will play
+    /// It linearly mixes both
+    fn mix(self, other: &[Frame], val: Automation<f64>) -> Vec<Frame>;
 }
 
 impl VecFrameExtension for Vec<Frame> {
@@ -140,6 +144,17 @@ impl VecFrameExtension for Vec<Frame> {
             right.push(frame.right);
         }
         (left, right)
+    }
+
+    fn mix(self, other: &[Frame], val: Automation<f64>) -> Vec<Frame> {
+        self.iter()
+            .zip(other.iter())
+            .enumerate()
+            .map(|(idx, (a, b))| {
+                let val = val.value(idx);
+                a * (1. - val) + b * val
+            })
+            .collect()
     }
 }
 

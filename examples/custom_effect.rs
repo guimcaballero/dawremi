@@ -19,7 +19,7 @@ fn noise(song: &Song) -> Vec<Frame> {
     // First time will be with a constant value as multiplier
     // Second time will be with a sine wave of constant frequency
 
-    noise::noise(3333, song.duration().unwrap())
+    noise::noise(song.duration().unwrap(), 3333)
         .into_frames()
         .effect(&MyCustomEffect {
             mult: Automation::Const(0.5),

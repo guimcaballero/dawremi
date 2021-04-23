@@ -1,4 +1,4 @@
-pub fn noise(mut seed: u64, length: usize) -> Vec<f64> {
+pub fn noise(length: usize, mut seed: u64) -> Vec<f64> {
     // From: https://github.com/RustAudio/dasp/blob/master/dasp_signal/src/lib.rs
 
     // A simple one-dimensional noise generator.
@@ -37,7 +37,7 @@ mod test {
 
     #[test]
     fn can_create_noise() {
-        let noise = noise(33, 10);
+        let noise = noise(10, 33);
 
         assert_eq!(10, noise.len());
     }
@@ -47,8 +47,8 @@ mod test {
         let noise1 = noise(33, 10);
         let noise2 = noise(33, 10);
 
-        let noise3 = noise(42069, 100);
-        let noise4 = noise(42069, 100);
+        let noise3 = noise(69, 100);
+        let noise4 = noise(69, 100);
 
         assert_eq!(noise1, noise2);
         assert_eq!(noise3, noise4);
