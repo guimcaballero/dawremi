@@ -64,6 +64,7 @@ pub mod helpers;
 pub mod debug;
 pub mod effects;
 pub mod frame;
+pub mod frequency;
 pub mod notes;
 pub mod player;
 pub mod record;
@@ -83,6 +84,7 @@ pub mod prelude {
 
     pub use super::effects::*;
     pub use super::frame::*;
+    pub use super::frequency::*;
     pub use super::helpers::*;
     pub use super::notes::{n_tet::*, *};
     pub use super::signals::{adsr::Adsr, *};

@@ -12,6 +12,8 @@ pub use macros::*;
 
 use crate::frame::*;
 
+// The following need a better place to live in, but I don't really want to have a whole file for each of them
+
 pub fn silence() -> Vec<Frame> {
     vec![Frame::default()]
 }

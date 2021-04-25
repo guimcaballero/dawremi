@@ -1,9 +1,6 @@
 //! This example demonstrates how to create a simple effect
 //! We'll be making a copy of the builtin `Volume` effect
 
-#[macro_use]
-extern crate dawremi;
-
 use dawremi::prelude::*;
 use std::f64::consts::TAU;
 
@@ -21,12 +18,17 @@ fn main() {
 fn track(song: &Song) -> Vec<Frame> {
     {
         use Note::*;
-        note_list![[A4, C4], A5, A6, _, A6]
+        [
+            [A4, C4].beats(1.),
+            A5.beats(1.),
+            A6.beats(1.),
+            Silence.beats(1.),
+            A6.beats(1.),
+        ]
     }
-    .generate(
-        &mut |note, length| instrument(song, note.into(), length),
-        Automation::Const(song.beats(1.)),
-    )
+    .generate(song, &mut |note, length| {
+        instrument(song, note.into(), length)
+    })
 }
 
 fn instrument(song: &Song, frequency: Frequency, length: usize) -> Vec<Frame> {

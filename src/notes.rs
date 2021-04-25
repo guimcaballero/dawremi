@@ -2,7 +2,7 @@
 
 pub use std::convert::TryFrom;
 
-pub type Frequency = f64;
+use crate::frequency::Frequency;
 
 pub mod n_tet {
     // Some microtonal stuff
@@ -262,13 +262,13 @@ impl Note {
 }
 
 macro_rules! enum_to_note {
-    ($(#[$meta:meta])* $vis:vis enum $name:ident {
+    ($vis:vis enum $name:ident {
         $($(#[$vmeta:meta])* $vname:ident => $val:ident,)*
     }) => {
-        $(#[$meta])*
-            $vis enum $name {
-                $($(#[$vmeta])* $vname,)*
-            }
+        #[derive(Clone, Copy, Debug, PartialEq)]
+        $vis enum $name {
+            $($(#[$vmeta])* $vname,)*
+        }
 
         impl From<$name> for Note {
             fn from(f: $name) -> Note {
@@ -288,9 +288,6 @@ macro_rules! enum_to_note {
 }
 
 enum_to_note! {
-    #[allow(dead_code)]
-    #[derive(Clone, Copy, Debug, PartialEq)]
-
     // From https://i.redd.it/vabojwxo2yf31.jpg
     pub enum GuitarFretboard {
         E0  => E4,

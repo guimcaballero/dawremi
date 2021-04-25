@@ -1,7 +1,6 @@
 use crate::frame::Frame;
 use crate::helpers::*;
 
-// TODO Currently this is the only place we use Dasp. We could probably replace it with something else
 use dasp::interpolate::linear::Linear;
 use dasp::{signal, Signal};
 

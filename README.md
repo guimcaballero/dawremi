@@ -54,40 +54,43 @@ fn guitar(song: &Song, frequency: Frequency, length: usize, burst: InitialBurstT
 
 // This is a track
 fn plucked_track(song: &Song) -> Vec<Frame> {
-    // We can make a list of notes and manipulate it.
-    let notes1: Vec<Vec<Note>> = {
+    let notes1 = {
         use Note::*;
-        // This is equivalent to vec![vec!(A4, C4), vec!(A5), vec!(A6), vec!(), vec!(A6)]
-        // A4 and C4 will be played together, followed by A5, then A6, then a silence, then A6
-        note_list![[A4, C4], A5, A6, _, A6]
+        [
+            [A4, C4].beats(1.),          // Two notes at once for one beat
+            Silence.beats(2.),        // Silence for two beats
+            C4.beats(1.),                // Single note for a beat
+            [C4, C5, C6].seconds(3.),    // Three notes for three seconds
+        ]
     };
 
     // `generate` will transform the notes into sounds
     let sound1 = notes1.generate(
+        song,
         // Function to use to generate the audio
         &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
-        // Length of each note
-        Automation::Const(song.beats(1.)),
     );
 
     // Generate sounds one octave higher
     let sound2 = notes1
-        // We can map over the notes
-        .map_notes(Note::up_an_octave)
-        .generate(
-            &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
-            Automation::Const(song.beats(1.)),
-        );
+        // We can map over the frequencies
+        .map_frequencies(|frequency| *frequency * 2.)
+        .generate(song, &mut |note, length| {
+            guitar(song, note, length, InitialBurstType::Triangle(2, 3))
+        });
 
     // We can use other types of notes too
     let bass = {
         use GuitarFretboard::*;
-        note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4,]
+        // Ln represents the Low E string
+        note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4, [L4, E4]]
+            .into_iter()
+            .map(|notes| notes.beats(1.))
+            .collect::<Vec<FrequencyLength>>()
     }
-    .generate(
-        &mut |note, length| guitar(song, note, length, InitialBurstType::Sine),
-        Automation::Const(song.beats(1.)),
-    );
+    .generate(song, &mut |note, length| {
+        guitar(song, note, length, InitialBurstType::Sine)
+    });
 
     // We then joing the subtracks into one
     let track = join_tracks(vec![sound1, sound2, bass])

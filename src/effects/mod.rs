@@ -1,6 +1,7 @@
 //! Contains various effects to modify a list of samples
 
 use crate::frame::*;
+use crate::frequency::*;
 use crate::helpers::*;
 
 pub trait EffectExtension {
