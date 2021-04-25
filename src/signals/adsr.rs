@@ -1,5 +1,5 @@
 #[derive(Clone, Copy, Default, Debug)]
-pub struct Asdr {
+pub struct Adsr {
     pub attack: usize,
     pub decay: usize,
     pub release: usize,
@@ -8,7 +8,7 @@ pub struct Asdr {
     pub sustain_amplitude: f64,
 }
 
-impl Asdr {
+impl Adsr {
     pub fn generate(&self, length: usize) -> Vec<f64> {
         let attack_sustain_diff = self.attack_amplitude - self.sustain_amplitude;
         let samples_release_diff = length.checked_sub(self.release).unwrap_or(length);
@@ -42,7 +42,7 @@ mod test {
 
     #[test]
     fn basic_test() {
-        let a = Asdr {
+        let a = Adsr {
             attack: 10,
             decay: 30,
             release: 30,
@@ -59,7 +59,7 @@ mod test {
 
     #[test]
     fn values_longer_than_length() {
-        let a = Asdr {
+        let a = Adsr {
             attack: 10000,
             decay: 10000,
             release: 100000,

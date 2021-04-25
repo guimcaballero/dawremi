@@ -34,17 +34,17 @@ fn instrument(song: &Song, frequency: Frequency, length: usize) -> Vec<Frame> {
         length,
         frequency,
         song.sample_rate(),
-        Sine::default_asdr(song.sample_rate()),
+        Sine::default_adsr(song.sample_rate()),
     )
 }
 
 // `Sine` will be our custom Instrument
 pub struct Sine;
 impl Instrument for Sine {
-    /// The default asdr values for your instrument. You can skip implementing this method
-    fn default_asdr(sample_rate: u32) -> Asdr {
+    /// The default adsr values for your instrument. You can skip implementing this method
+    fn default_adsr(sample_rate: u32) -> Adsr {
         let sr = sample_rate as f64;
-        Asdr {
+        Adsr {
             attack: (sr * 0.01) as usize,
             decay: (sr * 0.15) as usize,
             release: 0,
@@ -60,7 +60,7 @@ impl Instrument for Sine {
         length: usize,
         frequency: Frequency,
         sample_rate: u32,
-        asdr: Asdr,
+        adsr: Adsr,
     ) -> Vec<Frame> {
         let vec: Vec<Frame> = (0..length)
             .map(|sample| {
@@ -70,6 +70,6 @@ impl Instrument for Sine {
                 Frame::mono(result)
             })
             .collect();
-        vec.multiply(&asdr.generate(length).into_frames())
+        vec.multiply(&adsr.generate(length).into_frames())
     }
 }

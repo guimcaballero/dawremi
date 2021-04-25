@@ -14,9 +14,9 @@ impl Default for Bell {
 }
 
 impl Instrument for Bell {
-    fn default_asdr(sample_rate: u32) -> Asdr {
+    fn default_adsr(sample_rate: u32) -> Adsr {
         let sr = sample_rate as f64;
-        Asdr {
+        Adsr {
             attack: (sr * 0.01) as usize,
             decay: (sr * 0.7) as usize,
             release: (sr * 0.1) as usize,
@@ -31,7 +31,7 @@ impl Instrument for Bell {
         length: usize,
         frequency: Frequency,
         sample_rate: u32,
-        asdr: Asdr,
+        adsr: Adsr,
     ) -> Vec<Frame> {
         let vec: Vec<Frame> = (0..length)
             .enumerate()
@@ -40,7 +40,7 @@ impl Instrument for Bell {
                 let f_lfo = self.lfo_frequency.value(idx);
 
                 // Make the base note disappear faster than the rest
-                let attack = asdr.attack;
+                let attack = adsr.attack;
                 let base_note_vol_multiplier = if sample > attack {
                     attack as f64 / sample as f64
                 } else {
@@ -68,7 +68,7 @@ impl Instrument for Bell {
             })
             .collect();
 
-        vec.multiply(&asdr.generate(length).into_frames())
+        vec.multiply(&adsr.generate(length).into_frames())
     }
 }
 
@@ -83,9 +83,9 @@ mod test {
             1000,
             100.,
             sample_rate,
-            Asdr {
+            Adsr {
                 attack: 100,
-                ..Bell::default_asdr(sample_rate)
+                ..Bell::default_adsr(sample_rate)
             },
         );
         assert_eq!(1000, vec.len());

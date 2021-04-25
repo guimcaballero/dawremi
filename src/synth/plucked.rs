@@ -9,9 +9,9 @@ impl Default for Plucked {
 }
 
 impl Instrument for Plucked {
-    fn default_asdr(sample_rate: u32) -> Asdr {
+    fn default_adsr(sample_rate: u32) -> Adsr {
         let sr = sample_rate as f64;
-        Asdr {
+        Adsr {
             attack: (sr * 0.05) as usize,
             decay: (sr * 0.1) as usize,
             release: (sr * 0.1) as usize,
@@ -26,7 +26,7 @@ impl Instrument for Plucked {
         length: usize,
         frequency: Frequency,
         sample_rate: u32,
-        asdr: Asdr,
+        adsr: Adsr,
     ) -> Vec<Frame> {
         let noise_length = (sample_rate as f64 / frequency) as usize;
         let mut noise = self.0.noise(noise_length);
@@ -41,7 +41,7 @@ impl Instrument for Plucked {
                 Frame::mono(result)
             })
             .collect();
-        vec.multiply(&asdr.generate(length).into_frames())
+        vec.multiply(&adsr.generate(length).into_frames())
     }
 }
 use crate::signals::interpolation::interpolate;
@@ -89,9 +89,9 @@ mod test {
             1000,
             100.,
             sample_rate,
-            Asdr {
+            Adsr {
                 attack: 100,
-                ..DrumHiHat::default_asdr(sample_rate)
+                ..DrumHiHat::default_adsr(sample_rate)
             },
         );
         assert_eq!(1000, vec.len());

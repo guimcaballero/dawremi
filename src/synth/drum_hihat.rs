@@ -14,9 +14,9 @@ impl Default for DrumHiHat {
 }
 
 impl Instrument for DrumHiHat {
-    fn default_asdr(sample_rate: u32) -> Asdr {
+    fn default_adsr(sample_rate: u32) -> Adsr {
         let sr = sample_rate as f64;
-        Asdr {
+        Adsr {
             attack: (sr * 0.01) as usize,
             decay: (sr * 0.05) as usize,
             release: 0,
@@ -31,7 +31,7 @@ impl Instrument for DrumHiHat {
         length: usize,
         frequency: Frequency,
         sample_rate: u32,
-        asdr: Asdr,
+        adsr: Adsr,
     ) -> Vec<Frame> {
         let vec: Vec<Frame> = (0..length)
             .enumerate()
@@ -53,7 +53,7 @@ impl Instrument for DrumHiHat {
                 Frame::mono(result)
             })
             .collect();
-        vec.multiply(&asdr.generate(length).into_frames())
+        vec.multiply(&adsr.generate(length).into_frames())
     }
 }
 
@@ -68,9 +68,9 @@ mod test {
             1000,
             100.,
             sample_rate,
-            Asdr {
+            Adsr {
                 attack: 100,
-                ..DrumHiHat::default_asdr(sample_rate)
+                ..DrumHiHat::default_adsr(sample_rate)
             },
         );
         assert_eq!(1000, vec.len());

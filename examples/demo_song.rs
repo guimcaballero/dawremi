@@ -21,7 +21,7 @@ fn guitar(song: &Song, frequency: Frequency, length: usize, burst: InitialBurstT
         length,
         frequency,
         song.sample_rate(),
-        Plucked::default_asdr(song.sample_rate()),
+        Plucked::default_adsr(song.sample_rate()),
     )
 }
 

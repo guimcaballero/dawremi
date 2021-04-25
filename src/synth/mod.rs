@@ -1,20 +1,20 @@
 //! Contains some default instruments to generate interesting sounds
 
-use crate::{effects::*, frame::*, helpers::*, notes::*, signals::asdr::*};
+use crate::{effects::*, frame::*, helpers::*, notes::*, signals::adsr::*};
 
 use core::f64::consts::TAU;
 use rand::Rng;
 
 pub trait Instrument {
-    fn default_asdr(_sample_rate: u32) -> Asdr {
-        Asdr::default()
+    fn default_adsr(_sample_rate: u32) -> Adsr {
+        Adsr::default()
     }
     fn generate(
         &self,
         length: usize,
         frequency: Frequency,
         sample_rate: u32,
-        asdr: Asdr,
+        adsr: Adsr,
     ) -> Vec<Frame>;
 }
 
