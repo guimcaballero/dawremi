@@ -1,6 +1,6 @@
 //! Different types that can be turned into `Frequency`
 
-use std::convert::TryFrom;
+pub use std::convert::TryFrom;
 
 pub type Frequency = f64;
 
