@@ -200,6 +200,78 @@ impl<NOTE: Into<Note>> IntoFrequencyLength for Vec<NOTE> {
         array.samples(length)
     }
 }
+impl<const M: u8> IntoFrequencyLength for n_tet::NTet<M> {
+    fn beats(self, length: f64) -> FrequencyLength {
+        let freq: Frequency = self.into();
+        freq.beats(length)
+    }
+
+    fn seconds(self, length: f64) -> FrequencyLength {
+        let freq: Frequency = self.into();
+        freq.seconds(length)
+    }
+
+    fn samples(self, length: usize) -> FrequencyLength {
+        let freq: Frequency = self.into();
+        freq.samples(length)
+    }
+}
+impl<const N: usize, const M: u8> IntoFrequencyLength for [n_tet::NTet<M>; N] {
+    fn beats(self, length: f64) -> FrequencyLength {
+        let mut array = [0.; N];
+        for idx in 0..N {
+            let n: Frequency = self[idx].clone().into();
+            array[idx] = n;
+        }
+        array.beats(length)
+    }
+
+    fn seconds(self, length: f64) -> FrequencyLength {
+        let mut array = [0.; N];
+        for idx in 0..N {
+            let n: Frequency = self[idx].clone().into();
+            array[idx] = n;
+        }
+        array.seconds(length)
+    }
+
+    fn samples(self, length: usize) -> FrequencyLength {
+        let mut array = [0.; N];
+        for idx in 0..N {
+            let n: Frequency = self[idx].clone().into();
+            array[idx] = n;
+        }
+        array.samples(length)
+    }
+}
+impl<const M: u8> IntoFrequencyLength for Vec<n_tet::NTet<M>> {
+    fn beats(self, length: f64) -> FrequencyLength {
+        let mut array = Vec::<Frequency>::with_capacity(self.len());
+        for note in self {
+            let n: Frequency = note.into();
+            array.push(n)
+        }
+        array.beats(length)
+    }
+
+    fn seconds(self, length: f64) -> FrequencyLength {
+        let mut array = Vec::<Frequency>::with_capacity(self.len());
+        for note in self {
+            let n: Frequency = note.into();
+            array.push(n)
+        }
+        array.seconds(length)
+    }
+
+    fn samples(self, length: usize) -> FrequencyLength {
+        let mut array = Vec::<Frequency>::with_capacity(self.len());
+        for note in self {
+            let n: Frequency = note.into();
+            array.push(n)
+        }
+        array.samples(length)
+    }
+}
 
 /// Makes a FrequencyLength with no frequencies
 pub struct Silence;
