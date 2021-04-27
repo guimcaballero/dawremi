@@ -53,7 +53,6 @@ pub struct SongConfig {
     pub volume: Automation<f64>,
     pub duration: Duration,
 
-    pub normalize: bool,
     pub metronome: bool,
     pub loop_on_play: bool,
 }
@@ -65,7 +64,6 @@ impl Default for SongConfig {
             volume: Automation::Const(1.),
             duration: Duration::GeneratedTrack,
 
-            normalize: false,
             metronome: false,
             loop_on_play: false,
         }
@@ -92,7 +90,7 @@ impl Default for Duration {
 pub struct Song {
     sample_rate: Option<u32>,
     /// Contains all of the loaded sounds used in a song
-    /// Is wrapped in a Mutex so we can modify it with a normal reference
+    /// Is wrapped in a Mutex so we can modify it with a non-mut reference
     sounds: Mutex<HashMap<String, Vec<Frame>>>,
     generated: Option<Vec<Frame>>,
 
@@ -294,14 +292,8 @@ impl Song {
             vec = vec.take_samples(duration)
         }
 
-        if self.config.normalize {
-            // Normalize
-            let (max, min) = vec.iter().fold((-1. / 0., 1. / 0.), |(max, min), a| {
-                (f64::max(max, a.max()), f64::min(min, a.min()))
-            });
-            let max = f64::max(max.abs(), min.abs());
-            vec = vec.iter().map(|a| a / max).collect();
-        }
+        // Clamp song
+        vec = vec.iter().map(|a| a.clamp(-1., 1.)).collect();
 
         self.generated = Some(vec);
     }
