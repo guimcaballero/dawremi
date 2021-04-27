@@ -18,7 +18,7 @@ pub fn silence() -> Vec<Frame> {
     vec![Frame::default()]
 }
 
-/// Joins all of the tracks into a single one by mixing them equally
+/// Joins all of the tracks into a single one
 pub fn join_tracks(tracks: Vec<Vec<Frame>>) -> Vec<Frame> {
     // Get the max length of the tracks
     let len = &tracks
@@ -30,14 +30,12 @@ pub fn join_tracks(tracks: Vec<Vec<Frame>>) -> Vec<Frame> {
     (0..*len)
         .map(|i| {
             let mut val = Frame::default();
-            let mut count = 0;
             for track in &tracks {
                 if let Some(value) = track.get(i) {
                     val += value;
-                    count += 1;
                 }
             }
-            val / count as f64
+            val
         })
         .collect()
 }
@@ -64,7 +62,7 @@ mod test {
         ];
 
         assert_eq!(
-            vec![0.5, 1., 0., 0.5, 0.4].into_frames(),
+            vec![1.0, 2., 0., 1.0, 0.8].into_frames(),
             join_tracks(tracks)
         )
     }
