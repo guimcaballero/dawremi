@@ -1,5 +1,4 @@
 use super::*;
-use crate::helpers::concat_by_trim_overlap;
 use crate::helpers::pitch_detection::detect;
 use crate::notes::*;
 
@@ -13,15 +12,17 @@ pub enum AutotuneConfig {
 
 pub struct Autotune {
     pub sample_rate: u32,
-    // TODO This can be changed for a list of numbers, to split in different sizes
     pub beat_length: usize,
     pub config: AutotuneConfig,
 }
 
 impl Effect for Autotune {
     fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
-        let chunks = input.chunks(self.beat_length);
+        // We chunk the input up
+        let chunks = input.chunks(self.beat_length).collect::<Vec<&[Frame]>>();
 
+        // We get the list of frequencies to change to
+        // None means that it will snap to closest
         let frequencies = match &self.config {
             AutotuneConfig::Snap => vec![None; chunks.len()],
             AutotuneConfig::Frequencies(frequencies) => {
@@ -30,8 +31,15 @@ impl Effect for Autotune {
         };
 
         let parts = chunks
+            // We iterate through the chunks in windows, this way we can later overlap and add the audios
+            // and get something that sounds continuous
+            .windows(2)
             .zip(frequencies)
-            .map(|(chunk, freq)| {
+            .map(|(two_chunks, freq)| {
+                // Join the two chunks into a big one
+                let chunk = two_chunks.concat();
+
+                // Get by how much we have to shift each channel
                 let shift = Frame::new(
                     {
                         // Get actual pitch
@@ -59,6 +67,7 @@ impl Effect for Autotune {
                     },
                 );
 
+                // Apply pitch shift to the chunk
                 chunk.to_vec().effect(&PitchShift {
                     sample_rate: self.sample_rate,
                     shift,
@@ -66,7 +75,8 @@ impl Effect for Autotune {
             })
             .collect::<Vec<Vec<Frame>>>();
 
-        concat_by_trim_overlap(parts, 400)
+        // We then overlap with the length of one beat
+        overlap_add(parts, self.beat_length)
     }
 }
 
