@@ -2,7 +2,7 @@ use super::*;
 use crate::helpers::pitch_detection::detect;
 use crate::notes::*;
 
-pub enum AutotuneConfig {
+pub enum PitchCorrectionMode {
     /// Will snap to closest note
     Snap,
     /// Will shift each chunk to the provided frequency
@@ -10,22 +10,22 @@ pub enum AutotuneConfig {
     Frequencies(Vec<Option<Frequency>>),
 }
 
-pub struct Autotune {
+pub struct PitchCorrection {
     pub sample_rate: u32,
     pub beat_length: usize,
-    pub config: AutotuneConfig,
+    pub mode: PitchCorrectionMode,
 }
 
-impl Effect for Autotune {
+impl Effect for PitchCorrection {
     fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
         // We chunk the input up
         let chunks = input.chunks(self.beat_length).collect::<Vec<&[Frame]>>();
 
         // We get the list of frequencies to change to
         // None means that it will snap to closest
-        let frequencies = match &self.config {
-            AutotuneConfig::Snap => vec![None; chunks.len()],
-            AutotuneConfig::Frequencies(frequencies) => {
+        let frequencies = match &self.mode {
+            PitchCorrectionMode::Snap => vec![None; chunks.len()],
+            PitchCorrectionMode::Frequencies(frequencies) => {
                 pad_notes(frequencies.clone(), chunks.len())
             }
         };

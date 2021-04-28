@@ -104,7 +104,7 @@ pub use fft_convolution::Convolution;
 mod pitch_shift;
 pub use pitch_shift::PitchShift;
 mod autotune;
-pub use autotune::{Autotune, AutotuneConfig};
+pub use autotune::{PitchCorrection, PitchCorrectionMode};
 mod filter;
 pub use filter::{Filter, FilterMode};
 mod delay;
