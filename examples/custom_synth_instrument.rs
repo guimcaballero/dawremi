@@ -64,14 +64,14 @@ impl Instrument for Sine {
         sample_rate: u32,
         adsr: Adsr,
     ) -> Vec<Frame> {
-        let vec: Vec<Frame> = (0..length)
+        (0..length)
             .map(|sample| {
                 let time = TAU * (sample as f64 / sample_rate as f64);
 
                 let result = (frequency * time).sin();
                 Frame::mono(result)
             })
-            .collect();
-        vec.multiply(&adsr.generate(length).into_frames())
+            .collect::<Vec<Frame>>()
+            .envelope(&adsr)
     }
 }

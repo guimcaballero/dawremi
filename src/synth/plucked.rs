@@ -31,7 +31,7 @@ impl Instrument for Plucked {
         let noise_length = (sample_rate as f64 / frequency) as usize;
         let mut noise = self.0.noise(noise_length);
 
-        let vec: Vec<Frame> = (0..length)
+        (0..length)
             .map(|sample| {
                 let prev = noise[(sample.wrapping_sub(1)) % noise_length];
                 let result = noise[sample % noise_length];
@@ -40,8 +40,8 @@ impl Instrument for Plucked {
 
                 Frame::mono(result)
             })
-            .collect();
-        vec.multiply(&adsr.generate(length).into_frames())
+            .collect::<Vec<Frame>>()
+            .envelope(&adsr)
     }
 }
 use crate::signals::interpolation::interpolate;

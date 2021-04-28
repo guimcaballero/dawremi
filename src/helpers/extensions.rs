@@ -1,6 +1,7 @@
 use crate::effects::Automation;
 use crate::frame::*;
 use crate::notes::Note;
+use crate::signals::adsr::*;
 
 pub trait TakeSamplesExtension {
     fn take_samples(self, samples: usize) -> Vec<f64>;
@@ -53,6 +54,9 @@ pub trait VecFrameExtension {
     /// If val is 1.0, only other will play
     /// It linearly mixes both
     fn mix(self, other: &[Frame], val: Automation<f64>) -> Vec<Frame>;
+
+    /// Applies the Adsr envelope to the signal
+    fn envelope(self, adsr: &Adsr) -> Vec<Frame>;
 }
 
 impl VecFrameExtension for Vec<Frame> {
@@ -153,6 +157,11 @@ impl VecFrameExtension for Vec<Frame> {
                 a * (1. - val) + b * val
             })
             .collect()
+    }
+
+    fn envelope(self, adsr: &Adsr) -> Vec<Frame> {
+        let length = self.len();
+        self.multiply(&adsr.generate(length).into_frames())
     }
 }
 

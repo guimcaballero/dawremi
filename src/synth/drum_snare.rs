@@ -33,7 +33,7 @@ impl Instrument for DrumSnare {
         sample_rate: u32,
         adsr: Adsr,
     ) -> Vec<Frame> {
-        let vec: Vec<Frame> = (0..length)
+        (0..length)
             .enumerate()
             .map(|(idx, sample)| {
                 let a_lfo = self.lfo_amplitude.value(idx);
@@ -47,8 +47,8 @@ impl Instrument for DrumSnare {
 
                 Frame::mono(result)
             })
-            .collect();
-        vec.multiply(&adsr.generate(length).into_frames())
+            .collect::<Vec<Frame>>()
+            .envelope(&adsr)
     }
 }
 
