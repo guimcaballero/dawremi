@@ -21,3 +21,4 @@ realfft = "0.4.0"
 rustfft = "5.0.0"
 vst = "0.2.1"
 walkdir = "2.3.2"
+fundsp = { git = "https://github.com/SamiPerttu/fundsp", rev = "45135502169a572b1a623ec1c78f128421aa38e9" }

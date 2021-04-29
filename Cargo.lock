@@ -621,6 +621,7 @@ dependencies = [
  "convert_case",
  "cpal",
  "dasp",
+ "fundsp",
  "hound",
  "noise",
  "num",
@@ -715,6 +716,28 @@ checksum = "ece68d15c92e84fa4f19d3780f1294e5ca82a78a6d515f1efaabcc144688be00"
 dependencies = [
  "matches",
  "percent-encoding 2.1.0",
+]
+
+[[package]]
+name = "fundsp"
+version = "0.1.0"
+source = "git+https://github.com/SamiPerttu/fundsp?rev=45135502169a572b1a623ec1c78f128421aa38e9#45135502169a572b1a623ec1c78f128421aa38e9"
+dependencies = [
+ "generic-array",
+ "lazy_static",
+ "num-complex",
+ "numeric-array",
+ "rustfft 4.1.0",
+]
+
+[[package]]
+name = "generic-array"
+version = "0.14.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "501466ecc8a30d1d3b7fc9229b122b2ce8ed6e9d9223f1138d4babb253e51817"
+dependencies = [
+ "typenum",
+ "version_check",
 ]
 
 [[package]]
@@ -1202,6 +1225,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "numeric-array"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c59a9b227913a685ed84aa0de5ded58274e8bcfa55760faae07bc82aee64ccf"
+dependencies = [
+ "generic-array",
+ "num-traits",
 ]
 
 [[package]]
@@ -1754,6 +1787,12 @@ dependencies = [
  "num-integer",
  "strength_reduce",
 ]
+
+[[package]]
+name = "typenum"
+version = "1.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "879f6906492a7cd215bfa4cf595b600146ccfac0c79bcbd1f3000162af5e8b06"
 
 [[package]]
 name = "unicode-bidi"
