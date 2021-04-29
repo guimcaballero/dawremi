@@ -1,5 +1,8 @@
 //! Contains various effects to modify a list of samples
 
+use std::fmt::Debug;
+use std::sync::Arc;
+
 use crate::frame::*;
 use crate::frequency::*;
 use crate::helpers::*;
@@ -33,16 +36,28 @@ impl Effect for EffectBundle {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum Automation<T: Default + Clone> {
+#[derive(Clone)]
+pub enum Automation<T: Default + Clone + Debug> {
     /// Always returns the same value
     Const(T),
     /// Will return each value of the vec in order, and after that will return T::default()
     Vec(Vec<T>),
     /// Will return each value of the vec in order, looping back to the beginning once it's done
     Loop(Vec<T>),
+    /// Generator method
+    Generator(Arc<dyn Fn(usize) -> T>),
 }
-impl<T: Default + Clone> Automation<T> {
+impl<T: Default + Clone + Debug> Debug for Automation<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Automation::Const(val) => write!(f, "Const({:?})", val),
+            Automation::Vec(vec) => write!(f, "Vec({:?})", vec),
+            Automation::Loop(vec) => write!(f, "Loop({:?})", vec),
+            Automation::Generator(_) => write!(f, "Generator"),
+        }
+    }
+}
+impl<T: Default + Clone + Debug> Automation<T> {
     pub fn value(&self, idx: usize) -> T {
         match self {
             Self::Const(val) => val.clone(),
@@ -54,17 +69,16 @@ impl<T: Default + Clone> Automation<T> {
                 }
             }
             Self::Loop(vec) => vec[idx % vec.len()].clone(),
+            Self::Generator(fun) => fun(idx),
         }
     }
-}
 
-impl<T: Default + Clone> Default for Automation<T> {
-    fn default() -> Self {
-        Automation::Const(T::default())
+    pub fn generator(fun: &'static dyn Fn(usize) -> T) -> Self {
+        Automation::Generator(Arc::new(fun))
     }
 }
 
-impl<T: Default + Clone> IntoIterator for Automation<T> {
+impl<T: Default + Clone + Debug> IntoIterator for Automation<T> {
     type Item = T;
     type IntoIter = AutomationIter<T>;
 
@@ -74,8 +88,8 @@ impl<T: Default + Clone> IntoIterator for Automation<T> {
 }
 
 /// Infinite Iterator for the provided automation
-pub struct AutomationIter<T: Default + Clone>(Automation<T>, usize);
-impl<T: Default + Clone> Iterator for AutomationIter<T> {
+pub struct AutomationIter<T: Default + Clone + Debug>(Automation<T>, usize);
+impl<T: Default + Clone + Debug> Iterator for AutomationIter<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -164,6 +178,14 @@ mod test {
 
         let vec: Vec<f64> = (0..10).map(|idx| a.value(idx)).collect();
         assert_eq!(vec![0., 1., 2., 3., 4., 0., 1., 2., 3., 4.,], vec);
+    }
+
+    #[test]
+    fn generator_automation() {
+        let a = Automation::generator(&|idx: usize| idx as f64);
+
+        let vec: Vec<f64> = (0..10).map(|idx| a.value(idx)).collect();
+        assert_eq!(vec![0., 1., 2., 3., 4., 5., 6., 7., 8., 9.,], vec);
     }
 
     #[test]
