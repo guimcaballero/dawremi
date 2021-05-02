@@ -68,6 +68,18 @@ pub trait VecExtension {
 
     /// Applies the Adsr envelope to the signal
     fn envelope(self, adsr: &Adsr) -> Vec<Self::Item>;
+
+    /// Maps values from (-1., 1.) to (start, end)
+    ///
+    /// Used to easily map the values of a generated wave into another range, for example for frequencies
+    fn map_to(self, start: Self::Item, end: Self::Item) -> Vec<Self::Item>;
+
+    /// Maps values from `from` to `to`
+    fn map_from_to(
+        self,
+        from: (Self::Item, Self::Item),
+        to: (Self::Item, Self::Item),
+    ) -> Vec<Self::Item>;
 }
 
 impl VecExtension for Vec<Frame> {
@@ -161,7 +173,36 @@ impl VecExtension for Vec<Frame> {
         let length = self.len();
         self.multiply(&adsr.generate(length).into_frames())
     }
+
+    fn map_to(self, start: Self::Item, end: Self::Item) -> Vec<Self::Item> {
+        self.iter()
+            .map(|val| map_from_to(*val, Frame::mono(-1.), Frame::mono(1.), start, end))
+            .collect()
+    }
+
+    fn map_from_to(
+        self,
+        (from_start, from_end): (Self::Item, Self::Item),
+        (to_start, to_end): (Self::Item, Self::Item),
+    ) -> Vec<Self::Item> {
+        self.iter()
+            .map(|val| map_from_to(*val, from_start, from_end, to_start, to_end))
+            .collect()
+    }
 }
+
+fn map_from_to<T>(value: T, from_start: T, from_end: T, to_start: T, to_end: T) -> T
+where
+    T: std::ops::Sub<Output = T>
+        + std::ops::Div<Output = T>
+        + std::ops::Mul<Output = T>
+        + std::ops::Add<Output = T>
+        + Clone,
+{
+    to_start.clone()
+        + (to_end - to_start) * ((value - from_start.clone()) / (from_end - from_start))
+}
+
 impl VecExtension for Vec<f64> {
     type Item = f64;
 
@@ -252,6 +293,22 @@ impl VecExtension for Vec<f64> {
     fn envelope(self, adsr: &Adsr) -> Vec<Self::Item> {
         let length = self.len();
         self.multiply(&adsr.generate(length))
+    }
+
+    fn map_to(self, start: Self::Item, end: Self::Item) -> Vec<Self::Item> {
+        self.iter()
+            .map(|val| map_from_to(*val, -1., 1., start, end))
+            .collect()
+    }
+
+    fn map_from_to(
+        self,
+        (from_start, from_end): (Self::Item, Self::Item),
+        (to_start, to_end): (Self::Item, Self::Item),
+    ) -> Vec<Self::Item> {
+        self.iter()
+            .map(|val| map_from_to(*val, from_start, from_end, to_start, to_end))
+            .collect()
     }
 }
 
