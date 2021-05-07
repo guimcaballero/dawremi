@@ -2,7 +2,6 @@
 
 use crate::frame::Frame;
 
-use open;
 use std::fs::File;
 use std::io::prelude::Write;
 use std::path::Path;

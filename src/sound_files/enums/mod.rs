@@ -128,28 +128,28 @@ fn get_folders(paths: Vec<&str>) -> Vec<Folder> {
                 .filter(|e| !e.file_type().unwrap().is_dir())
             {
                 files.push({
-                    let file_name =
-                        format!("{}", child.path().file_name().unwrap().to_str().unwrap());
-                    let mut file_stem = format!(
-                        "{}",
-                        child
-                            .path()
-                            .file_stem()
-                            .unwrap()
-                            .to_str()
-                            .unwrap()
-                            .chars()
-                            // Remove bad characters
-                            .map(|c| {
-                                match c {
-                                    '(' | ')' => '-',
-                                    _ => c,
-                                }
-                            })
-                            .collect::<String>()
-                            // Change to pascal so we have a good variant name
-                            .to_case(Case::Pascal)
-                    );
+                    let file_name = child
+                        .path()
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
+                    let mut file_stem = child
+                        .path()
+                        .file_stem()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .chars()
+                        // Remove bad characters
+                        .map(|c| match c {
+                            '(' | ')' => '-',
+                            _ => c,
+                        })
+                        .collect::<String>()
+                        // Change to pascal so we have a good variant name
+                        .to_case(Case::Pascal);
                     // If it begins with a number, add and E in front
                     if let Some('0'..='9') = file_stem.chars().next() {
                         file_stem = format!("E{}", file_stem);
@@ -159,16 +159,13 @@ fn get_folders(paths: Vec<&str>) -> Vec<Folder> {
             }
 
             let parent_path = format!("{}", parent.path().display());
-            let mut parent_name = format!(
-                "{}",
-                parent
-                    .path()
-                    .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_case(Case::Pascal)
-            );
+            let mut parent_name = parent
+                .path()
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_case(Case::Pascal);
             // If it begins with a number, add and E in front
             if let Some('0'..='9') = parent_name.chars().next() {
                 parent_name = format!("E{}", parent_name);
@@ -218,7 +215,7 @@ enum_to_str! {}
 
         string.push_str("    }\n}\n");
     }
-    string.push_str("}");
+    string.push('}');
 
     let out_dir = env::var_os("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("sound_enums.rs");

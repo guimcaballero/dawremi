@@ -10,10 +10,10 @@ pub struct Frame {
     pub right: f64,
 }
 impl Frame {
-    pub fn new(left: f64, right: f64) -> Self {
+    pub const fn new(left: f64, right: f64) -> Self {
         Self { left, right }
     }
-    pub fn mono(val: f64) -> Self {
+    pub const fn mono(val: f64) -> Self {
         Self {
             left: val,
             right: val,
@@ -92,8 +92,8 @@ impl AddAssign for Frame {
     }
 }
 
-impl AddAssign<&Frame> for Frame {
-    fn add_assign(&mut self, rhs: &Frame) {
+impl AddAssign<&Self> for Frame {
+    fn add_assign(&mut self, rhs: &Self) {
         self.left += rhs.left;
         self.right += rhs.right;
     }
@@ -136,8 +136,8 @@ impl SubAssign<f64> for Frame {
     }
 }
 
-impl SubAssign<&Frame> for Frame {
-    fn sub_assign(&mut self, rhs: &Frame) {
+impl SubAssign<&Self> for Frame {
+    fn sub_assign(&mut self, rhs: &Self) {
         self.left -= rhs.left;
         self.right -= rhs.right;
     }
@@ -184,7 +184,7 @@ impl Mul<&f64> for &Frame {
 }
 
 impl MulAssign for Frame {
-    fn mul_assign(&mut self, rhs: Frame) {
+    fn mul_assign(&mut self, rhs: Self) {
         self.left *= rhs.left;
         self.right *= rhs.right;
     }
@@ -197,8 +197,8 @@ impl MulAssign<f64> for Frame {
     }
 }
 
-impl MulAssign<&Frame> for Frame {
-    fn mul_assign(&mut self, rhs: &Frame) {
+impl MulAssign<&Self> for Frame {
+    fn mul_assign(&mut self, rhs: &Self) {
         self.left *= rhs.left;
         self.right *= rhs.right;
     }
@@ -297,10 +297,10 @@ impl IndexMut<usize> for Frame {
 }
 
 pub trait IntoFrames {
-    fn into_frames(&self) -> Vec<Frame>;
+    fn as_frames(&self) -> Vec<Frame>;
 }
 impl IntoFrames for Vec<f64> {
-    fn into_frames(&self) -> Vec<Frame> {
+    fn as_frames(&self) -> Vec<Frame> {
         self.iter().map(|val| Frame::mono(*val)).collect()
     }
 }

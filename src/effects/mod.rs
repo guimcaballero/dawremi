@@ -50,10 +50,10 @@ pub enum Automation<T: Default + Clone + Debug> {
 impl<T: Default + Clone + Debug> Debug for Automation<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Automation::Const(val) => write!(f, "Const({:?})", val),
-            Automation::Vec(vec) => write!(f, "Vec({:?})", vec),
-            Automation::Loop(vec) => write!(f, "Loop({:?})", vec),
-            Automation::Generator(_) => write!(f, "Generator"),
+            Self::Const(val) => write!(f, "Const({:?})", val),
+            Self::Vec(vec) => write!(f, "Vec({:?})", vec),
+            Self::Loop(vec) => write!(f, "Loop({:?})", vec),
+            Self::Generator(_) => write!(f, "Generator"),
         }
     }
 }
@@ -74,7 +74,7 @@ impl<T: Default + Clone + Debug> Automation<T> {
     }
 
     pub fn generator(fun: &'static dyn Fn(usize) -> T) -> Self {
-        Automation::Generator(Arc::new(fun))
+        Self::Generator(Arc::new(fun))
     }
 }
 
@@ -144,7 +144,7 @@ mod test {
             mult: Automation::Const(0.5),
         })]);
 
-        let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
+        let res = vec![0., 1., 0., 1.].as_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());
     }
 
@@ -152,7 +152,7 @@ mod test {
     fn effect_bundle_works_empty() {
         let effect_bundle = EffectBundle(vec![]);
 
-        let res = vec![0., 1., 0., 1.].into_frames().effect(&effect_bundle);
+        let res = vec![0., 1., 0., 1.].as_frames().effect(&effect_bundle);
         assert_eq!(4, res.len());
     }
 

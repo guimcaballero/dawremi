@@ -95,7 +95,7 @@ fn resample_and_save(
 
     let vec = resample_frames(orig, spec.sample_rate, sample_rate);
 
-    save_file(&vec, &processed_filename, sample_rate, 24);
+    save_file(&vec, processed_filename, sample_rate, 24);
 
     vec
 }

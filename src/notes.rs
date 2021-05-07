@@ -24,7 +24,7 @@ pub mod n_tet {
     impl<const N: u8> NTet<N> {
         /// Octave: 4, Fraction: 0, always corresponds to C4
         /// The rest are generated accordingly
-        pub fn new(octave: u8, fraction: u8) -> Self {
+        pub const fn new(octave: u8, fraction: u8) -> Self {
             Self((octave as i16 - 4) * N as i16 + fraction as i16)
         }
     }
@@ -40,9 +40,9 @@ pub mod n_tet {
 
     impl<const N: u8> From<NTet<N>> for Frequency {
         fn from(note: NTet<N>) -> Self {
-            let initial = 2.0_f64.powf(note.0 as f64 / N as f64);
+            let initial = (note.0 as Self / N as Self).exp2();
 
-            let c4f: Frequency = Note::C4.into();
+            let c4f: Self = Note::C4.into();
             c4f * initial
         }
     }
@@ -92,7 +92,7 @@ pub mod n_tet {
 impl From<Note> for Frequency {
     fn from(note: Note) -> Self {
         let n = note as i16;
-        let a: f64 = 2.0_f64.powf(n as f64 / 12.);
+        let a: Self = (n as Self / 12.).exp2();
         440. * a
     }
 }
@@ -238,26 +238,26 @@ impl Note {
     // All of this functions can panic, this way we know at compile time if our note will exist or not
     // And if it doesn't we can add it to the enum
 
-    pub fn up_an_octave(self) -> Note {
+    pub fn up_an_octave(self) -> Self {
         let n = self as i16;
-        Note::try_from(n + 12).expect("Raise note an octave")
+        Self::try_from(n + 12).expect("Raise note an octave")
     }
-    pub fn down_an_octave(self) -> Note {
+    pub fn down_an_octave(self) -> Self {
         let n = self as i16;
-        Note::try_from(n - 12).expect("Lower note an octave")
+        Self::try_from(n - 12).expect("Lower note an octave")
     }
-    pub fn up_a_note(self) -> Note {
+    pub fn up_a_note(self) -> Self {
         let n = self as i16;
-        Note::try_from(n + 1).expect("Raise one note")
+        Self::try_from(n + 1).expect("Raise one note")
     }
-    pub fn down_a_note(self) -> Note {
+    pub fn down_a_note(self) -> Self {
         let n = self as i16;
-        Note::try_from(n - 1).expect("Lower one note")
+        Self::try_from(n - 1).expect("Lower one note")
     }
 
-    pub fn closest_to_frequency(freq: f64) -> Note {
+    pub fn closest_to_frequency(freq: f64) -> Self {
         let n = (12. * (freq / 440.).log2()).round() as i16;
-        Note::try_from(n).expect("Couldn't find closest note")
+        Self::try_from(n).expect("Couldn't find closest note")
     }
 }
 

@@ -12,7 +12,7 @@ pub struct Convolution {
 impl Convolution {
     pub fn new(sound: Vec<Frame>) -> Self {
         Self {
-            sound: sound.to_mono(),
+            sound: sound.into_mono(),
         }
     }
 }

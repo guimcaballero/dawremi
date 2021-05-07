@@ -10,7 +10,7 @@ impl SlowConvolution {
     pub fn new(mut sound: Vec<Frame>) -> Self {
         sound.reverse();
         Self {
-            sound: sound.to_mono(),
+            sound: sound.into_mono(),
         }
     }
 }

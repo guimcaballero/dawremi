@@ -41,14 +41,17 @@ impl Instrument for DrumHiHat {
 
                 let time = TAU * (sample as f64 / sample_rate as f64);
 
-                let square =
-                    if (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin() > 0. {
-                        1.
-                    } else {
-                        -1.
-                    };
+                let square = if frequency
+                    .mul_add(time, a_lfo * frequency * (f_lfo * time).sin())
+                    .sin()
+                    > 0.
+                {
+                    1.
+                } else {
+                    -1.
+                };
 
-                let result = 0.1 * square + 0.9 * rand::thread_rng().gen_range(-1., 1.);
+                let result = 0.1_f64.mul_add(square, 0.9 * rand::thread_rng().gen_range(-1., 1.));
 
                 Frame::mono(result)
             })

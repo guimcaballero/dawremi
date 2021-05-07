@@ -1,6 +1,7 @@
 /// Basic lerp function
 pub fn lerp(a: f64, b: f64, i: f64) -> f64 {
-    a + i * (b - a)
+    // a + i * (b - a)
+    i.mul_add(b - a, a)
 }
 
 /// Returns an n-length vector of values lerping from  a to b

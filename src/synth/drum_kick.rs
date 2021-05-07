@@ -41,9 +41,12 @@ impl Instrument for DrumKick {
 
                 let time = TAU * (sample as f64 / sample_rate as f64);
 
-                let result = 0.99
-                    * (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin()
-                    + 0.01 * rand::thread_rng().gen_range(-1., 1.);
+                let result = 0.99_f64.mul_add(
+                    frequency
+                        .mul_add(time, a_lfo * frequency * (f_lfo * time).sin())
+                        .sin(),
+                    0.01 * rand::thread_rng().gen_range(-1., 1.),
+                );
 
                 Frame::mono(result)
             })

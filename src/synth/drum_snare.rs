@@ -41,9 +41,12 @@ impl Instrument for DrumSnare {
 
                 let time = TAU * (sample as f64 / sample_rate as f64);
 
-                let result = 0.5
-                    * (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin()
-                    + 0.5 * rand::thread_rng().gen_range(-0.8, 0.8);
+                let result = 0.5_f64.mul_add(
+                    frequency
+                        .mul_add(time, a_lfo * frequency * (f_lfo * time).sin())
+                        .sin(),
+                    0.5 * rand::thread_rng().gen_range(-0.8, 0.8),
+                );
 
                 Frame::mono(result)
             })

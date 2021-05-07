@@ -49,13 +49,13 @@ fn run(filter: &Filter, input: Vec<f64>) -> Vec<f64> {
             let g = (PI * (filter.cutoff.value(idx) / filter.sample_rate as f64)).tan();
             let k = 2.0 - (1.9 * filter.resonance.value(idx).min(1.0).max(0.0));
 
-            let a1 = 1.0 / (1.0 + (g * (g + k)));
+            let a1 = 1.0 / g.mul_add(g + k, 1.0);
             let a2 = g * a1;
             let a3 = g * a2;
 
             let v3 = val - ic2eq;
-            let v1 = (ic1eq * (a1)) + (v3 * (a2));
-            let v2 = ic2eq + (ic1eq * (a2)) + (v3 * (a3));
+            let v1 = ic1eq.mul_add(a1, v3 * a2);
+            let v2 = v3.mul_add(a3, ic1eq.mul_add(a2, ic2eq));
 
             ic1eq = (v1 * 2.0) - ic1eq;
             ic2eq = (v2 * 2.0) - ic2eq;

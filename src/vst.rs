@@ -28,12 +28,12 @@ pub struct VstPlugin {
     plugin: Mutex<PluginInstance>,
 }
 impl VstPlugin {
-    pub fn new(loader: &mut PluginLoader<SimpleHost>, sample_rate: u32) -> VstPlugin {
+    pub fn new(loader: &mut PluginLoader<SimpleHost>, sample_rate: u32) -> Self {
         let mut instance = loader.instance().unwrap();
         instance.init();
         instance.set_sample_rate(sample_rate as f32);
 
-        VstPlugin {
+        Self {
             plugin: Mutex::from(instance),
         }
     }
@@ -69,7 +69,7 @@ impl VstPlugin {
 
         let inputs = match input_channels {
             0 => vec![],
-            1 => vec![input.to_mono()],
+            1 => vec![input.into_mono()],
             _ => {
                 let (left, right) = input.split();
                 let mut vec = vec![left, right];
@@ -119,7 +119,7 @@ impl VstPlugin {
 
         let inputs = match input_channels {
             0 => vec![],
-            1 => vec![input.to_mono().iter().map(|a| *a as f32).collect()],
+            1 => vec![input.into_mono().iter().map(|a| *a as f32).collect()],
             _ => {
                 let (left, right) = input.split();
                 let mut vec = vec![

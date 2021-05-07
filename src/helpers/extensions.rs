@@ -4,8 +4,10 @@ use crate::notes::Note;
 use crate::signals::adsr::*;
 
 pub trait VecFrameExtension {
+    // TODO This could be changed for as_mono(&self), or maybe we can even have both
+
     /// Joins both channels into one
-    fn to_mono(self) -> Vec<f64>;
+    fn into_mono(self) -> Vec<f64>;
 
     /// Split the two channels into two vectors
     /// Returns first Left and then Right
@@ -13,7 +15,7 @@ pub trait VecFrameExtension {
 }
 
 impl VecFrameExtension for Vec<Frame> {
-    fn to_mono(self) -> Vec<f64> {
+    fn into_mono(self) -> Vec<f64> {
         self.iter().map(Frame::to_mono).collect()
     }
 
@@ -109,7 +111,7 @@ impl VecExtension for Vec<Frame> {
         assert!(other.len() > n);
 
         let len = self.len() + other.len() - n;
-        let mut output = Vec::with_capacity(len + 1);
+        let mut output = Self::with_capacity(len + 1);
 
         let self_len = self.len();
         let self_len_minus_n = self.len() - n;
@@ -171,7 +173,7 @@ impl VecExtension for Vec<Frame> {
 
     fn envelope(self, adsr: &Adsr) -> Vec<Self::Item> {
         let length = self.len();
-        self.multiply(&adsr.generate(length).into_frames())
+        self.multiply(&adsr.generate(length).as_frames())
     }
 
     fn map_to(self, start: Self::Item, end: Self::Item) -> Vec<Self::Item> {
@@ -230,7 +232,7 @@ impl VecExtension for Vec<f64> {
         assert!(other.len() > n);
 
         let len = self.len() + other.len() - n;
-        let mut output = Vec::with_capacity(len + 1);
+        let mut output = Self::with_capacity(len + 1);
 
         let self_len = self.len();
         let self_len_minus_n = self.len() - n;
@@ -242,7 +244,7 @@ impl VecExtension for Vec<f64> {
                 output.push(other[i - self_len_minus_n]);
             } else {
                 let a = (i - self_len_minus_n) as f64 / n as f64;
-                let val = self[i] * (1. - a) + other[i - self_len_minus_n] * a;
+                let val = self[i].mul_add(1. - a, other[i - self_len_minus_n] * a);
                 output.push(val);
             }
         }
@@ -334,55 +336,55 @@ mod test {
 
     #[test]
     fn take_samples_returns_number_of_samples() {
-        let vec = vec![1., 2., 3., 4., 5., 6.].into_frames();
+        let vec = vec![1., 2., 3., 4., 5., 6.].as_frames();
 
-        let expected = vec![1., 2., 3.].into_frames();
+        let expected = vec![1., 2., 3.].as_frames();
 
         assert_eq!(expected, vec.take_samples(3));
     }
 
     #[test]
     fn take_samples_pads_vec_with_0s() {
-        let vec = vec![1., 2., 3.].into_frames();
+        let vec = vec![1., 2., 3.].as_frames();
 
-        let expected = vec![1., 2., 3., 0., 0.].into_frames();
+        let expected = vec![1., 2., 3., 0., 0.].as_frames();
 
         assert_eq!(expected, vec.take_samples(5));
     }
 
     #[test]
     fn overlap_two_vectors() {
-        let vec = vec![1., 1., 0.].into_frames();
-        let vec2 = vec![0.5, 1., 1.].into_frames();
+        let vec = vec![1., 1., 0.].as_frames();
+        let vec2 = vec![0.5, 1., 1.].as_frames();
 
         assert_eq!(
-            vec![1., 1.0, 0.5, 1.].into_frames(),
+            vec![1., 1.0, 0.5, 1.].as_frames(),
             vec.clone().overlap(vec2.clone(), 2)
         );
-        assert_eq!(vec![1., 1., 0., 1., 1.].into_frames(), vec.overlap(vec2, 1));
+        assert_eq!(vec![1., 1., 0., 1., 1.].as_frames(), vec.overlap(vec2, 1));
     }
 
     #[test]
     #[should_panic]
     fn overlap_vectors_with_n_over_len() {
-        let vec = vec![1., 1., 0.].into_frames();
-        let vec2 = vec![0.5, 1., 1.].into_frames();
+        let vec = vec![1., 1., 0.].as_frames();
+        let vec2 = vec![0.5, 1., 1.].as_frames();
 
         vec.overlap(vec2, 4);
     }
 
     #[test]
     fn repeat_vec() {
-        let vec = vec![1., 1., 0.].into_frames();
-        let result = vec![1., 1., 0., 1., 1., 0., 1., 1., 0.].into_frames();
+        let vec = vec![1., 1., 0.].as_frames();
+        let result = vec![1., 1., 0., 1., 1., 0., 1., 1., 0.].as_frames();
 
         assert_eq!(result, vec.repeat(3));
     }
 
     #[test]
     fn cycle_until_samples() {
-        let vec = vec![1., 1., 0.].into_frames();
-        let result = vec![1., 1., 0., 1., 1., 0., 1., 1.].into_frames();
+        let vec = vec![1., 1., 0.].as_frames();
+        let result = vec![1., 1., 0., 1., 1., 0., 1., 1.].as_frames();
 
         assert_eq!(result, vec.cycle_until_samples(8));
     }

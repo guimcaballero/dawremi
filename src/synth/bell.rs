@@ -50,18 +50,19 @@ impl Instrument for Bell {
                 let time = TAU * (sample as f64 / sample_rate as f64);
 
                 let mut result = base_note_vol_multiplier
-                    * (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin();
+                    * (frequency.mul_add(time, a_lfo * frequency * (f_lfo * time).sin())).sin();
 
                 // Add higher notes
                 let freq = frequency * 2.;
-                result += 0.5 * (freq * time + a_lfo * freq * (f_lfo * time).sin()).sin();
+                result += 0.5 * (freq.mul_add(time, a_lfo * freq * (f_lfo * time).sin())).sin();
 
-                let freq = frequency * 2.;
-                result += 0.125 * (freq * time + a_lfo * freq * (f_lfo * time).sin()).sin();
+                let freq = frequency * 3.;
+                result += 0.125 * (freq.mul_add(time, a_lfo * freq * (f_lfo * time).sin())).sin();
 
-                let freq = frequency * 2.;
+                let freq = frequency * 4.;
                 if sample > attack {
-                    result += 0.0125 * (freq * time + a_lfo * freq * (f_lfo * time).sin()).sin();
+                    result +=
+                        0.0125 * (freq.mul_add(time, a_lfo * freq * (f_lfo * time).sin())).sin();
                 }
 
                 Frame::mono(result)

@@ -57,7 +57,7 @@ pub(crate) fn run_player(
     }
 }
 
-fn run<'a, T>(device: &cpal::Device, config: &cpal::StreamConfig, player: Player) -> Result<()>
+fn run<T>(device: &cpal::Device, config: &cpal::StreamConfig, player: Player) -> Result<()>
 where
     T: cpal::Sample,
 {

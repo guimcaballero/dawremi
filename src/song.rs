@@ -17,7 +17,7 @@ use vst::host::PluginLoader;
 pub enum TrackGenerator {
     Fn(Box<dyn Fn(&Song) -> Vec<Frame>>),
     FnMut(Box<Mutex<dyn FnMut(&Song) -> Vec<Frame>>>),
-    Song(Mutex<Song>),
+    Song(Box<Mutex<Song>>),
 }
 impl TrackGenerator {
     fn call(&self, song: &Song) -> Vec<Frame> {
@@ -43,7 +43,7 @@ impl<F: 'static + (FnMut(&Song) -> Vec<Frame>)> From<F> for TrackGenerator {
 }
 impl From<Song> for TrackGenerator {
     fn from(song: Song) -> Self {
-        Self::Song(Mutex::from(song))
+        Self::Song(Box::new(Mutex::from(song)))
     }
 }
 
@@ -103,8 +103,8 @@ pub struct Song {
 }
 
 impl Song {
-    pub fn new(tracks: Vec<TrackGenerator>, config: SongConfig) -> Song {
-        Song {
+    pub fn new(tracks: Vec<TrackGenerator>, config: SongConfig) -> Self {
+        Self {
             sample_rate: None,
             sounds: Default::default(),
             generated: None,
@@ -139,7 +139,7 @@ impl Song {
         (self.sample_rate.unwrap() as f64 * x) as usize
     }
 
-    pub fn bpm(&self) -> f64 {
+    pub const fn bpm(&self) -> f64 {
         self.config.bpm
     }
 
@@ -261,7 +261,7 @@ impl Song {
         let mut tracks = vec![];
         let generators = &self.tracks;
         for track in generators {
-            tracks.push(track.call(&self));
+            tracks.push(track.call(self));
         }
 
         let tracks = join_tracks(tracks);

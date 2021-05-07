@@ -42,7 +42,9 @@ impl Instrument for Harmonica {
                 let time = TAU * (sample as f64 / sample_rate as f64);
 
                 let square_1 =
-                    if (frequency * time + a_lfo * frequency * (f_lfo * time).sin()).sin() > 0. {
+                    if (frequency.mul_add(time, a_lfo * frequency * (f_lfo * time).sin())).sin()
+                        > 0.
+                    {
                         1.
                     } else {
                         -1.
@@ -58,10 +60,13 @@ impl Instrument for Harmonica {
                     -1.
                 };
 
-                let result = 0.02 * square_1
-                    + 0.5 * square_2
-                    + 0.15 * square_3
-                    + 0.01 * rand::thread_rng().gen_range(-1., 1.);
+                let result = 0.02_f64.mul_add(
+                    square_1,
+                    0.01_f64.mul_add(
+                        rand::thread_rng().gen_range(-1., 1.),
+                        0.5_f64.mul_add(square_2, 0.15 * square_3),
+                    ),
+                );
 
                 Frame::mono(result)
             })

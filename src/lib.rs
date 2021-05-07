@@ -18,7 +18,7 @@ fn main() {
         ..Default::default()
     };
     let mut song = Song::new(
-        vec_into![|song: &Song| noise::noise(song.duration().unwrap(), 3333).into_frames()],
+        vec_into![|song: &Song| noise::noise(song.duration().unwrap(), 3333).as_frames()],
         config
     );
     // Uncomment the following line to play the song
@@ -32,7 +32,7 @@ examples to get an idea of how to use the crate.
 
 #![warn(
     clippy::all,
-    clippy::pedantic,
+    // clippy::pedantic,
     clippy::nursery,
     clippy::style,
     clippy::perf,
