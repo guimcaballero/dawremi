@@ -4,8 +4,10 @@ use crate::frame::Frame;
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, SampleFormat, StreamConfig};
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
 use std::sync::mpsc;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 pub(crate) struct PlayerConfig {
     pub sample_rate: u32,
@@ -66,16 +68,16 @@ where
 
     // Create and run the stream.
     let channels = config.channels as usize;
-    let index = Arc::new(Mutex::new(0));
+    let index = Arc::new(AtomicUsize::new(0));
     let total_len = player.audio.len();
 
     let stream = device.build_output_stream(
         config,
         move |output: &mut [T], _: &cpal::OutputCallbackInfo| {
-            let mut index = index.lock().unwrap();
+            let mut idx = index.load(Ordering::Relaxed);
 
             for frame in output.chunks_mut(channels) {
-                let sample = player.audio[*index];
+                let sample = player.audio[idx];
 
                 if frame.len() == 2 {
                     frame[0] = cpal::Sample::from::<f32>(&(sample.left as f32));
@@ -87,16 +89,18 @@ where
                     }
                 }
 
-                *index += 1;
-                if *index >= total_len {
+                idx += 1;
+                if idx >= total_len {
                     if player.cycle {
-                        *index = 0;
+                        idx = 0;
                     } else {
+                        index.store(idx, Ordering::Relaxed);
                         complete_tx.try_send(()).ok();
                         return;
                     }
                 }
             }
+            index.store(idx, Ordering::Relaxed);
         },
         |err| eprintln!("an error occurred on stream: {}", err),
     )?;
