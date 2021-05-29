@@ -139,6 +139,11 @@ impl Song {
         (self.sample_rate.unwrap() as f64 * x) as usize
     }
 
+    /// Returns the number of samples in x microseconds
+    pub fn milliseconds(&self, x: f64) -> usize {
+        (self.sample_rate.unwrap() as f64 * x * 0.001) as usize
+    }
+
     pub const fn bpm(&self) -> f64 {
         self.config.bpm
     }
