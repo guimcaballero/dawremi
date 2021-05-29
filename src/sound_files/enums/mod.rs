@@ -104,6 +104,14 @@ struct Folder {
     files: Vec<(String, String)>,
 }
 
+fn is_hidden(entry: &fs::DirEntry) -> bool {
+    entry
+        .file_name()
+        .to_str()
+        .map(|s| s.starts_with("."))
+        .unwrap_or(false)
+}
+
 fn get_folders(paths: Vec<&str>) -> Vec<Folder> {
     let mut result = vec![];
 
@@ -125,6 +133,7 @@ fn get_folders(paths: Vec<&str>) -> Vec<Folder> {
                 .read_dir()
                 .expect("read_dir call failed")
                 .filter_map(|e| e.ok())
+                .filter(|e| !is_hidden(e))
                 .filter(|e| !e.file_type().unwrap().is_dir())
             {
                 files.push({
