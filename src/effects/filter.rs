@@ -47,7 +47,7 @@ fn run(filter: &Filter, input: Vec<f64>) -> Vec<f64> {
         .enumerate()
         .map(|(idx, val)| {
             let g = (PI * (filter.cutoff.value(idx) / filter.sample_rate as f64)).tan();
-            let k = 2.0 - (1.9 * filter.resonance.value(idx).min(1.0).max(0.0));
+            let k = 2.0 - (1.9 * filter.resonance.value(idx).clamp(0., 1.));
 
             let a1 = 1.0 / g.mul_add(g + k, 1.0);
             let a2 = g * a1;
