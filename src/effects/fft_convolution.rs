@@ -1,8 +1,7 @@
 use super::*;
 
-use realfft::{ComplexToReal, RealToComplex};
+use realfft::RealFftPlanner;
 use rustfft::num_complex::Complex;
-use rustfft::num_traits::Zero;
 
 // From: https://blog.demofox.org/2015/03/23/diy-synth-convolution-reverb-1d-discrete-convolution-of-audio-samples/
 
@@ -45,10 +44,15 @@ fn run(conv: &Convolution, mut input: Vec<f64>) -> Vec<f64> {
     pad_to_len(&mut sound, len);
     pad_to_len(&mut input, len);
 
+    // make a planner
+    let mut real_planner = RealFftPlanner::<f64>::new();
+
     // Get freq domain for input data
     let input_spectrum: Vec<Complex<f64>> = {
-        let mut r2c = RealToComplex::<f64>::new(len).unwrap();
-        let mut spectrum: Vec<Complex<f64>> = vec![Complex::zero(); half_len];
+        // create a FFT
+        let r2c = real_planner.plan_fft_forward(len);
+        // make output vector
+        let mut spectrum = r2c.make_output_vec();
         // Forward pass of input data
         r2c.process(&mut input, &mut spectrum).unwrap();
         // Normalize data
@@ -57,8 +61,10 @@ fn run(conv: &Convolution, mut input: Vec<f64>) -> Vec<f64> {
 
     // Get freq domain for sound
     let sound_spectrum: Vec<Complex<f64>> = {
-        let mut r2c = RealToComplex::<f64>::new(len).unwrap();
-        let mut spectrum: Vec<Complex<f64>> = vec![Complex::zero(); half_len];
+        // create a FFT
+        let r2c = real_planner.plan_fft_forward(len);
+        // make output vector
+        let mut spectrum = r2c.make_output_vec();
         // Forward pass of input data
         r2c.process(&mut sound, &mut spectrum).unwrap();
         // Normalize data
@@ -66,7 +72,7 @@ fn run(conv: &Convolution, mut input: Vec<f64>) -> Vec<f64> {
     };
 
     // Multiply the two domains and normalize them
-    let comb_spectrum: Vec<Complex<f64>> = input_spectrum
+    let mut comb_spectrum: Vec<Complex<f64>> = input_spectrum
         .iter()
         .zip(sound_spectrum.iter())
         // No idea why, but this 16 keeps the volume good
@@ -74,10 +80,10 @@ fn run(conv: &Convolution, mut input: Vec<f64>) -> Vec<f64> {
         .collect();
 
     let output: Vec<f64> = {
-        let mut outdata: Vec<f64> = vec![0.0; len];
-        let mut c2r = ComplexToReal::<f64>::new(len).unwrap();
+        let c2r = real_planner.plan_fft_inverse(len);
+        let mut outdata = c2r.make_output_vec();
         // Inverse pass
-        c2r.process(&comb_spectrum, &mut outdata).unwrap();
+        c2r.process(&mut comb_spectrum, &mut outdata).unwrap();
         // Normalize data
         outdata.iter().map(|i| i / factor).collect()
     };
