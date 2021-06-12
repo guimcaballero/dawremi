@@ -22,13 +22,13 @@ impl Length {
 }
 
 /// Keeps a list of frequencies and the length, so it can be computed into a chunk of audio
-/// Yes, I don't know how to name things, how did you know?
-pub struct FrequencyLength {
+/// Naming inspired by the Elektron Digitone
+pub struct Trigger {
     freqs: Vec<Frequency>,
     length: Length,
 }
 
-impl FrequencyLength {
+impl Trigger {
     fn is_empty(&self) -> bool {
         self.freqs.is_empty()
     }
@@ -39,7 +39,7 @@ impl FrequencyLength {
     }
 }
 
-impl From<Frequency> for FrequencyLength {
+impl From<Frequency> for Trigger {
     fn from(freq: Frequency) -> Self {
         Self {
             freqs: vec![freq],
@@ -48,98 +48,98 @@ impl From<Frequency> for FrequencyLength {
     }
 }
 
-pub trait IntoFrequencyLength {
-    fn beats(self, length: f64) -> FrequencyLength;
-    fn seconds(self, length: f64) -> FrequencyLength;
-    fn samples(self, length: usize) -> FrequencyLength;
+pub trait IntoTrigger {
+    fn beats(self, length: f64) -> Trigger;
+    fn seconds(self, length: f64) -> Trigger;
+    fn samples(self, length: usize) -> Trigger;
 }
-impl IntoFrequencyLength for Vec<Frequency> {
-    fn beats(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+impl IntoTrigger for Vec<Frequency> {
+    fn beats(self, length: f64) -> Trigger {
+        Trigger {
             freqs: self,
             length: Length::Beats(length),
         }
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
+        Trigger {
             freqs: self,
             length: Length::Seconds(length),
         }
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
-        FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
+        Trigger {
             freqs: self,
             length: Length::Samples(length),
         }
     }
 }
-impl<const N: usize> IntoFrequencyLength for [Frequency; N] {
-    fn beats(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+impl<const N: usize> IntoTrigger for [Frequency; N] {
+    fn beats(self, length: f64) -> Trigger {
+        Trigger {
             freqs: self.into(),
             length: Length::Beats(length),
         }
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
+        Trigger {
             freqs: self.into(),
             length: Length::Seconds(length),
         }
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
-        FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
+        Trigger {
             freqs: self.into(),
             length: Length::Samples(length),
         }
     }
 }
-impl IntoFrequencyLength for Frequency {
-    fn beats(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+impl IntoTrigger for Frequency {
+    fn beats(self, length: f64) -> Trigger {
+        Trigger {
             freqs: vec![self],
             length: Length::Beats(length),
         }
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
+        Trigger {
             freqs: vec![self],
             length: Length::Seconds(length),
         }
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
-        FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
+        Trigger {
             freqs: vec![self],
             length: Length::Samples(length),
         }
     }
 }
-impl<N: Into<Note>> IntoFrequencyLength for N {
-    fn beats(self, length: f64) -> FrequencyLength {
+impl<N: Into<Note>> IntoTrigger for N {
+    fn beats(self, length: f64) -> Trigger {
         let n: Note = self.into();
         let n: Frequency = n.into();
         n.beats(length)
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
         let n: Note = self.into();
         let n: Frequency = n.into();
         n.seconds(length)
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
         let n: Note = self.into();
         let n: Frequency = n.into();
         n.samples(length)
     }
 }
-impl<NOTE: Into<Note> + Clone, const N: usize> IntoFrequencyLength for [NOTE; N] {
-    fn beats(self, length: f64) -> FrequencyLength {
+impl<NOTE: Into<Note> + Clone, const N: usize> IntoTrigger for [NOTE; N] {
+    fn beats(self, length: f64) -> Trigger {
         let mut array = [0.; N];
         for idx in 0..N {
             let n: Note = self[idx].clone().into();
@@ -149,7 +149,7 @@ impl<NOTE: Into<Note> + Clone, const N: usize> IntoFrequencyLength for [NOTE; N]
         array.beats(length)
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
         let mut array = [0.; N];
         for idx in 0..N {
             let n: Note = self[idx].clone().into();
@@ -159,7 +159,7 @@ impl<NOTE: Into<Note> + Clone, const N: usize> IntoFrequencyLength for [NOTE; N]
         array.seconds(length)
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
         let mut array = [0.; N];
         for idx in 0..N {
             let n: Note = self[idx].clone().into();
@@ -169,8 +169,8 @@ impl<NOTE: Into<Note> + Clone, const N: usize> IntoFrequencyLength for [NOTE; N]
         array.samples(length)
     }
 }
-impl<NOTE: Into<Note>> IntoFrequencyLength for Vec<NOTE> {
-    fn beats(self, length: f64) -> FrequencyLength {
+impl<NOTE: Into<Note>> IntoTrigger for Vec<NOTE> {
+    fn beats(self, length: f64) -> Trigger {
         let mut array = Vec::<Frequency>::with_capacity(self.len());
         for note in self {
             let n: Note = note.into();
@@ -180,7 +180,7 @@ impl<NOTE: Into<Note>> IntoFrequencyLength for Vec<NOTE> {
         array.beats(length)
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
         let mut array = Vec::<Frequency>::with_capacity(self.len());
         for note in self {
             let n: Note = note.into();
@@ -190,7 +190,7 @@ impl<NOTE: Into<Note>> IntoFrequencyLength for Vec<NOTE> {
         array.seconds(length)
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
         let mut array = Vec::<Frequency>::with_capacity(self.len());
         for note in self {
             let n: Note = note.into();
@@ -200,24 +200,24 @@ impl<NOTE: Into<Note>> IntoFrequencyLength for Vec<NOTE> {
         array.samples(length)
     }
 }
-impl<const M: u8> IntoFrequencyLength for n_tet::NTet<M> {
-    fn beats(self, length: f64) -> FrequencyLength {
+impl<const M: u8> IntoTrigger for n_tet::NTet<M> {
+    fn beats(self, length: f64) -> Trigger {
         let freq: Frequency = self.into();
         freq.beats(length)
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
         let freq: Frequency = self.into();
         freq.seconds(length)
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
         let freq: Frequency = self.into();
         freq.samples(length)
     }
 }
-impl<const N: usize, const M: u8> IntoFrequencyLength for [n_tet::NTet<M>; N] {
-    fn beats(self, length: f64) -> FrequencyLength {
+impl<const N: usize, const M: u8> IntoTrigger for [n_tet::NTet<M>; N] {
+    fn beats(self, length: f64) -> Trigger {
         let mut array = [0.; N];
         for idx in 0..N {
             let n: Frequency = self[idx].clone().into();
@@ -226,7 +226,7 @@ impl<const N: usize, const M: u8> IntoFrequencyLength for [n_tet::NTet<M>; N] {
         array.beats(length)
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
         let mut array = [0.; N];
         for idx in 0..N {
             let n: Frequency = self[idx].clone().into();
@@ -235,7 +235,7 @@ impl<const N: usize, const M: u8> IntoFrequencyLength for [n_tet::NTet<M>; N] {
         array.seconds(length)
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
         let mut array = [0.; N];
         for idx in 0..N {
             let n: Frequency = self[idx].clone().into();
@@ -244,8 +244,8 @@ impl<const N: usize, const M: u8> IntoFrequencyLength for [n_tet::NTet<M>; N] {
         array.samples(length)
     }
 }
-impl<const M: u8> IntoFrequencyLength for Vec<n_tet::NTet<M>> {
-    fn beats(self, length: f64) -> FrequencyLength {
+impl<const M: u8> IntoTrigger for Vec<n_tet::NTet<M>> {
+    fn beats(self, length: f64) -> Trigger {
         let mut array = Vec::<Frequency>::with_capacity(self.len());
         for note in self {
             let n: Frequency = note.into();
@@ -254,7 +254,7 @@ impl<const M: u8> IntoFrequencyLength for Vec<n_tet::NTet<M>> {
         array.beats(length)
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
         let mut array = Vec::<Frequency>::with_capacity(self.len());
         for note in self {
             let n: Frequency = note.into();
@@ -263,7 +263,7 @@ impl<const M: u8> IntoFrequencyLength for Vec<n_tet::NTet<M>> {
         array.seconds(length)
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
         let mut array = Vec::<Frequency>::with_capacity(self.len());
         for note in self {
             let n: Frequency = note.into();
@@ -275,30 +275,30 @@ impl<const M: u8> IntoFrequencyLength for Vec<n_tet::NTet<M>> {
 
 /// Makes a FrequencyLength with no frequencies
 pub struct Silence;
-impl IntoFrequencyLength for Silence {
-    fn beats(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+impl IntoTrigger for Silence {
+    fn beats(self, length: f64) -> Trigger {
+        Trigger {
             freqs: vec![],
             length: Length::Beats(length),
         }
     }
 
-    fn seconds(self, length: f64) -> FrequencyLength {
-        FrequencyLength {
+    fn seconds(self, length: f64) -> Trigger {
+        Trigger {
             freqs: vec![],
             length: Length::Seconds(length),
         }
     }
 
-    fn samples(self, length: usize) -> FrequencyLength {
-        FrequencyLength {
+    fn samples(self, length: usize) -> Trigger {
+        Trigger {
             freqs: vec![],
             length: Length::Samples(length),
         }
     }
 }
 
-pub trait FrequencyLengthListExtension<'a> {
+pub trait TriggerListExtension<'a> {
     fn generate(
         &self,
         song: &Song,
@@ -308,7 +308,7 @@ pub trait FrequencyLengthListExtension<'a> {
     where
         F: Clone + FnMut(&Frequency) -> Frequency;
 }
-impl<'a, const N: usize> FrequencyLengthListExtension<'a> for [FrequencyLength; N] {
+impl<'a, const N: usize> TriggerListExtension<'a> for [Trigger; N] {
     fn generate(
         &self,
         song: &Song,
@@ -343,7 +343,7 @@ impl<'a, const N: usize> FrequencyLengthListExtension<'a> for [FrequencyLength; 
         self
     }
 }
-impl<'a> FrequencyLengthListExtension<'a> for Vec<FrequencyLength> {
+impl<'a> TriggerListExtension<'a> for Vec<Trigger> {
     fn generate(
         &self,
         song: &Song,

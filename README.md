@@ -86,7 +86,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
         note_list![L5, L5, _, L8, L8, _, L1, L1, _, L4, L4, [L4, E4]]
             .into_iter()
             .map(|notes| notes.beats(1.))
-            .collect::<Vec<FrequencyLength>>()
+            .collect::<Vec<Trigger>>()
     }
     .generate(song, &mut |note, length| {
         guitar(song, note, length, InitialBurstType::Sine)
