@@ -72,8 +72,9 @@ use super::notes::Note;
 use std::ops::Shr;
 
 impl Shr<Chord> for Note {
-    type Output = Vec<Note>;
+    type Output = Vec<Self>;
 
+    #[allow(clippy::suspicious_arithmetic_impl)]
     fn shr(self, rhs: Chord) -> Self::Output {
         rhs.intervals()
             .iter()

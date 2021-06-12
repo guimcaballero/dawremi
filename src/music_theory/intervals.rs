@@ -95,7 +95,7 @@ impl Add<Interval> for Note {
         let n = self as i16;
         let semi = interval.semitones() as i16;
 
-        Note::try_from(n + semi).expect("Couldn't add Interval to Note")
+        Self::try_from(n + semi).expect("Couldn't add Interval to Note")
     }
 }
 impl Add<Note> for Interval {
@@ -115,7 +115,7 @@ impl Sub<Interval> for Note {
         let n = self as i16;
         let semi = interval.semitones() as i16;
 
-        Note::try_from(n - semi).expect("Couldn't subtract Interval from Note")
+        Self::try_from(n - semi).expect("Couldn't subtract Interval from Note")
     }
 }
 impl Sub<Note> for Interval {
