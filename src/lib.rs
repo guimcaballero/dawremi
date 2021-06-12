@@ -66,7 +66,7 @@ pub mod effects;
 pub mod frame;
 pub mod frequency;
 pub mod fundsp;
-pub mod notes;
+pub mod music_theory;
 pub mod player;
 pub mod record;
 pub mod select;
@@ -88,7 +88,7 @@ pub mod prelude {
     pub use super::frequency::*;
     pub use super::fundsp::*;
     pub use super::helpers::*;
-    pub use super::notes::{n_tet::*, *};
+    pub use super::music_theory::{chords::*, intervals::*, n_tet::*, notes::*};
     pub use super::signals::{adsr::Adsr, *};
     pub use super::song::*;
     pub use super::sound_files::{enums::*, io::*, Sound};

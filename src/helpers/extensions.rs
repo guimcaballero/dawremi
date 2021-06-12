@@ -1,6 +1,6 @@
 use crate::effects::Automation;
 use crate::frame::*;
-use crate::notes::Note;
+use crate::music_theory::notes::Note;
 use crate::signals::adsr::*;
 
 pub trait VecFrameExtension {

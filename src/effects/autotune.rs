@@ -1,6 +1,6 @@
 use super::*;
 use crate::helpers::pitch_detection::detect;
-use crate::notes::*;
+use crate::music_theory::notes::*;
 
 pub enum PitchCorrectionMode {
     /// Will snap to closest note

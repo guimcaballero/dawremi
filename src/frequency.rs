@@ -1,6 +1,7 @@
 use crate::frame::*;
 use crate::helpers::*;
-use crate::notes::*;
+use crate::music_theory::n_tet;
+use crate::music_theory::notes::*;
 use crate::song::Song;
 
 pub type Frequency = f64;
