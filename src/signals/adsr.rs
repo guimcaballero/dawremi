@@ -1,3 +1,6 @@
+use crate::effects::Automation;
+use std::sync::Arc;
+
 #[derive(Clone, Copy, Default, Debug)]
 pub struct Adsr {
     pub attack: usize,
@@ -13,19 +16,11 @@ impl Adsr {
     /// Length of envelope is guaranteed to be `length`
     /// This means that the release is included inside length
     pub fn generate(&self, length: usize) -> Vec<f64> {
-        let attack_sustain_diff = self.attack_amplitude - self.sustain_amplitude;
         let samples_release_diff = length.checked_sub(self.release).unwrap_or(length);
 
         (0..length)
             .map(|i| {
-                let volume = if i < self.attack {
-                    (i as f64 / self.attack as f64) * self.attack_amplitude
-                } else if i < self.attack + self.decay {
-                    self.attack_amplitude
-                        - ((i - self.attack) as f64 / self.decay as f64) * attack_sustain_diff
-                } else {
-                    self.sustain_amplitude
-                };
+                let volume = self.value(i);
 
                 let release_multiplier = if i >= samples_release_diff {
                     (length - (i + 1)) as f64 / ((self.release - 1) as f64)
@@ -43,6 +38,24 @@ impl Adsr {
     /// This is poorly explained, I hope to edit it later when I know how to phrase it
     pub fn generate_with_release(&self, length: usize) -> Vec<f64> {
         self.generate(length + self.release)
+    }
+
+    /// Get the value at index `i`
+    pub fn value(&self, i: usize) -> f64 {
+        let attack_sustain_diff = self.attack_amplitude - self.sustain_amplitude;
+
+        if i < self.attack {
+            (i as f64 / self.attack as f64) * self.attack_amplitude
+        } else if i < self.attack + self.decay {
+            self.attack_amplitude
+                - ((i - self.attack) as f64 / self.decay as f64) * attack_sustain_diff
+        } else {
+            self.sustain_amplitude
+        }
+    }
+
+    pub fn to_automation(self) -> Automation<f64> {
+        Automation::Generator(Arc::new(move |i: usize| self.value(i)))
     }
 }
 
@@ -80,5 +93,20 @@ mod test {
         let vec = a.generate(100);
 
         assert_eq!(100, vec.len());
+    }
+
+    #[test]
+    fn convert_to_automation() {
+        let a = Adsr {
+            attack: 10,
+            decay: 30,
+            release: 30,
+            attack_amplitude: 1.,
+            sustain_amplitude: 0.7,
+        };
+
+        let auto = a.to_automation();
+
+        assert_eq!(auto.value(0), 0.);
     }
 }
