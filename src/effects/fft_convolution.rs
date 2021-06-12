@@ -6,30 +6,29 @@ use rustfft::num_complex::Complex;
 // From: https://blog.demofox.org/2015/03/23/diy-synth-convolution-reverb-1d-discrete-convolution-of-audio-samples/
 
 pub struct Convolution {
-    sound: Vec<f64>,
+    sound: Vec<Frame>,
 }
 impl Convolution {
     pub fn new(sound: Vec<Frame>) -> Self {
-        Self {
-            sound: sound.into_mono(),
-        }
+        Self { sound }
     }
 }
 
 impl Effect for Convolution {
     fn run(&self, input: Vec<Frame>) -> Vec<Frame> {
         let (left, right) = input.split_sides();
+        let (sound_left, sound_right) = self.sound.split_sides();
 
-        join_left_and_right_channels(run(self, left), run(self, right))
+        join_left_and_right_channels(run(left, sound_left), run(right, sound_right))
     }
 }
 
-fn run(conv: &Convolution, mut input: Vec<f64>) -> Vec<f64> {
+fn run(mut input: Vec<f64>, mut sound: Vec<f64>) -> Vec<f64> {
     let original_len = input.len();
 
     // Calculate lengths
     let len = {
-        let temp = input.len() + conv.sound.len();
+        let temp = input.len() + sound.len();
         if temp % 2 == 0 {
             temp
         } else {
@@ -40,7 +39,6 @@ fn run(conv: &Convolution, mut input: Vec<f64>) -> Vec<f64> {
     let factor = (half_len as f64).sqrt();
 
     // Pad the sound to the same size
-    let mut sound = conv.sound.clone();
     pad_to_len(&mut sound, len);
     pad_to_len(&mut input, len);
 
