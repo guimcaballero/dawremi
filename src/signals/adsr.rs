@@ -9,6 +9,9 @@ pub struct Adsr {
 }
 
 impl Adsr {
+    /// Generates the envelope
+    /// Length of envelope is guaranteed to be `length`
+    /// This means that the release is included inside length
     pub fn generate(&self, length: usize) -> Vec<f64> {
         let attack_sustain_diff = self.attack_amplitude - self.sustain_amplitude;
         let samples_release_diff = length.checked_sub(self.release).unwrap_or(length);
@@ -33,6 +36,13 @@ impl Adsr {
                 volume * release_multiplier
             })
             .collect::<Vec<f64>>()
+    }
+
+    /// Generates the envelope with release as an added to the envelope
+    /// Total length of the generated envelope will be `length` + release
+    /// This is poorly explained, I hope to edit it later when I know how to phrase it
+    pub fn generate_with_release(&self, length: usize) -> Vec<f64> {
+        self.generate(length + self.release)
     }
 }
 
