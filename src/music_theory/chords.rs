@@ -18,6 +18,10 @@ macro_rules! chords {
                     Self::Other(int) => int,
                 }
             }
+
+            pub const fn len(&self) -> usize {
+                self.intervals().len()
+            }
         }
 
         pub mod chords_short {

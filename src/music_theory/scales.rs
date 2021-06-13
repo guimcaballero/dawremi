@@ -7,7 +7,7 @@ macro_rules! scales {
         pub enum Scale {
             $( $var, )*
             /// Use Other for chords that aren't in this enum
-                Other(&'static [ Interval ])
+            Other(&'static [ Interval ])
         }
 
         impl Scale {
@@ -17,6 +17,10 @@ macro_rules! scales {
                     $( Self::$var => &$intervals, )*
                     Self::Other(int) => int,
                 }
+            }
+
+            pub const fn len(&self) -> usize {
+                self.intervals().len()
             }
         }
     };

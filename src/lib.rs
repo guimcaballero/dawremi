@@ -61,6 +61,7 @@ mod test_readme {
 #[macro_use]
 pub mod helpers;
 
+pub mod arpl;
 pub mod debug;
 pub mod effects;
 pub mod frame;
@@ -83,6 +84,7 @@ pub mod prelude {
 
     pub use std::collections::HashMap;
 
+    pub use super::arpl::*;
     pub use super::effects::*;
     pub use super::frame::*;
     pub use super::frequency::*;

@@ -22,3 +22,4 @@ rustfft = "6.0.1"
 vst = "0.2.1"
 walkdir = "2.3.2"
 fundsp = { git = "https://github.com/SamiPerttu/fundsp", rev = "45135502169a572b1a623ec1c78f128421aa38e9" }
+arpl = { git = "https://github.com/guimcaballero/arpl", rev = "ef4cc4f096461f80ad75edbb19e2f98eea8d115f" }

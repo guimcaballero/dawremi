@@ -47,6 +47,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fca387cdc0a1f9c7a7c26556d584aa2d07fc529843082e4861003cde4ab914ed"
 
 [[package]]
+name = "arpl"
+version = "0.1.0"
+source = "git+https://github.com/guimcaballero/arpl?rev=ef4cc4f096461f80ad75edbb19e2f98eea8d115f#ef4cc4f096461f80ad75edbb19e2f98eea8d115f"
+
+[[package]]
 name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -530,6 +535,7 @@ name = "dawremi"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arpl",
  "convert_case",
  "cpal",
  "dasp",
