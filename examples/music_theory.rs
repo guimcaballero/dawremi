@@ -29,7 +29,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
             (C4 >> Chord::Major).beats(1.),
             (F4 >> Chord::Minor).beats(1.),
             (F4 >> Chord::DominantSeventh).beats(1.),
-            Silence.beats(4.),
+            Silence.beats(2.),
             (C4 >> Chord::Major).beats(1.),
             (F4 >> Chord::Minor).beats(1.),
             (F4 >> Chord::DominantSeventh).beats(1.),

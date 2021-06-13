@@ -320,7 +320,7 @@ impl<'a, const N: usize> TriggerListExtension<'a> for [Trigger; N] {
             let length = freq_length.length(song);
 
             if freq_length.is_empty() {
-                silence().take_samples(length);
+                vec.append(&mut silence().take_samples(length));
             } else {
                 vec.append(&mut join_tracks(
                     freq_length
@@ -355,7 +355,7 @@ impl<'a> TriggerListExtension<'a> for Vec<Trigger> {
             let length = freq_length.length(song);
 
             if freq_length.is_empty() {
-                silence().take_samples(length);
+                vec.append(&mut silence().take_samples(length));
             } else {
                 vec.append(&mut join_tracks(
                     freq_length
