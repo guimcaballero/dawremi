@@ -65,9 +65,6 @@ chords! {
 
 // There's some I haven't added, feel free to send a PR with more
 
-// TODO Implement something to do
-// C4 >> Chord::Major = [C4, E4, G4]
-
 use super::notes::Note;
 use std::ops::Shr;
 
@@ -89,7 +86,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn add_interval_to_note() {
+    fn test_chords() {
         assert_eq!(vec![Note::C4, Note::E4, Note::G4], Note::C4 >> maj);
     }
 }
