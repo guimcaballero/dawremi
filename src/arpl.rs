@@ -1,7 +1,8 @@
 use crate::music_theory::chords::*;
 use crate::music_theory::notes::*;
 use crate::music_theory::scales::*;
-use arpl::Pattern;
+
+pub use arpl::Pattern;
 
 pub trait PatternExtension {
     fn scale(self, root: Note, scale: Scale) -> ScalePattern;
