@@ -21,13 +21,7 @@ impl Instrument for Plucked {
         }
     }
 
-    fn generate(
-        &self,
-        length: usize,
-        frequency: Frequency,
-        sample_rate: u32,
-        adsr: Adsr,
-    ) -> Vec<Frame> {
+    fn generate(&self, length: usize, frequency: Frequency, sample_rate: u32) -> Vec<Frame> {
         let noise_length = (sample_rate as f64 / frequency) as usize;
         let mut noise = self.0.noise(noise_length);
 
@@ -41,7 +35,6 @@ impl Instrument for Plucked {
                 Frame::mono(result)
             })
             .collect::<Vec<Frame>>()
-            .envelope(&adsr)
     }
 }
 use crate::signals::interpolation::interpolate;
@@ -85,15 +78,7 @@ mod test {
     #[test]
     fn can_generate_from_plucked() {
         let sample_rate = 44_100;
-        let vec = Plucked(InitialBurstType::DoubleTriangle).generate(
-            1000,
-            100.,
-            sample_rate,
-            Adsr {
-                attack: 100,
-                ..DrumHiHat::default_adsr(sample_rate)
-            },
-        );
+        let vec = Plucked(InitialBurstType::DoubleTriangle).generate(1000, 100., sample_rate);
         assert_eq!(1000, vec.len());
     }
 }

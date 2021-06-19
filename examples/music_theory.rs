@@ -13,15 +13,6 @@ fn main() {
     song.play().expect("Unable to play song");
 }
 
-fn guitar(song: &Song, frequency: Frequency, length: usize, burst: InitialBurstType) -> Vec<Frame> {
-    Plucked(burst).generate(
-        length,
-        frequency,
-        song.sample_rate(),
-        Plucked::default_adsr(song.sample_rate()),
-    )
-}
-
 fn plucked_track(song: &Song) -> Vec<Frame> {
     let notes = {
         use Note::*;
@@ -40,7 +31,14 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
         .generate(
             song,
             // Function to use to generate the audio
-            &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
+            &mut |note, length| {
+                Plucked(InitialBurstType::Triangle(2, 3)).generate(
+                    length,
+                    note.into(),
+                    song.sample_rate(),
+                )
+            },
+            Plucked::default_adsr(song.sample_rate()),
         )
         .effect(&Volume {
             mult: Automation::Const(0.3),

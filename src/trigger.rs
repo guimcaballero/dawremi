@@ -2,6 +2,7 @@ use crate::frame::*;
 use crate::helpers::*;
 use crate::music_theory::n_tet;
 use crate::music_theory::notes::*;
+use crate::signals::adsr::*;
 use crate::song::Song;
 
 pub type Frequency = f64;
@@ -304,6 +305,7 @@ pub trait TriggerListExtension<'a> {
         &self,
         song: &Song,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
+        adsr: Adsr,
     ) -> Vec<Frame>;
     fn map_frequencies<F>(self, fun: F) -> Self
     where
@@ -314,21 +316,25 @@ impl<'a, const N: usize> TriggerListExtension<'a> for [Trigger; N] {
         &self,
         song: &Song,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
+        adsr: Adsr,
     ) -> Vec<Frame> {
-        let mut vec: Vec<Frame> = Vec::new();
+        let mut vec: Vec<Frame> = vec![Frame::default(); adsr.release + 1];
         for freq_length in self {
-            let length = freq_length.length(song);
+            let length = freq_length.length(song) + adsr.release;
 
             if freq_length.is_empty() {
-                vec.append(&mut silence().take_samples(length));
+                vec = vec.overlap(silence().take_samples(length), adsr.release);
             } else {
-                vec.append(&mut join_tracks(
-                    freq_length
-                        .freqs
-                        .iter()
-                        .map(|note| fun(*note, length))
-                        .collect(),
-                ));
+                vec = vec.overlap(
+                    join_tracks(
+                        freq_length
+                            .freqs
+                            .iter()
+                            .map(|note| fun(*note, length))
+                            .collect(),
+                    ),
+                    adsr.release,
+                );
             }
         }
         vec
@@ -349,21 +355,25 @@ impl<'a> TriggerListExtension<'a> for Vec<Trigger> {
         &self,
         song: &Song,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
+        adsr: Adsr,
     ) -> Vec<Frame> {
-        let mut vec: Vec<Frame> = Vec::new();
+        let mut vec: Vec<Frame> = vec![Frame::default(); adsr.release + 1];
         for freq_length in self {
-            let length = freq_length.length(song);
+            let length = freq_length.length(song) + adsr.release;
 
             if freq_length.is_empty() {
-                vec.append(&mut silence().take_samples(length));
+                vec = vec.overlap(silence().take_samples(length), adsr.release);
             } else {
-                vec.append(&mut join_tracks(
-                    freq_length
-                        .freqs
-                        .iter()
-                        .map(|note| fun(*note, length))
-                        .collect(),
-                ));
+                vec = vec.overlap(
+                    join_tracks(
+                        freq_length
+                            .freqs
+                            .iter()
+                            .map(|note| fun(*note, length))
+                            .collect(),
+                    ),
+                    adsr.release,
+                );
             }
         }
         vec

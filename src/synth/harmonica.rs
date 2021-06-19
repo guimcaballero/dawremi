@@ -26,13 +26,7 @@ impl Instrument for Harmonica {
         }
     }
 
-    fn generate(
-        &self,
-        length: usize,
-        frequency: Frequency,
-        sample_rate: u32,
-        adsr: Adsr,
-    ) -> Vec<Frame> {
+    fn generate(&self, length: usize, frequency: Frequency, sample_rate: u32) -> Vec<Frame> {
         (0..length)
             .enumerate()
             .map(|(idx, sample)| {
@@ -71,7 +65,6 @@ impl Instrument for Harmonica {
                 Frame::mono(result)
             })
             .collect::<Vec<Frame>>()
-            .envelope(&adsr)
     }
 }
 
@@ -82,15 +75,7 @@ mod test {
     #[test]
     fn can_generate_from_harmonica() {
         let sample_rate = 44_100;
-        let vec = Harmonica::default().generate(
-            1000,
-            100.,
-            sample_rate,
-            Adsr {
-                attack: 100,
-                ..Harmonica::default_adsr(sample_rate)
-            },
-        );
+        let vec = Harmonica::default().generate(1000, 100., sample_rate);
         assert_eq!(1000, vec.len());
     }
 }

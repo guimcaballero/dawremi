@@ -1,6 +1,6 @@
 //! Contains some default instruments to generate interesting sounds
 
-use crate::{effects::*, frame::*, helpers::*, signals::adsr::*, trigger::*};
+use crate::{effects::*, frame::*, signals::adsr::*, trigger::*};
 
 use core::f64::consts::TAU;
 use rand::Rng;
@@ -9,13 +9,7 @@ pub trait Instrument {
     fn default_adsr(_sample_rate: u32) -> Adsr {
         Adsr::default()
     }
-    fn generate(
-        &self,
-        length: usize,
-        frequency: Frequency,
-        sample_rate: u32,
-        adsr: Adsr,
-    ) -> Vec<Frame>;
+    fn generate(&self, length: usize, frequency: Frequency, sample_rate: u32) -> Vec<Frame>;
 }
 
 mod harmonica;

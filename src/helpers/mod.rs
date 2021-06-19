@@ -40,7 +40,7 @@ pub fn join_tracks(tracks: Vec<Vec<Frame>>) -> Vec<Frame> {
         .collect()
 }
 
-/// Concatenates tracks by trimming and overlapping the audios
+/// Concatenates tracks by overlapping the audios
 pub fn overlap_add(vec: Vec<Vec<Frame>>, overlap: usize) -> Vec<Frame> {
     let mut result = vec![Frame::default(); overlap + 1];
     for part in vec {

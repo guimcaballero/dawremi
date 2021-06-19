@@ -26,16 +26,9 @@ fn track(song: &Song) -> Vec<Frame> {
             A6.beats(1.),
         ]
     }
-    .generate(song, &mut |note, length| {
-        instrument(song, note.into(), length)
-    })
-}
-
-fn instrument(song: &Song, frequency: Frequency, length: usize) -> Vec<Frame> {
-    Sine.generate(
-        length,
-        frequency,
-        song.sample_rate(),
+    .generate(
+        song,
+        &mut |note, length| Sine.generate(length, note.into(), song.sample_rate()),
         Sine::default_adsr(song.sample_rate()),
     )
 }
@@ -49,7 +42,7 @@ impl Instrument for Sine {
         Adsr {
             attack: (sr * 0.01) as usize,
             decay: (sr * 0.15) as usize,
-            release: 0,
+            release: (sr * 0.2) as usize,
 
             attack_amplitude: 1.,
             sustain_amplitude: 0.,
@@ -57,13 +50,7 @@ impl Instrument for Sine {
     }
 
     /// This method has to return a Vec<Frame> with the audio generated
-    fn generate(
-        &self,
-        length: usize,
-        frequency: Frequency,
-        sample_rate: u32,
-        adsr: Adsr,
-    ) -> Vec<Frame> {
+    fn generate(&self, length: usize, frequency: Frequency, sample_rate: u32) -> Vec<Frame> {
         (0..length)
             .map(|sample| {
                 let time = TAU * (sample as f64 / sample_rate as f64);
@@ -72,6 +59,5 @@ impl Instrument for Sine {
                 Frame::mono(result)
             })
             .collect::<Vec<Frame>>()
-            .envelope(&adsr)
     }
 }

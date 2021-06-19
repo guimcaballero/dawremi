@@ -26,13 +26,7 @@ impl Instrument for Bell {
         }
     }
 
-    fn generate(
-        &self,
-        length: usize,
-        frequency: Frequency,
-        sample_rate: u32,
-        adsr: Adsr,
-    ) -> Vec<Frame> {
+    fn generate(&self, length: usize, frequency: Frequency, sample_rate: u32) -> Vec<Frame> {
         (0..length)
             .enumerate()
             .map(|(idx, sample)| {
@@ -40,7 +34,7 @@ impl Instrument for Bell {
                 let f_lfo = self.lfo_frequency.value(idx);
 
                 // Make the base note disappear faster than the rest
-                let attack = adsr.attack;
+                let attack = 400;
                 let base_note_vol_multiplier = if sample > attack {
                     attack as f64 / sample as f64
                 } else {
@@ -68,7 +62,6 @@ impl Instrument for Bell {
                 Frame::mono(result)
             })
             .collect::<Vec<Frame>>()
-            .envelope(&adsr)
     }
 }
 
@@ -79,15 +72,7 @@ mod test {
     #[test]
     fn can_generate_from_bell() {
         let sample_rate = 44_100;
-        let vec = Bell::default().generate(
-            1000,
-            100.,
-            sample_rate,
-            Adsr {
-                attack: 100,
-                ..Bell::default_adsr(sample_rate)
-            },
-        );
+        let vec = Bell::default().generate(1000, 100., sample_rate);
         assert_eq!(1000, vec.len());
     }
 }

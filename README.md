@@ -42,25 +42,15 @@ fn main() {
     // song.play().expect("Unable to play song");
 }
 
-/// This is a helper function
-fn guitar(song: &Song, frequency: Frequency, length: usize, burst: InitialBurstType) -> Vec<Frame> {
-    Plucked(burst).generate(
-        length,
-        frequency,
-        song.sample_rate(),
-        Plucked::default_adsr(song.sample_rate()),
-    )
-}
-
 // This is a track
 fn plucked_track(song: &Song) -> Vec<Frame> {
     let notes1 = {
         use Note::*;
         [
-            [A4, C4].beats(1.),          // Two notes at once for one beat
+            [A4, C4].beats(1.),       // Two notes at once for one beat
             Silence.beats(2.),        // Silence for two beats
-            C4.beats(1.),                // Single note for a beat
-            [C4, C5, C6].seconds(3.),    // Three notes for three seconds
+            C4.beats(1.),             // Single note for a beat
+            [C4, C5, C6].seconds(3.), // Three notes for three seconds
         ]
     };
 
@@ -68,16 +58,31 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
     let sound1 = notes1.generate(
         song,
         // Function to use to generate the audio
-        &mut |note, length| guitar(song, note, length, InitialBurstType::Triangle(2, 3)),
+        &mut |note, length| {
+            Plucked(InitialBurstType::Triangle(2, 3)).generate(
+                length,
+                note.into(),
+                song.sample_rate(),
+            )
+        },
+        Plucked::default_adsr(song.sample_rate()),
     );
 
     // Generate sounds one octave higher
     let sound2 = notes1
         // We can map over the frequencies
         .map_frequencies(|frequency| *frequency * 2.)
-        .generate(song, &mut |note, length| {
-            guitar(song, note, length, InitialBurstType::Triangle(2, 3))
-        });
+        .generate(
+            song,
+            &mut |note, length| {
+                Plucked(InitialBurstType::Triangle(2, 3)).generate(
+                    length,
+                    note.into(),
+                    song.sample_rate(),
+                )
+            },
+            Plucked::default_adsr(song.sample_rate()),
+        );
 
     // We can use other types of notes too
     let bass = {
@@ -88,9 +93,13 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
             .map(|notes| notes.beats(1.))
             .collect::<Vec<Trigger>>()
     }
-    .generate(song, &mut |note, length| {
-        guitar(song, note, length, InitialBurstType::Sine)
-    });
+    .generate(
+        song,
+        &mut |note, length| {
+            Plucked(InitialBurstType::Sine).generate(length, note.into(), song.sample_rate())
+        },
+        Plucked::default_adsr(song.sample_rate()),
+    );
 
     // We then joing the subtracks into one
     let track = join_tracks(vec![sound1, sound2, bass])
