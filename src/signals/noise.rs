@@ -31,7 +31,7 @@ pub fn noise(length: usize, mut seed: u64) -> Vec<f64> {
         .collect()
 }
 
-use crate::frequency::Frequency;
+use crate::trigger::Frequency;
 use noise::{Fbm, NoiseFn, Seedable};
 pub fn fbm(length: usize, frequency: Frequency, seed: u32) -> Vec<f64> {
     let mut fbm = Fbm::new().set_seed(seed);

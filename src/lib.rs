@@ -65,7 +65,6 @@ pub mod arpl;
 pub mod debug;
 pub mod effects;
 pub mod frame;
-pub mod frequency;
 pub mod fundsp;
 pub mod music_theory;
 pub mod player;
@@ -75,6 +74,7 @@ pub mod signals;
 pub mod song;
 pub mod sound_files;
 pub mod synth;
+pub mod trigger;
 pub mod vst;
 
 // Prelude
@@ -87,7 +87,6 @@ pub mod prelude {
     pub use super::arpl::*;
     pub use super::effects::*;
     pub use super::frame::*;
-    pub use super::frequency::*;
     pub use super::fundsp::*;
     pub use super::helpers::*;
     pub use super::music_theory::{chords::*, intervals::*, n_tet::*, notes::*};
@@ -95,5 +94,6 @@ pub mod prelude {
     pub use super::song::*;
     pub use super::sound_files::{enums::*, io::*, Sound};
     pub use super::synth::*;
+    pub use super::trigger::*;
     pub use super::vst::*;
 }

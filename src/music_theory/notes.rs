@@ -1,6 +1,6 @@
 //! Different types that can be turned into `Frequency`
 
-use crate::frequency::Frequency;
+use crate::trigger::Frequency;
 pub use std::convert::TryFrom;
 
 impl From<Note> for Frequency {

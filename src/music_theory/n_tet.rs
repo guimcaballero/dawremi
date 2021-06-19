@@ -7,8 +7,8 @@
 
 #![allow(dead_code)]
 
-use crate::frequency::Frequency;
 use crate::music_theory::notes::*;
+use crate::trigger::Frequency;
 
 /// I'm using Const generics to define the number of subdivisions, as I think it belongs more on the type
 /// Also, I just wanted to try it

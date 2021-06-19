@@ -1,6 +1,6 @@
 //! Contains some default instruments to generate interesting sounds
 
-use crate::{effects::*, frame::*, frequency::*, helpers::*, signals::adsr::*};
+use crate::{effects::*, frame::*, helpers::*, signals::adsr::*, trigger::*};
 
 use core::f64::consts::TAU;
 use rand::Rng;

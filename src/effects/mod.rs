@@ -4,8 +4,8 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use crate::frame::*;
-use crate::frequency::*;
 use crate::helpers::*;
+use crate::trigger::*;
 
 pub trait EffectExtension {
     fn effect(self, effect: &impl Effect) -> Vec<Frame>;
