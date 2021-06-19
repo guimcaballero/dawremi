@@ -319,24 +319,24 @@ impl IntoTrigger for Silence {
     }
 }
 
-pub trait TriggerListExtension<'a> {
+pub trait TriggerListExtension {
     /// Converts a list of Triggers into audio
     /// Uses the given Adsr unless a trigger has a custom one, in which case it'll use that one
     fn generate(
         &self,
         song: &Song,
-        fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
+        fun: &mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
         adsr: Adsr,
     ) -> Vec<Frame>;
     fn map_frequencies<F>(self, fun: F) -> Self
     where
         F: Clone + FnMut(&Frequency) -> Frequency;
 }
-impl<'a, const N: usize> TriggerListExtension<'a> for [Trigger; N] {
+impl<const N: usize> TriggerListExtension for [Trigger; N] {
     fn generate(
         &self,
         song: &Song,
-        fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
+        fun: &mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
         default_adsr: Adsr,
     ) -> Vec<Frame> {
         if self.is_empty() {
@@ -377,11 +377,11 @@ impl<'a, const N: usize> TriggerListExtension<'a> for [Trigger; N] {
         self
     }
 }
-impl<'a> TriggerListExtension<'a> for Vec<Trigger> {
+impl TriggerListExtension for Vec<Trigger> {
     fn generate(
         &self,
         song: &Song,
-        fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
+        fun: &mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
         default_adsr: Adsr,
     ) -> Vec<Frame> {
         if self.is_empty() {
