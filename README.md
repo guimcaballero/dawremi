@@ -105,7 +105,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
     let track = join_tracks(vec![sound1, sound2, bass])
         // We can also add effects to the whole track, like Reverb (using convolution)
         .effect(&Convolution::new(
-            song.sound(Reverb::LargeLongEchoHall.into()),
+            song.sound(Reverb::LargeLongEchoHall),
         ));
 
     let track_len = track.len();
@@ -158,7 +158,7 @@ assets/internal/reverbs
 The following enum will be generated:
 
 ```rust
-pub enum Reverb {
+pub enum Reverbs {
     BlockInside,
     BottleHall,
     CementBlock2,
@@ -170,7 +170,7 @@ pub enum Reverb {
 }
 ```
 
-Which will implement `Into<Sound>`, so you can do `self.sound(Rever::VocalDuo.into())` in a song.
+Which will implement `Into<Sound>`, so you can do `self.sound(Reverbs::VocalDuo)` in a song.
 
 Finally, call `include_sound_enums!()` from somewhere in you crate:
 

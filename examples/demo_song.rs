@@ -77,9 +77,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
     // We then joing the subtracks into one
     let track = join_tracks(vec![sound1, sound2, bass])
         // We can also add effects to the whole track, like Reverb (using convolution)
-        .effect(&Convolution::new(
-            song.sound(Reverb::LargeLongEchoHall.into()),
-        ));
+        .effect(&Convolution::new(song.sound(Reverb::LargeLongEchoHall)));
 
     let track_len = track.len();
 

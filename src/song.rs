@@ -158,8 +158,10 @@ impl Song {
     ///
     /// The file will only be opened the first time this method is called.
     /// Subsequent calls with the same sound will result in the vector being cloned from the hashmap
-    pub fn sound(&self, sound: Sound) -> Vec<Frame> {
+    pub fn sound(&self, sound: impl Into<Sound>) -> Vec<Frame> {
         assert!(self.sample_rate.is_some(), "Sample rate has not been set");
+
+        let sound: Sound = sound.into();
 
         let mut sounds = self.sounds.lock().unwrap();
 
@@ -285,7 +287,7 @@ impl Song {
 
         if self.config.metronome {
             let metronome = self
-                .sound(Metronome.into())
+                .sound(Metronome)
                 .take_samples(self.beats(0.2))
                 .chain(silence().take_samples(self.beats(0.8)))
                 .cycle_until_samples(vec.len());
@@ -327,7 +329,7 @@ mod test {
         let _track_gen: TrackGenerator = (|song: &Song| {
             // Can use some functions
             let beat = song.beats(1.);
-            let _sound = song.sound("ehllo".into());
+            let _sound = song.sound("ehllo");
 
             vec![Frame::mono(beat as f64)]
         })
@@ -368,7 +370,7 @@ mod test {
         song.sample_rate = Some(44_100);
 
         let path = "assets/beep.wav";
-        let _ = song.sound(path.into());
+        let _ = song.sound(path);
 
         assert!(song.sounds.lock().unwrap().contains_key(path));
     }
@@ -403,7 +405,7 @@ mod test {
         song.sample_rate = Some(44_100);
 
         let path = "assets/filethatdoesntexist.aaaaaaaaaaaaaa";
-        let _ = song.sound(path.into());
+        let _ = song.sound(path);
     }
 
     #[test]
