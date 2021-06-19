@@ -28,6 +28,7 @@ impl Length {
 pub struct Trigger {
     freqs: Vec<Frequency>,
     length: Length,
+    adsr: Option<Adsr>,
 }
 
 impl Trigger {
@@ -39,6 +40,11 @@ impl Trigger {
     fn length(&self, song: &Song) -> usize {
         self.length.get(song)
     }
+
+    pub fn adsr(mut self, adsr: Adsr) -> Self {
+        self.adsr = Some(adsr);
+        self
+    }
 }
 
 impl From<Frequency> for Trigger {
@@ -46,6 +52,7 @@ impl From<Frequency> for Trigger {
         Self {
             freqs: vec![freq],
             length: Length::Beats(1.),
+            adsr: None,
         }
     }
 }
@@ -60,6 +67,7 @@ impl IntoTrigger for Vec<Frequency> {
         Trigger {
             freqs: self,
             length: Length::Beats(length),
+            adsr: None,
         }
     }
 
@@ -67,6 +75,7 @@ impl IntoTrigger for Vec<Frequency> {
         Trigger {
             freqs: self,
             length: Length::Seconds(length),
+            adsr: None,
         }
     }
 
@@ -74,6 +83,7 @@ impl IntoTrigger for Vec<Frequency> {
         Trigger {
             freqs: self,
             length: Length::Samples(length),
+            adsr: None,
         }
     }
 }
@@ -82,6 +92,7 @@ impl<const N: usize> IntoTrigger for [Frequency; N] {
         Trigger {
             freqs: self.into(),
             length: Length::Beats(length),
+            adsr: None,
         }
     }
 
@@ -89,6 +100,7 @@ impl<const N: usize> IntoTrigger for [Frequency; N] {
         Trigger {
             freqs: self.into(),
             length: Length::Seconds(length),
+            adsr: None,
         }
     }
 
@@ -96,6 +108,7 @@ impl<const N: usize> IntoTrigger for [Frequency; N] {
         Trigger {
             freqs: self.into(),
             length: Length::Samples(length),
+            adsr: None,
         }
     }
 }
@@ -104,6 +117,7 @@ impl IntoTrigger for Frequency {
         Trigger {
             freqs: vec![self],
             length: Length::Beats(length),
+            adsr: None,
         }
     }
 
@@ -111,6 +125,7 @@ impl IntoTrigger for Frequency {
         Trigger {
             freqs: vec![self],
             length: Length::Seconds(length),
+            adsr: None,
         }
     }
 
@@ -118,6 +133,7 @@ impl IntoTrigger for Frequency {
         Trigger {
             freqs: vec![self],
             length: Length::Samples(length),
+            adsr: None,
         }
     }
 }
@@ -282,6 +298,7 @@ impl IntoTrigger for Silence {
         Trigger {
             freqs: vec![],
             length: Length::Beats(length),
+            adsr: None,
         }
     }
 
@@ -289,6 +306,7 @@ impl IntoTrigger for Silence {
         Trigger {
             freqs: vec![],
             length: Length::Seconds(length),
+            adsr: None,
         }
     }
 
@@ -296,11 +314,14 @@ impl IntoTrigger for Silence {
         Trigger {
             freqs: vec![],
             length: Length::Samples(length),
+            adsr: None,
         }
     }
 }
 
 pub trait TriggerListExtension<'a> {
+    /// Converts a list of Triggers into audio
+    /// Uses the given Adsr unless a trigger has a custom one, in which case it'll use that one
     fn generate(
         &self,
         song: &Song,
@@ -316,23 +337,29 @@ impl<'a, const N: usize> TriggerListExtension<'a> for [Trigger; N] {
         &self,
         song: &Song,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
-        adsr: Adsr,
+        default_adsr: Adsr,
     ) -> Vec<Frame> {
-        let mut vec: Vec<Frame> = vec![Frame::default(); adsr.release + 1];
-        for freq_length in self {
-            let length = freq_length.length(song) + adsr.release;
+        if self.is_empty() {
+            return Vec::new();
+        }
 
-            if freq_length.is_empty() {
+        // Get first adsr
+        let adsr = self
+            .get(0)
+            .map(|t| t.adsr.unwrap_or(default_adsr))
+            .unwrap_or(default_adsr);
+
+        let mut vec: Vec<Frame> = vec![Frame::default(); adsr.release + 1];
+        for trig in self {
+            let adsr = trig.adsr.unwrap_or(default_adsr);
+
+            let length = trig.length(song) + adsr.release;
+
+            if trig.is_empty() {
                 vec = vec.overlap(silence().take_samples(length), adsr.release);
             } else {
                 vec = vec.overlap(
-                    join_tracks(
-                        freq_length
-                            .freqs
-                            .iter()
-                            .map(|note| fun(*note, length))
-                            .collect(),
-                    ),
+                    join_tracks(trig.freqs.iter().map(|note| fun(*note, length)).collect()),
                     adsr.release,
                 );
             }
@@ -355,23 +382,29 @@ impl<'a> TriggerListExtension<'a> for Vec<Trigger> {
         &self,
         song: &Song,
         fun: &'a mut dyn FnMut(Frequency, usize) -> Vec<Frame>,
-        adsr: Adsr,
+        default_adsr: Adsr,
     ) -> Vec<Frame> {
-        let mut vec: Vec<Frame> = vec![Frame::default(); adsr.release + 1];
-        for freq_length in self {
-            let length = freq_length.length(song) + adsr.release;
+        if self.is_empty() {
+            return Vec::new();
+        }
 
-            if freq_length.is_empty() {
+        // Get first adsr
+        let adsr = self
+            .get(0)
+            .map(|t| t.adsr.unwrap_or(default_adsr))
+            .unwrap_or(default_adsr);
+
+        let mut vec: Vec<Frame> = vec![Frame::default(); adsr.release + 1];
+        for trig in self {
+            let adsr = trig.adsr.unwrap_or(default_adsr);
+
+            let length = trig.length(song) + adsr.release;
+
+            if trig.is_empty() {
                 vec = vec.overlap(silence().take_samples(length), adsr.release);
             } else {
                 vec = vec.overlap(
-                    join_tracks(
-                        freq_length
-                            .freqs
-                            .iter()
-                            .map(|note| fun(*note, length))
-                            .collect(),
-                    ),
+                    join_tracks(trig.freqs.iter().map(|note| fun(*note, length)).collect()),
                     adsr.release,
                 );
             }

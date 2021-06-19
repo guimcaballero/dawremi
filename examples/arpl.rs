@@ -25,10 +25,7 @@ fn plucked_track(song: &Song) -> Vec<Frame> {
     let pat = pat.scale(Note::C4, Scale::MajorPentatonic);
 
     // Take 20 notes and make them last 1 beat
-    let notes = pat
-        .take(20)
-        .map(|note| note.beats(1.))
-        .collect::<Vec<Trigger>>();
+    let notes = pat.take(20).map(|note| note.beats(1.)).collect::<Vec<_>>();
 
     notes
         .generate(

@@ -19,9 +19,12 @@ fn track(song: &Song) -> Vec<Frame> {
     {
         use Note::*;
         [
-            [A4, C4].beats(1.),
+            [A4, A5].beats(1.),
             A5.beats(1.),
-            A6.beats(1.),
+            A6.beats(1.).adsr(Adsr {
+                release: song.beats(0.5),
+                ..Sine::default_adsr(song.sample_rate())
+            }),
             Silence.beats(1.),
             A6.beats(1.),
         ]
@@ -42,7 +45,7 @@ impl Instrument for Sine {
         Adsr {
             attack: (sr * 0.01) as usize,
             decay: (sr * 0.15) as usize,
-            release: (sr * 0.2) as usize,
+            release: (sr * 0.1) as usize,
 
             attack_amplitude: 1.,
             sustain_amplitude: 0.,
