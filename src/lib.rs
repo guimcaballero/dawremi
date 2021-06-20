@@ -92,7 +92,7 @@ pub mod prelude {
     pub use super::music_theory::{chords::*, intervals::*, n_tet::*, notes::*, scales::*};
     pub use super::signals::{adsr::Adsr, *};
     pub use super::song::*;
-    pub use super::sound_files::{enums::*, io::*, Sound};
+    pub use super::sound_files::{enums::*, io::*, pattern::*, Sound};
     pub use super::synth::*;
     pub use super::trigger::*;
     pub use super::vst::*;

@@ -2,8 +2,9 @@
 
 pub mod enums;
 pub mod io;
+pub mod pattern;
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Hash, Clone)]
 pub struct Sound {
     /// Path to audio file
     pub path: String,

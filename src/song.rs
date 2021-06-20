@@ -369,7 +369,7 @@ mod test {
         // It'll then be set when the generators are called, so the `sample_rate()` getter will work correctly
         song.sample_rate = Some(44_100);
 
-        let path = "assets/beep.wav";
+        let path = "assets/examples/beep.wav";
         let _ = song.sound(path);
 
         assert!(song.sounds.lock().unwrap().contains_key(path));
@@ -381,7 +381,7 @@ mod test {
         let mut song = Song::new(vec![], SongConfig::default());
         song.sample_rate = Some(44_100);
 
-        let path = "assets/beep.wav";
+        let path = "assets/examples/beep.wav";
         let audio = song.sound(Sound {
             path: path.to_string(),
             begin: 13,
