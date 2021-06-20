@@ -1,5 +1,4 @@
-//! Dawremi has some support of traditional western music theory
-//! This is a demonstration of how it works
+//! Dawremi allows you to make patterns for drums really easily in a few ways
 
 use dawremi::prelude::*;
 
