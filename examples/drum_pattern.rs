@@ -32,5 +32,5 @@ fn drums(song: &Song) -> Vec<Frame> {
         // 34usize.sound("assets/examples/snare.wav"),
         [true; 8].sound("assets/examples/hihat.wav"),
     ]
-    .generate(song)
+    .generate(song, 2)
 }

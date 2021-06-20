@@ -1,18 +1,26 @@
+//! For making patterns out of sounds
+//! Specially useful for drum loops
+
 use super::*;
 use crate::frame::Frame;
 use crate::song::Song;
 
+/// Contains a pattern and a sound
 pub struct SoundPattern<const LEN: usize> {
     pattern: [bool; LEN],
     sound: Sound,
 }
 
+/// Used to denote when a step is on and when it's off
 pub enum PatternStep {
+    /// On
     X,
+    /// Off
     O,
 }
 
 pub trait IntoSoundPattern<const LEN: usize> {
+    /// Convert into a SoundPattern using the provided sound
     fn sound(self, sound: impl Into<Sound>) -> SoundPattern<LEN>;
 }
 
@@ -42,22 +50,25 @@ impl<const LEN: usize> IntoSoundPattern<LEN> for usize {
 }
 
 pub trait SoundPatternListExtension<const LEN: usize> {
-    /// Generates the drum pattern into audio
-    fn generate(&self, song: &Song) -> Vec<Frame>;
-    fn generate_beat_len(&self, song: &Song, length: f64) -> Vec<Frame>;
+    /// Generates the drum patterns into audio
+    /// Will loop `loops` times
+    fn generate(&self, song: &Song, loops: usize) -> Vec<Frame>;
+    /// Generates the drum patterns into audio with a beat of length `length`
+    /// Will loop `loops` times
+    fn generate_beat_len(&self, song: &Song, loops: usize, length: f64) -> Vec<Frame>;
 }
 impl<const N: usize, const LEN: usize> SoundPatternListExtension<LEN> for [SoundPattern<LEN>; N] {
-    fn generate(&self, song: &Song) -> Vec<Frame> {
-        self.generate_beat_len(song, 1.)
+    fn generate(&self, song: &Song, loops: usize) -> Vec<Frame> {
+        self.generate_beat_len(song, loops, 1.)
     }
-    fn generate_beat_len(&self, song: &Song, length: f64) -> Vec<Frame> {
+    fn generate_beat_len(&self, song: &Song, loops: usize, length: f64) -> Vec<Frame> {
         let beat = song.beats(length);
         let mut vec = vec![Frame::default(); beat * LEN];
 
         for pat in self {
             let sound = song.sound(pat.sound.clone());
 
-            for (i, &on) in pat.pattern.iter().enumerate() {
+            for (i, &on) in pat.pattern.iter().cycle().take(LEN * loops).enumerate() {
                 if on {
                     let start = i * beat;
                     vec = add_vecs_starting_from(vec, start, &sound);
@@ -69,17 +80,17 @@ impl<const N: usize, const LEN: usize> SoundPatternListExtension<LEN> for [Sound
     }
 }
 impl<const LEN: usize> SoundPatternListExtension<LEN> for Vec<SoundPattern<LEN>> {
-    fn generate(&self, song: &Song) -> Vec<Frame> {
-        self.generate_beat_len(song, 1.)
+    fn generate(&self, song: &Song, loops: usize) -> Vec<Frame> {
+        self.generate_beat_len(song, loops, 1.)
     }
-    fn generate_beat_len(&self, song: &Song, length: f64) -> Vec<Frame> {
+    fn generate_beat_len(&self, song: &Song, loops: usize, length: f64) -> Vec<Frame> {
         let beat = song.beats(length);
         let mut vec = vec![Frame::default(); beat * LEN];
 
         for pat in self {
             let sound = song.sound(pat.sound.clone());
 
-            for (i, &on) in pat.pattern.iter().enumerate() {
+            for (i, &on) in pat.pattern.iter().cycle().take(LEN * loops).enumerate() {
                 if on {
                     let start = i * beat;
                     vec = add_vecs_starting_from(vec, start, &sound);
