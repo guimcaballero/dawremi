@@ -6,7 +6,6 @@ fn main() {
     let config = SongConfig {
         name: "FunDSP".to_string(),
         bpm: 120.,
-        duration: Duration::Seconds(10.),
         ..Default::default()
     };
     let mut song = Song::new(vec![main_track.into()], config);
@@ -21,5 +20,5 @@ fn main_track(song: &Song) -> Vec<Frame> {
     }) >> triangle();
     c.reset(Some(song.sample_rate() as f64));
 
-    c.take_stereo(song.duration().unwrap())
+    c.take_stereo(song.seconds(10.))
 }
