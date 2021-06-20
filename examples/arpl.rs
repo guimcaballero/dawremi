@@ -5,7 +5,7 @@ use dawremi::prelude::*;
 
 fn main() {
     let config = SongConfig {
-        name: "Music theory".to_string(),
+        name: "ARPL".to_string(),
         bpm: 120.,
         ..Default::default()
     };

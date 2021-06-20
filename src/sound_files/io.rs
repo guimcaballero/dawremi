@@ -1,8 +1,9 @@
 use crate::frame::*;
 use crate::helpers::resampling::resample_frames;
-use hound::WavIntoSamples;
+use hound::SampleFormat;
 use hound::WavReader;
 use hound::WavWriter;
+use std::fs::File;
 use std::fs::*;
 use std::io::BufReader;
 
@@ -27,8 +28,9 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<Frame> {
             if let Ok(processed_file) = hound::WavReader::open(&processed_filename) {
                 let processed_spec = processed_file.spec();
                 return transform_samples_to_frames(
-                    processed_file.into_samples::<i32>(),
+                    processed_file,
                     processed_spec.channels,
+                    processed_spec.sample_format,
                     processed_spec.bits_per_sample,
                 );
             };
@@ -38,29 +40,46 @@ pub fn open_file(path: &str, sample_rate: u32) -> Vec<Frame> {
         resample_and_save(reader, &processed_filename, sample_rate)
     } else {
         transform_samples_to_frames(
-            reader.into_samples::<i32>(),
+            reader,
             spec.channels,
+            spec.sample_format,
             spec.bits_per_sample,
         )
     }
 }
 
 fn transform_samples_to_frames(
-    samples: WavIntoSamples<BufReader<File>, i32>,
+    samples: WavReader<BufReader<File>>,
     num_channels: u16,
+    sample_format: SampleFormat,
     bits_per_sample: u16,
 ) -> Vec<Frame> {
-    samples
-        .map(Result::unwrap)
-        .map(|val| i_to_f(val, bits_per_sample))
-        .collect::<Vec<f64>>()
-        .chunks(num_channels.into())
-        .map(|sample| match sample {
-            [left, right] => Frame::new(*left, *right),
-            [a, ..] => Frame::mono(*a),
-            [] => panic!("Sample has 0 channels"),
-        })
-        .collect::<Vec<Frame>>()
+    match sample_format {
+        SampleFormat::Float => samples
+            .into_samples::<f32>()
+            .map(Result::unwrap)
+            .map(f64::from)
+            .collect::<Vec<f64>>()
+            .chunks(num_channels.into())
+            .map(|sample| match sample {
+                [left, right] => Frame::new(*left, *right),
+                [a, ..] => Frame::mono(*a),
+                [] => panic!("Sample has 0 channels"),
+            })
+            .collect::<Vec<Frame>>(),
+        SampleFormat::Int => samples
+            .into_samples::<i32>()
+            .map(Result::unwrap)
+            .map(|val| i_to_f(val, bits_per_sample))
+            .collect::<Vec<f64>>()
+            .chunks(num_channels.into())
+            .map(|sample| match sample {
+                [left, right] => Frame::new(*left, *right),
+                [a, ..] => Frame::mono(*a),
+                [] => panic!("Sample has 0 channels"),
+            })
+            .collect::<Vec<Frame>>(),
+    }
 }
 
 /// Returns true if file at path1 has been changed after path2
@@ -88,8 +107,9 @@ fn resample_and_save(
 ) -> Vec<Frame> {
     let spec = reader.spec();
     let orig = transform_samples_to_frames(
-        reader.into_samples::<i32>(),
+        reader,
         spec.channels,
+        spec.sample_format,
         spec.bits_per_sample,
     );
 
