@@ -6,9 +6,23 @@ use crate::frame::Frame;
 use crate::song::Song;
 
 /// Contains a pattern and a sound
+#[derive(Clone)]
 pub struct SoundPattern<const LEN: usize> {
-    pattern: [bool; LEN],
-    sound: Sound,
+    pub(crate) pattern: [bool; LEN],
+    pub(crate) sound: Sound,
+}
+impl<const LEN: usize> SoundPattern<LEN> {
+    /// Returns the opposite pattern
+    pub fn neg(self) -> Self {
+        let mut pattern = [false; LEN];
+        for i in 0..LEN {
+            pattern[i] = !self.pattern[i];
+        }
+        SoundPattern {
+            sound: self.sound,
+            pattern,
+        }
+    }
 }
 
 /// Used to denote when a step is on and when it's off
